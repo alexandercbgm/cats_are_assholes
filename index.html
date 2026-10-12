@@ -8,7 +8,7 @@
 <title>Угомони кота</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Rubik+Bubbles&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Rubik:wght@900&family=Rubik+Bubbles&display=swap">
 <style>
 /* Layout: one letterboxed 16:9 stage; the HUD scales with --u over a canvas room; menus sit above it at viewport size. */
 :root{
@@ -19,7 +19,7 @@
   --sun:#ffc93c;
   --mint:#5fd3a2;
   --sky:#86a8ff;
-  --f-display:'Rubik Bubbles','Balsamiq Sans','Comic Sans MS',system-ui,sans-serif;
+  --f-display:'Rubik','Rubik Bubbles','Balsamiq Sans','Comic Sans MS',system-ui,sans-serif;
   --f-ui:'Balsamiq Sans','Comic Sans MS','Trebuchet MS',system-ui,sans-serif;
   --u:1;
   color-scheme:dark;
@@ -75,8 +75,18 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .card{width:min(940px,100%);background:var(--paper);color:var(--ink);border:4px solid var(--ink);border-radius:26px;box-shadow:0 10px 0 var(--ink);padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:22px;box-sizing:border-box}
 .card.narrow{width:min(560px,100%);grid-template-columns:1fr}
 .eyebrow{margin:0 0 6px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#7a4b8f}
-h1{font-family:var(--f-display);font-weight:400;font-size:clamp(38px,6vw,64px);line-height:.95;margin:0 0 12px;color:var(--tomato);text-shadow:3px 3px 0 var(--ink);text-wrap:balance}
-h2{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0;text-wrap:balance}
+h1{margin:0 0 10px;line-height:0}
+.logo svg{width:min(100%,430px);height:auto;display:block;overflow:visible}
+.logotext{font-family:'Rubik','Balsamiq Sans',system-ui,sans-serif;font-weight:900;font-size:96px}
+.picker{position:relative}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);color:var(--ink);font:700 28px/1 var(--f-ui);cursor:pointer;box-shadow:0 4px 0 var(--ink);display:grid;place-items:center;padding:0 0 4px}
+.nav:hover{background:var(--sun)}
+.nav:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+#prevCat{left:0}#nextCat{right:0}
+.pvhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+#pvCount{font-weight:700;opacity:.7;font-variant-numeric:tabular-nums}
+.pvtag{margin:4px 0 0;font-size:14px;line-height:1.4;opacity:.85}
+h2{font-family:var(--f-display);font-weight:900;font-size:30px;margin:0;text-wrap:balance}
 .lead{font-size:17px;line-height:1.45;margin:0 0 14px;max-width:34em}
 .how{margin:0;padding:0;list-style:none;display:grid;gap:7px;font-size:15px;line-height:1.35}
 .how li{padding-left:22px;position:relative}
@@ -100,7 +110,7 @@ h2{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0;text-wra
 .endstats div{display:flex;justify-content:space-between;border-bottom:2px dashed rgba(29,20,40,.25);padding-bottom:4px}
 .endstats b{font-variant-numeric:tabular-nums}
 .endstats .total{grid-column:1/-1;font-size:20px;border-bottom:none}
-.endmsg{font-size:17px;line-height:1.45;margin:8px 0 0}
+.endmsg{font-size:17px;line-height:1.45;margin:8px 0 0;white-space:pre-line}
 #rotateHint{position:fixed;left:16px;right:16px;top:12px;z-index:4;text-align:center;background:var(--sun);color:var(--ink);border:3px solid var(--ink);border-radius:14px;padding:8px 12px;font-weight:700;font-size:14px}
 @media (max-width:720px){.card{grid-template-columns:1fr;padding:18px}}
 @media (prefers-reduced-motion:reduce){.chip.danger{animation:none}.bar i{transition:none}}
@@ -140,7 +150,20 @@ h2{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0;text-wra
   <div class="card">
     <div>
       <p class="eyebrow">Уровень 1 · Спальня · 03:00 ночи</p>
-      <h1>Угомони кота</h1>
+      <h1 class="logo"><svg viewBox="0 0 560 210" role="img" aria-label="Угомони кота">
+        <defs>
+          <filter id="fluffOut" x="-6%" y="-12%" width="112%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <filter id="fluffIn" x="-6%" y="-12%" width="112%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="furPat" patternUnits="userSpaceOnUse" width="560" height="210">
+            <rect id="furA" width="560" height="210" fill="#2b2934"/>
+            <g id="furB" fill="#ee8b2e"><ellipse cx="60" cy="40" rx="80" ry="46"/><ellipse cx="300" cy="60" rx="90" ry="40"/><ellipse cx="190" cy="180" rx="90" ry="44"/><ellipse cx="480" cy="110" rx="70" ry="60"/></g>
+          </pattern>
+        </defs>
+        <g class="logotext">
+          <g filter="url(#fluffOut)" fill="#1d1428" stroke="#1d1428" stroke-width="14" stroke-linejoin="round"><text x="14" y="96">Угомони</text><text x="14" y="194">кота</text></g>
+          <g filter="url(#fluffIn)" fill="url(#furPat)"><text x="14" y="96">Угомони</text><text x="14" y="194">кота</text></g>
+        </g>
+      </svg></h1>
       <p class="lead">Вы пытаетесь уснуть. Кот против: орёт, роняет вещи и бросается царапаться. Сбейте ему наглость до нуля, пока не зазвонил будильник.</p>
       <ul class="how">
         <li><b>Клик</b> по комнате — бросить выбранный снаряд. Снаряд летит по дуге, берите упреждение.</li>
@@ -152,13 +175,17 @@ h2{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0;text-wra
       </ul>
     </div>
     <div class="catcard">
-      <canvas id="preview" width="560" height="320"></canvas>
-      <h2 id="pvName">Кот</h2>
+      <div class="picker">
+        <button class="nav" id="prevCat" type="button" aria-label="Предыдущий кот">‹</button>
+        <canvas id="preview" width="560" height="320"></canvas>
+        <button class="nav" id="nextCat" type="button" aria-label="Следующий кот">›</button>
+      </div>
+      <div class="pvhead"><h2 id="pvName">Кот</h2><span id="pvCount">1 / 7</span></div>
+      <p class="pvtag" id="pvTag"></p>
       <dl class="traits" id="pvTraits"></dl>
       <div class="stats" id="pvStats"></div>
     </div>
     <div class="actions">
-      <button class="btn" id="rerollBtn" type="button">Другой кот</button>
       <button class="btn primary" id="startBtn" type="button">Начать</button>
     </div>
   </div>
@@ -173,7 +200,7 @@ h2{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0;text-wra
       <div class="endstats" id="endStats"></div>
     </div>
     <div class="actions">
-      <button class="btn" id="newCatBtn" type="button">Новый кот</button>
+      <button class="btn" id="newCatBtn" type="button">Следующий кот</button>
       <button class="btn primary" id="againBtn" type="button">Ещё раз</button>
     </div>
   </div>
@@ -198,14 +225,14 @@ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- data ---------------- */
 const BREEDS=[
- {id:'brit',breed:'Британец',build:'Толстый',size:1.05,fat:1.28,fur:'#8f9cb2',belly:'#aab6c8',paw:'#9eabc0',tail:'#8f9cb2',lid:'#8f9cb2',pattern:'solid',eye:'#e3892b',eyeName:'Медные',color:'Голубой',nose:'#6f7b93',whisk:'rgba(255,255,255,.75)',hp:220,speed:85,regen:4.5,aggr:.55,loud:.9,dmgMul:1,pitch:.8},
- {id:'siam',breed:'Сиамская',build:'Стройная',size:.95,fat:.86,fur:'#efe1c6',belly:'#f8f0df',paw:'#4a3328',tail:'#4a3328',point:'#4a3328',lid:'#4a3328',pattern:'points',eye:'#3f9ce9',eyeName:'Голубые',color:'Сил-пойнт',nose:'#3a2820',whisk:'rgba(60,40,40,.6)',hp:130,speed:175,regen:3,aggr:.85,loud:1.7,dmgMul:.9,pitch:1.25},
- {id:'mcoon',breed:'Мейн-кун',build:'Громадный',size:1.28,fat:1.1,fur:'#8b5b33',belly:'#d7b48c',paw:'#d7b48c',tail:'#7a4e2a',stripe:'#3d2513',lid:'#8b5b33',pattern:'tabby',eye:'#86c541',eyeName:'Зелёные',color:'Табби',nose:'#e98a94',whisk:'rgba(255,255,255,.75)',hp:280,speed:110,regen:5,aggr:.7,loud:1,dmgMul:1.4,pitch:.72,tufts:true,ruff:true},
- {id:'ginger',breed:'Рыжий дворовый',build:'Жилистый',size:1,fat:1,fur:'#ee8b2e',belly:'#f8d29b',paw:'#f8e3c4',tail:'#ee8b2e',stripe:'#b9561a',lid:'#ee8b2e',pattern:'tabby',eye:'#f2c62f',eyeName:'Жёлтые',color:'Рыжий',nose:'#e7798b',whisk:'rgba(255,255,255,.8)',hp:160,speed:150,regen:3.8,aggr:1.15,loud:1.2,dmgMul:1.15,pitch:1,torn:true},
- {id:'black',breed:'Чёрный кот',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Жёлто-зелёные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:165,regen:3.8,aggr:.95,loud:1.1,dmgMul:1,pitch:1.05},
- {id:'sphynx',breed:'Сфинкс',build:'Морщинистый',size:.95,fat:.9,fur:'#e8b5a2',belly:'#f2cbbb',paw:'#e8b5a2',tail:'#e8b5a2',lid:'#d9a08c',pattern:'sphynx',eye:'#c3e46b',eyeName:'Лимонные',color:'Розовый',nose:'#d27d86',whisk:'rgba(90,50,50,.5)',hp:120,speed:155,regen:3,aggr:1,loud:1.5,dmgMul:.9,pitch:1.2,bigEars:true},
+ {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бесоёб',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Жёлто-зелёные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true,title:['#2b2934','#ee8b2e']},
+ {id:'brit',name:'Барон Булкин',breed:'Британец',type:'Кот-батон',tag:'Медленный, но непробиваемый. Требует завтрак с достоинством.',build:'Толстый',size:1.05,fat:1.28,fur:'#8f9cb2',belly:'#aab6c8',paw:'#9eabc0',tail:'#8f9cb2',lid:'#8f9cb2',pattern:'solid',eye:'#e3892b',eyeName:'Медные',color:'Голубой',nose:'#6f7b93',whisk:'rgba(255,255,255,.75)',hp:220,speed:85,regen:4.5,aggr:.55,loud:.9,dmgMul:1,pitch:.8,title:['#8f9cb2','#e3892b']},
+ {id:'siam',name:'Сирена',breed:'Сиамская',type:'Сиамская истеричка',tag:'Орёт громче будильника и прекрасно об этом знает.',build:'Стройная',size:.95,fat:.86,fur:'#efe1c6',belly:'#f8f0df',paw:'#4a3328',tail:'#4a3328',point:'#4a3328',lid:'#4a3328',pattern:'points',eye:'#3f9ce9',eyeName:'Голубые',color:'Сил-пойнт',nose:'#3a2820',whisk:'rgba(60,40,40,.6)',hp:130,speed:175,regen:3,aggr:.85,loud:1.7,dmgMul:.9,pitch:1.25,title:['#efe1c6','#4a3328']},
+ {id:'mcoon',name:'Бигфут',breed:'Мейн-кун',type:'Рысь-переросток',tag:'Огромный, пушистый и тяжёлый. Царапает больнее всех.',build:'Громадный',size:1.28,fat:1.1,fur:'#8b5b33',belly:'#d7b48c',paw:'#d7b48c',tail:'#7a4e2a',stripe:'#3d2513',lid:'#8b5b33',pattern:'tabby',eye:'#86c541',eyeName:'Зелёные',color:'Табби',nose:'#e98a94',whisk:'rgba(255,255,255,.75)',hp:280,speed:110,regen:5,aggr:.7,loud:1,dmgMul:1.4,pitch:.72,tufts:true,title:['#8b5b33','#2a1a0d']},
+ {id:'sphynx',name:'Доби',breed:'Сфинкс',type:'Лысый домовой',tag:'Тёплый, морщинистый и очень мстительный.',build:'Морщинистый',size:.95,fat:.9,fur:'#e8b5a2',belly:'#f2cbbb',paw:'#e8b5a2',tail:'#e8b5a2',lid:'#d9a08c',pattern:'sphynx',eye:'#c3e46b',eyeName:'Лимонные',color:'Розовый',nose:'#d27d86',whisk:'rgba(90,50,50,.5)',hp:120,speed:155,regen:3,aggr:1,loud:1.5,dmgMul:.9,pitch:1.2,bigEars:true,title:['#e8b5a2','#9a4f63']},
+ {id:'bengal',name:'Турбо',breed:'Бенгальская',type:'Мини-леопард',tag:'Работает на батарейках, которые никогда не садятся.',build:'Атлетичный',size:1.02,fat:.95,fur:'#e2a24c',belly:'#f6dfb0',paw:'#f0c98a',tail:'#e2a24c',stripe:'#4a2a14',lid:'#e2a24c',pattern:'spots',eye:'#9bc43a',eyeName:'Зелёно-золотые',color:'Леопардовый',nose:'#c9706e',whisk:'rgba(255,255,255,.8)',hp:140,speed:195,regen:3.6,aggr:1,loud:1.1,dmgMul:1.1,pitch:1.1,title:['#e2a24c','#4a2a14']},
+ {id:'ginger',name:'Апельсин',breed:'Рыжий дворовый',type:'Одна извилина',tag:'Делит одну извилину со всеми рыжими котами мира. Сегодня не его очередь.',build:'Жилистый',size:1,fat:1,fur:'#ee8b2e',belly:'#f8d29b',paw:'#f8e3c4',tail:'#ee8b2e',stripe:'#b9561a',lid:'#ee8b2e',pattern:'tabby',eye:'#f2c62f',eyeName:'Жёлтые, в разные стороны',color:'Рыжий',nose:'#e7798b',whisk:'rgba(255,255,255,.8)',hp:160,speed:150,regen:3.8,aggr:1.15,loud:1.2,dmgMul:1.15,pitch:1,torn:true,derp:true,title:['#ee8b2e','#fff1d6']},
 ];
-const NAMES=['Барсик','Пушок','Маркиз','Кузя','Тайсон','Бублик','Граф Мурзоевич','Семён','Пельмень','Багира','Люцифер','Масик','Шпрот','Котлета'];
 const PHRASES=['МЯЯЯУ!','МРРРАУ!','КОРМИ!','АААУУУ!','МЯУ-МЯУ!','ОТКРОЙ ДВЕРЬ!','МИСКА ПУСТАЯ!','ВСТАВАЙ!','МЯ!'];
 
 const ITEM={
@@ -440,13 +467,32 @@ function drawObj(c,o,t){
 }
 
 /* ---------------- cat drawing ---------------- */
-function leg(c,x,s,col,pc){
-  const lift=Math.max(0,s)*7,sw=s*7;
-  poly(c,[x-7,-26,x+7,-26,x+7+sw*.6,-6-lift,x-7+sw*.6,-6-lift]);fs(c,col,3);
-  ell(c,x+sw*.6+2,-5-lift,10,6);fs(c,pc,3);
+function outsideClip(c,body){
+  // clip region = everything except the body ellipse, so outlines stop where a limb enters the body
+  c.beginPath();c.rect(-400,-400,800,800);const rot=body.rot||0;
+  c.moveTo(body.cx+Math.cos(rot)*(body.rx-1),body.cy+Math.sin(rot)*(body.rx-1));
+  c.ellipse(body.cx,body.cy,body.rx-1,body.ry-1,rot,0,Math.PI*2);c.clip('evenodd');
 }
-function limb(c,x0,y0,x1,y1,col,pc,claws){
-  c.lineCap='round';c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);c.strokeStyle=OUT;c.lineWidth=17;c.stroke();c.strokeStyle=col;c.lineWidth=11;c.stroke();
+function edgeY(x,g){const u=clamp(x/g.brx,-.97,.97);return g.bcy+g.bry*Math.sqrt(1-u*u);}
+function leg(c,x,s,col,pc,g,hind,near){
+  const lift=Math.max(0,s)*7,sw=s*7,px=x+sw*.6,py=-6-lift;
+  const ey=edgeY(x,g),top=ey-(near?(hind?8:5):16),w1=hind?12:9,w2=hind?7:6.5;
+  const path=()=>{c.beginPath();c.moveTo(x-w1,top);
+    if(hind)c.bezierCurveTo(x-w1-5,ey+2,px-w2-4,py-12,px-w2,py);else c.quadraticCurveTo(x-w1+1,(top+py)/2,px-w2,py);
+    c.lineTo(px+w2,py);
+    if(hind)c.bezierCurveTo(px+w2+2,py-14,x+w1+3,ey,x+w1,top);else c.quadraticCurveTo(x+w1-1,(top+py)/2,x+w1,top);
+    c.closePath();};
+  if(near){c.save();ell(c,0,g.bcy,g.brx-1.5,g.bry-1.5);c.clip();if(hind)ell(c,x-1,ey-13,17,17);else ell(c,x+3,ey-6,11,11);c.fillStyle=col;c.fill();c.restore();}
+  path();c.fillStyle=col;c.fill();
+  if(g.stripe){c.save();path();c.clip();c.strokeStyle=g.stripe;c.lineWidth=4;for(let i=0;i<2;i++){const yy=lerp(ey,py,.3+i*.32);c.beginPath();c.moveTo(x-15,yy+2);c.lineTo(x+15,yy-2);c.stroke();}c.restore();}
+  c.save();outsideClip(c,{cx:0,cy:g.bcy,rx:g.brx,ry:g.bry});path();c.lineWidth=3;c.strokeStyle=OUT;c.stroke();c.restore();
+  if(near){c.beginPath();if(hind)c.arc(x-1,ey-13,17,Math.PI*1.08,Math.PI*1.78);else c.arc(x+3,ey-6,11,Math.PI*1.55,Math.PI*1.95);c.lineWidth=2.6;c.strokeStyle=OUT;c.stroke();}
+  ell(c,px+2,py+1,10,6);fs(c,pc,3);
+}
+function limb(c,x0,y0,x1,y1,col,pc,claws,body){
+  c.lineCap='round';const seg=()=>{c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);};
+  c.save();if(body)outsideClip(c,body);seg();c.strokeStyle=OUT;c.lineWidth=17;c.stroke();c.restore();
+  seg();c.strokeStyle=col;c.lineWidth=11;c.stroke();
   ell(c,x1,y1,10,7,Math.atan2(y1-y0,x1-x0));fs(c,pc,3);
   if(claws){const a=Math.atan2(y1-y0,x1-x0);for(let i=-1;i<=1;i++){const b=a+i*.45,px=x1+Math.cos(b)*9,py=y1+Math.sin(b)*7;poly(c,[px+Math.cos(b+1.57)*2,py+Math.sin(b+1.57)*2,px+Math.cos(b)*9,py+Math.sin(b)*9,px-Math.cos(b+1.57)*2,py-Math.sin(b+1.57)*2]);fs(c,'#fff',1.5);}}
 }
@@ -460,19 +506,28 @@ function ear(c,a,b,tip,col,inner,torn,tuft){
 }
 function eye(c,x,y,b,m,t,inner){
   if(m==='closed'){c.beginPath();c.arc(x,y-2,6,.15*Math.PI,.85*Math.PI);c.lineWidth=2.6;c.strokeStyle=OUT;c.stroke();return;}
+  if(m==='x'){c.beginPath();c.moveTo(x-5.5,y-5.5);c.lineTo(x+5.5,y+5.5);c.moveTo(x+5.5,y-5.5);c.lineTo(x-5.5,y+5.5);c.lineWidth=3.2;c.strokeStyle=OUT;c.stroke();return;}
   if(m==='hurt'){c.beginPath();c.moveTo(x-5*inner,y-5);c.lineTo(x+4*inner,y);c.lineTo(x-5*inner,y+5);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();return;}
   if(m==='spiral'){ell(c,x,y,7,7.5);fs(c,'#fff',2);c.beginPath();for(let a=0;a<13;a+=.3){const r=a*.5;c.lineTo(x+Math.cos(a+t*9)*r,y+Math.sin(a+t*9)*r);}c.strokeStyle=OUT;c.lineWidth=1.6;c.stroke();return;}
-  const wide=m==='wide',rx=wide?7.6:6.5,ry=wide?8.6:7.6;
+  const crazy=b.crazy&&(m==='normal'||m==='angry'),wide=m==='wide'||crazy,rx=wide?7.8:6.5,ry=wide?8.8:7.6;
+  const dx=b.derp?(inner>0?-2.6:2.8):1,dy=b.derp&&inner<0?-2.2:0;
   ell(c,x,y,rx,ry);fs(c,b.eye,2.2);
-  if(wide)ell(c,x+1,y,4.6,5.6);else ell(c,x+1,y,1.9,ry*.8);c.fillStyle='#120a14';c.fill();
-  ell(c,x-2,y-3,1.9,1.9);c.fillStyle='#fff';c.fill();
+  if(crazy)ell(c,x+dx,y+dy,2.3,2.5);else if(wide)ell(c,x+dx,y+dy,4.6,5.6);else ell(c,x+dx,y+dy,1.9,ry*.8);c.fillStyle='#120a14';c.fill();
+  ell(c,x-2.5,y-3.5,1.9,1.9);c.fillStyle='#fff';c.fill();
   if(m==='angry'||m==='smug'){
     c.save();ell(c,x,y,rx+.6,ry+.6);c.clip();c.fillStyle=b.lid;
-    if(m==='smug'){c.fillRect(x-10,y-12,20,11);}
+    if(m==='smug')c.fillRect(x-10,y-12,20,11);
     else{poly(c,[x-10,y-12,x+10,y-12,x+10,y+(inner>0?1:-6),x-10,y+(inner>0?-6:1)]);c.fill();}
     c.restore();
     c.beginPath();if(m==='smug'){c.moveTo(x-rx,y-1);c.lineTo(x+rx,y-1);}else{c.moveTo(x-rx-1,y+(inner>0?-6:1));c.lineTo(x+rx+1,y+(inner>0?1:-6));}c.lineWidth=2.6;c.strokeStyle=OUT;c.stroke();
   }
+}
+const SPOTS=[[-36,-10],[-20,-19],[-3,-13],[13,-21],[29,-11],[-27,3],[-9,1],[9,-3],[25,5],[-42,5],[39,-2],[-16,12],[4,11]];
+function furPattern(c,b,cx,cy,rx,ry){
+  if(b.pattern==='tabby'){c.strokeStyle=b.stripe;c.lineWidth=6;for(let i=-2;i<=2;i++){const x=cx+i*rx*.34;c.beginPath();c.moveTo(x-6,cy-ry-2);c.quadraticCurveTo(x+5,cy-ry*.2,x-2,cy+ry*.35);c.stroke();}}
+  if(b.pattern==='spots'){for(const[sx,sy]of SPOTS){const x=cx+sx*rx/50,y=cy+sy*ry/26;ell(c,x,y,6,4.8,sx*.02);c.fillStyle=b.stripe;c.fill();ell(c,x+.6,y,2.8,2.1);c.fillStyle=shade(b.fur,-.1);c.fill();}}
+  if(b.pattern==='points'){const g=c.createLinearGradient(cx-rx,0,cx+rx,0);g.addColorStop(0,hexA(b.point,.45));g.addColorStop(.4,hexA(b.point,0));c.fillStyle=g;c.fillRect(cx-rx,cy-ry,rx*2,ry*2);}
+  if(b.pattern==='sphynx'){c.strokeStyle='rgba(120,60,60,.35)';c.lineWidth=1.8;for(let i=0;i<3;i++){c.beginPath();c.arc(cx+rx*.55,cy-6+i*6,12,Math.PI*.6,Math.PI*1.3);c.stroke();}}
 }
 function drawHead(c,b,o,t){
   const cheek=b.id==='brit'?1.18:b.id==='siam'?.92:1.04,eh=b.bigEars?42:26;
@@ -482,9 +537,9 @@ function drawHead(c,b,o,t){
   ell(c,0,0,27*cheek,24.5);fs(c,b.fur,3.2);
   c.save();ell(c,0,0,27*cheek,24.5);c.clip();
   if(b.pattern==='points'){const g=c.createRadialGradient(5,8,2,5,8,26);g.addColorStop(0,hexA(b.point,.95));g.addColorStop(.55,hexA(b.point,.75));g.addColorStop(1,hexA(b.point,0));c.fillStyle=g;c.fillRect(-40,-30,80,60);}
-  if(b.pattern==='tabby'){c.strokeStyle=b.stripe;c.lineWidth=3.2;c.beginPath();c.moveTo(-7,-23);c.lineTo(-4,-13);c.moveTo(2,-25);c.lineTo(2,-14);c.moveTo(11,-23);c.lineTo(8,-13);c.moveTo(-27,-2);c.lineTo(-17,0);c.moveTo(-27,6);c.lineTo(-18,6);c.stroke();}
+  if(b.pattern==='tabby'||b.pattern==='spots'){c.strokeStyle=b.stripe;c.lineWidth=3.2;c.beginPath();c.moveTo(-7,-23);c.lineTo(-4,-13);c.moveTo(2,-25);c.lineTo(2,-14);c.moveTo(11,-23);c.lineTo(8,-13);c.moveTo(-27,-2);c.lineTo(-17,0);c.moveTo(-27,6);c.lineTo(-18,6);c.stroke();}
   if(b.pattern==='sphynx'){c.strokeStyle='rgba(120,60,60,.4)';c.lineWidth=1.8;for(let i=0;i<3;i++){c.beginPath();c.arc(3,-10-i*5,9+i*3,Math.PI*1.15,Math.PI*1.85);c.stroke();}}
-  if(b.pattern!=='points'){ell(c,1,10,9,6.5);c.fillStyle=b.belly;c.fill();ell(c,15,10,9,6.5);c.fill();}
+  if(b.pattern!=='points'&&b.pattern!=='solid'){ell(c,1,10,9,6.5);c.fillStyle=b.belly;c.fill();ell(c,15,10,9,6.5);c.fill();}
   c.restore();
   const em=o.eyes||'normal';
   eye(c,-8,-4,b,em,t,1);eye(c,14,-4,b,em,t,-1);
@@ -493,44 +548,45 @@ function drawHead(c,b,o,t){
     const oh=4+o.mouth*9;ell(c,8,14+oh*.4,7,oh*.7);fs(c,'#5a0e22',2.4);
     ell(c,8,15+oh*.8,4.5,2.6);c.fillStyle='#ff7a95';c.fill();
     poly(c,[3,11,5.5,11,4.2,15.5]);fs(c,'#fff',1);poly(c,[10.5,11,13,11,11.8,15.5]);fs(c,'#fff',1);
-  }else{c.beginPath();c.moveTo(7.5,9);c.quadraticCurveTo(5,14,1,12);c.moveTo(7.5,9);c.quadraticCurveTo(10,14,14,12);c.lineWidth=2;c.strokeStyle=OUT;c.stroke();}
+  }else{
+    if(o.tongue){rr(c,4,10.5,8,12,4);fs(c,'#ff7a95',2.2);c.beginPath();c.moveTo(8,13);c.lineTo(8,19);c.lineWidth=1.4;c.strokeStyle='#c94a66';c.stroke();}
+    c.beginPath();c.moveTo(7.5,9);c.quadraticCurveTo(5,14,1,12);c.moveTo(7.5,9);c.quadraticCurveTo(10,14,14,12);c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
+  }
   c.strokeStyle=b.whisk;c.lineWidth=1.4;c.beginPath();
   if(b.pattern==='sphynx'){c.moveTo(-6,10);c.quadraticCurveTo(-18,4,-26,10);c.moveTo(20,10);c.quadraticCurveTo(32,4,40,10);}
   else{c.moveTo(-5,9);c.lineTo(-36,4);c.moveTo(-5,12);c.lineTo(-35,15);c.moveTo(20,9);c.lineTo(46,4);c.moveTo(20,12);c.lineTo(45,15);}
   c.stroke();
 }
 function tailPath(c,brx,bcy,sway,down){c.beginPath();c.moveTo(-brx+8,bcy-4);c.bezierCurveTo(-brx-30,bcy-4,-brx-38+sway*8,bcy-50+down,-brx-22+sway*22,bcy-88+down*1.6);}
+function strokeTail(c,b,tw,path){
+  c.strokeStyle=OUT;c.lineWidth=tw+7;path();c.stroke();
+  c.strokeStyle=b.tail;c.lineWidth=tw;path();c.stroke();
+  if(b.pattern==='tabby'||b.pattern==='spots'){c.setLineDash(b.pattern==='spots'?[4,8]:[5,9]);c.strokeStyle=b.stripe;c.lineWidth=b.pattern==='spots'?tw*.6:tw;c.lineCap='butt';path();c.stroke();c.setLineDash([]);c.lineCap='round';}
+}
+const tailW=b=>b.id==='mcoon'?22:b.id==='sphynx'?9:15;
+function legCols(b){const base=b.pattern==='points'?shade(b.point,.3):b.fur;return{near:base,far:shade(base,-.22),paw:b.paw,farPaw:shade(b.paw,-.2)};}
 function drawCatPose(c,b,o,t){
-  const fat=b.fat,brx=50*fat,bry=26*fat,bcy=-40;
-  const fur=b.fur,dark=shade(fur,-.22),pawC=b.paw,darkPaw=shade(pawC,-.2),tw=b.id==='mcoon'?22:b.id==='sphynx'?9:15;
+  const fat=b.fat,brx=50*fat,bry=26*fat,bcy=-40,fur=b.fur,L=legCols(b);
+  const body={cx:0,cy:bcy,rx:brx,ry:bry},g={brx,bry,bcy,stripe:(b.pattern==='tabby'||b.pattern==='spots')?b.stripe:null};
   c.save();c.scale(b.size,b.size);
   if(o.flat)c.scale(1.18,.6);
   if(o.stretch)c.scale(1.12,.92);
   if(o.crouch)c.translate(o.wiggle||0,o.crouch);
   c.lineJoin='round';c.lineCap='round';
   const lp=off=>o.walk?Math.sin(o.phase+off):0;
-  if(o.pounce){limb(c,-28,-34,-66,-14,dark,darkPaw,0);limb(c,34,-46,92,-62,dark,darkPaw,1);}
-  else{leg(c,-30,lp(Math.PI),dark,darkPaw);leg(c,30,lp(0),dark,darkPaw);}
-  // tail
+  if(o.pounce){limb(c,-28,-34,-66,-14,L.far,L.farPaw,0);limb(c,34,-46,92,-62,L.far,L.farPaw,1);}
+  else{leg(c,-34,lp(Math.PI),L.far,L.farPaw,g,true,false);leg(c,26,lp(0),L.far,L.farPaw,g,false,false);}
   const sway=Math.sin(t*2.6+(o.seed||0))+(o.tailFlick?Math.sin(t*14)*.6:0),down=o.tailDown?40:0;
-  c.strokeStyle=OUT;c.lineWidth=tw+7;tailPath(c,brx,bcy,sway,down);c.stroke();
-  c.strokeStyle=b.tail;c.lineWidth=tw;tailPath(c,brx,bcy,sway,down);c.stroke();
-  if(b.pattern==='tabby'){c.setLineDash([5,9]);c.strokeStyle=b.stripe;c.lineWidth=tw;c.lineCap='butt';tailPath(c,brx,bcy,sway,down);c.stroke();c.setLineDash([]);c.lineCap='round';}
-  // body
+  strokeTail(c,b,tailW(b),()=>tailPath(c,brx,bcy,sway,down));
   ell(c,0,bcy,brx,bry);fs(c,fur,0);
   c.save();ell(c,0,bcy,brx,bry);c.clip();
   ell(c,8,bcy+bry*.6,brx*.75,bry*.55);c.fillStyle=b.belly;c.fill();
-  if(b.pattern==='tabby'){c.strokeStyle=b.stripe;c.lineWidth=6;for(let i=-2;i<=2;i++){c.beginPath();c.moveTo(i*17-6,bcy-bry-2);c.quadraticCurveTo(i*17+5,bcy-bry*.2,i*17-2,bcy+bry*.35);c.stroke();}}
-  if(b.pattern==='points'){const g=c.createLinearGradient(-brx,0,brx,0);g.addColorStop(0,hexA(b.point,.45));g.addColorStop(.4,hexA(b.point,0));c.fillStyle=g;c.fillRect(-brx,bcy-bry,brx*2,bry*2);}
-  if(b.pattern==='sphynx'){c.strokeStyle='rgba(120,60,60,.35)';c.lineWidth=1.8;for(let i=0;i<3;i++){c.beginPath();c.arc(brx*.55,bcy-6+i*6,12,Math.PI*.6,Math.PI*1.3);c.stroke();}}
+  furPattern(c,b,0,bcy,brx,bry);
   c.globalAlpha=.16;ell(c,-6,bcy-bry*.5,brx*.6,bry*.28);c.fillStyle='#fff';c.fill();c.globalAlpha=1;
   c.restore();
   ell(c,0,bcy,brx,bry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
-  if(b.ruff){c.beginPath();const rx0=brx*.62,ry0=bcy-6;c.moveTo(rx0-14,ry0-16);for(let i=0;i<=6;i++){const a=-1.3+i*.45;c.lineTo(rx0+Math.cos(a)*(i%2?16:24),ry0+Math.sin(a)*(i%2?16:24));}c.closePath();fs(c,b.belly,2.5);}
-  // near legs
-  if(o.pounce){limb(c,-16,-30,-56,-4,fur,pawC,0);limb(c,40,-40,96,-88,fur,pawC,1);}
-  else{leg(c,-16,lp(0),fur,pawC);if(o.paw)limb(c,40,-36,76,-58+Math.sin(t*12)*4,fur,pawC,0);else leg(c,42,lp(Math.PI),fur,pawC);}
-  // head
+  if(o.pounce){limb(c,-16,-30,-56,-4,L.near,L.paw,0,body);limb(c,40,-40,96,-88,L.near,L.paw,1,body);}
+  else{leg(c,-20,lp(0),L.near,L.paw,g,true,true);if(o.paw)limb(c,36,-40,76,-58+Math.sin(t*12)*4,L.near,L.paw,0,body);else leg(c,38,lp(Math.PI),L.near,L.paw,g,false,true);}
   c.save();c.translate(brx*.82,bcy-22-(o.stretch?6:0));c.rotate(o.headTilt||0);drawHead(c,b,o,t);c.restore();
   if(o.towel){
     c.beginPath();c.moveTo(-brx-8,-4);c.bezierCurveTo(-brx-14,-70,10,-118,brx+44,-104);c.bezierCurveTo(brx+72,-70,brx+46,-14,brx+24,-4);c.closePath();fs(c,'#3fa9d4',3.5);
@@ -540,15 +596,30 @@ function drawCatPose(c,b,o,t){
   c.restore();
   if(o.pillow){c.save();c.scale(b.size,b.size);drawItem(c,'pillow',6,-38,1.7,-.1+Math.sin(t*3)*.03,false,t);c.restore();}
 }
-function drawCatSleep(c,b,t){
-  const fat=b.fat,br=1+Math.sin(t*2.2)*.03,tw=b.id==='mcoon'?20:b.id==='sphynx'?9:14;
-  c.save();c.scale(b.size,b.size*br);c.lineJoin='round';c.lineCap='round';
-  ell(c,-4,-24,50*fat,25*fat);fs(c,b.fur,0);
-  c.save();ell(c,-4,-24,50*fat,25*fat);c.clip();ell(c,4,-8,40*fat,12*fat);c.fillStyle=b.belly;c.fill();
-  if(b.pattern==='tabby'){c.strokeStyle=b.stripe;c.lineWidth=6;for(let i=-2;i<=2;i++){c.beginPath();c.moveTo(i*17-10,-50*fat);c.quadraticCurveTo(i*17,-28,i*17-6,-14);c.stroke();}}
-  c.restore();ell(c,-4,-24,50*fat,25*fat);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
-  c.save();c.translate(34*fat,-22);c.rotate(.28);drawHead(c,b,{eyes:'closed',mouth:0},t);c.restore();
-  c.beginPath();c.moveTo(-50*fat,-14);c.quadraticCurveTo(-40,10,26,0);c.strokeStyle=OUT;c.lineWidth=tw+7;c.stroke();c.strokeStyle=b.tail;c.lineWidth=tw;c.stroke();
+// knocked out: on its back (paws up) or on its side (paws stiff), X eyes, tongue out
+function drawCatKO(c,b,t,variant){
+  const fat=b.fat,brx=50*fat,bry=26*fat,L=legCols(b),tw=tailW(b),tw2=Math.sin(t*9)*2.5,br=1+Math.sin(t*2.2)*.03;
+  const head={eyes:'x',mouth:0,tongue:1};
+  c.save();c.scale(b.size,b.size);c.lineJoin='round';c.lineCap='round';
+  if(variant==='back'){
+    const bcy=-24,body={cx:0,cy:bcy,rx:brx,ry:bry*.92*br};
+    strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-brx+8,bcy+6);c.quadraticCurveTo(-brx-34,-2,-brx-74,-4);});
+    limb(c,-26,bcy-12,-38,bcy-62+tw2,L.far,L.farPaw,0);limb(c,22,bcy-14,30,bcy-64-tw2,L.far,L.farPaw,0);
+    ell(c,0,bcy,body.rx,body.ry);fs(c,b.fur,0);
+    c.save();ell(c,0,bcy,body.rx,body.ry);c.clip();furPattern(c,b,0,bcy+bry*.3,brx,bry);ell(c,0,bcy-bry*.5,brx*.78,bry*.62);c.fillStyle=b.belly;c.fill();c.restore();
+    ell(c,0,bcy,body.rx,body.ry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
+    limb(c,-14,bcy-10,-18,bcy-66-tw2,L.near,L.paw,0,body);limb(c,32,bcy-10,46,bcy-60+tw2,L.near,L.paw,0,body);
+    c.save();c.translate(brx+14,-26);c.rotate(2.3);drawHead(c,b,head,t);c.restore();
+  }else{
+    const rot=-.06,bcy=-26,body={cx:0,cy:bcy,rx:brx,ry:bry*.88*br,rot};
+    strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-brx+6,bcy+4);c.quadraticCurveTo(-brx-30,-4,-brx-68,-2);});
+    limb(c,-20,bcy-10,8,bcy-56+tw2,L.far,L.farPaw,0);limb(c,26,bcy-12,60,bcy-50-tw2,L.far,L.farPaw,0);
+    ell(c,0,bcy,body.rx,body.ry,rot);fs(c,b.fur,0);
+    c.save();ell(c,0,bcy,body.rx,body.ry,rot);c.clip();furPattern(c,b,0,bcy,brx,bry);ell(c,10,bcy-bry*.55,brx*.7,bry*.45);c.fillStyle=b.belly;c.fill();c.restore();
+    ell(c,0,bcy,body.rx,body.ry,rot);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
+    limb(c,-30,bcy-8,-6,bcy-50-tw2,L.near,L.paw,0,body);limb(c,34,bcy-8,72,bcy-40+tw2,L.near,L.paw,0,body);
+    c.save();c.translate(brx+16,-22);c.rotate(1.25);drawHead(c,b,head,t);c.restore();
+  }
   c.restore();
 }
 
@@ -601,7 +672,8 @@ const game={running:false,paused:false,over:false,kind:'slipper',score:0,combo:0
 try{game.best=+localStorage.getItem('ugomoni-best')||0;}catch(e){}
 
 function mkPick(kind,x,surfY){return{kind,x,y:surfY-ITEM[kind].r,vx:0,vy:0,r:ITEM[kind].r,rest:true,rot:0,on:null};}
-function rollCat(){game.breed=pick(BREEDS);game.name=pick(NAMES);renderPreviewInfo();}
+let catIdx=0;try{catIdx=(+localStorage.getItem('ugomoni-cat')||0)%BREEDS.length;}catch(e){}
+function setCat(i){catIdx=(i+BREEDS.length)%BREEDS.length;game.breed=BREEDS[catIdx];game.name=game.breed.name;try{localStorage.setItem('ugomoni-cat',String(catIdx));}catch(e){}renderPreviewInfo();}
 function newGame(){
   const b=game.breed;
   ammo={slipper:2,ball:3,towel:1,pillow:1};
@@ -750,7 +822,7 @@ function hitCat(p,head){
 function catSleep(){
   const k=cat;if(k.stunType==='towel')dropPick('towel',k.x,k.y-60);
   if(k.air){k.x=k.air.x1;k.y=k.air.y1;k.plat=k.air.plat;k.air=null;}
-  k.state='asleep';k.stunType=null;k.bubble=null;
+  k.state='asleep';k.ko=Math.random()<.5?'back':'side';k.stunType=null;k.bubble=null;
   game.score+=1000+Math.round(player.hp)*10+Math.round(player.sleep)*10;game.winT=2.4;sWin();
   pop(k.x,k.y-150,'Уснул!','#9ff0c4',40);
 }
@@ -857,7 +929,7 @@ function update(dt){
 function renderCat(k,t){
   cb.setTransform(1,0,0,1,0,0);cb.clearRect(0,0,1280,960);cb.setTransform(2,0,0,2,640,760);
   cb.save();cb.scale(k.face,1);
-  if(k.state==='asleep')drawCatSleep(cb,k.b,t);
+  if(k.state==='asleep')drawCatKO(cb,k.b,t,k.ko);
   else{
     const s=k.state,o={walk:s==='walk',phase:k.phase,eyes:'normal',mouth:0,headTilt:0,seed:k.seed};
     if(s==='yell'){o.mouth=.55+.45*Math.abs(Math.sin(k.anim*7));o.eyes='angry';o.headTilt=-.25;o.tailFlick=1;}
@@ -911,7 +983,7 @@ function render(now){
       const h=catHead(k);
       if(k.state==='stunned'&&k.stunType!=='towel'){for(let i=0;i<3;i++){const a=t*4+i*2.1;star(c,h.x+Math.cos(a)*34,h.y-36+Math.sin(a)*8,8,a);}}
       if(k.state==='stunned'&&k.stunType==='towel'){c.font=`700 30px ${UIF}`;c.fillStyle='#fff';c.textAlign='center';c.fillText('?!',k.x,k.y-130*k.b.size+Math.sin(t*6)*4);}
-      if(k.state==='asleep'){c.font=`700 26px ${UIF}`;c.textAlign='center';for(let i=0;i<3;i++){const ph=(t*.6+i/3)%1;c.globalAlpha=1-ph;c.fillStyle='#e9ecff';c.fillText('z',k.x+20+ph*40+i*6,k.y-70-ph*70);}c.globalAlpha=1;}
+      if(k.state==='asleep'){c.font=`700 26px ${UIF}`;c.textAlign='center';for(let i=0;i<3;i++){const ph=(t*.6+i/3)%1;c.globalAlpha=1-ph;c.fillStyle='#e9ecff';c.fillText('z',k.x+k.face*(40+ph*30)+i*6,k.y-90-ph*70);}c.globalAlpha=1;}
       if(k.state==='windup'){c.font=`700 52px ${UIF}`;c.textAlign='center';c.lineWidth=6;c.strokeStyle=OUT;const yy=h.y-50+Math.sin(t*20)*4;c.strokeText('!',h.x,yy);c.fillStyle='#ff4b3a';c.fillText('!',h.x,yy);}
       if(k.bubble&&k.state!=='stunned'&&k.state!=='asleep')bubble(c,h.x,h.y-48,k.bubble,k.state==='yell'?'#fff':'#ffe9a8');
     }
@@ -988,7 +1060,7 @@ function endGame(win,reason){
   const acc=game.throws?Math.round(game.hits/game.throws*100):0;
   $('endEyebrow').textContent=win?'Уровень 1 пройден':'Уровень 1 провален';
   if(win){$('endTitle').textContent=`${game.name} уснул`;$('endMsg').textContent=`На часах ${$('clock').textContent}. До будильника ещё можно поспать. Осколки уберёте утром.`;sWin();}
-  else if(reason==='hp'){$('endTitle').textContent='Кот победил';$('endMsg').textContent=`${game.name} исцарапал вас до травмпункта. Сам он, кстати, уже спит.`;sHiss();}
+  else if(reason==='hp'){$('endTitle').textContent='Кот победил';$('endMsg').textContent=`${game.name} исцарапал вас до вызова скорой.\nСам он, кстати, уже спит :)`;sHiss();}
   else{$('endTitle').textContent='07:00. Будильник';$('endMsg').textContent=`${game.name} проорал всю ночь. Он выспится днём, а вы пойдёте на работу.`;sAlarm();}
   $('endStats').innerHTML='';
   const rows=[['Очки',fmt(game.score)],['Попаданий',`${game.hits} из ${game.throws} (${acc}%)`],['Ущерб',fmt(game.damage)+' ₽'],['Здоровье',Math.ceil(player.hp)],['Рекорд',fmt(game.best)],['Кот',`${game.breed.breed}`]];
@@ -997,13 +1069,19 @@ function endGame(win,reason){
   setTimeout(()=>{$('endOv').hidden=false;$('againBtn').focus();},win?200:900);
 }
 function setPause(p){if(!game.running)return;game.paused=p;$('pauseOv').hidden=!p;$('pauseBtn').textContent=p?'Дальше':'Пауза';}
-function showMenu(){game.running=false;game.over=false;$('endOv').hidden=true;$('pauseOv').hidden=true;$('startOv').hidden=false;$('startBtn').focus();}
+function showMenu(){game.running=false;game.over=false;setLogo(game.breed);$('endOv').hidden=true;$('pauseOv').hidden=true;$('startOv').hidden=false;$('startBtn').focus();}
 function renderPreviewInfo(){
-  const b=game.breed;$('pvName').textContent=`${game.name}`;
+  const b=game.breed;$('pvName').textContent=b.name;$('pvCount').textContent=`${catIdx+1} / ${BREEDS.length}`;$('pvTag').textContent=b.tag;
   const tr=$('pvTraits');tr.innerHTML='';
-  for(const[a,v,col]of[['Порода',b.breed],['Комплекция',b.build],['Окрас',b.color,b.pattern==='points'?b.point:b.fur],['Глаза',b.eyeName,b.eye]]){const dt=document.createElement('dt');dt.textContent=a;const dd=document.createElement('dd');if(col){const s=document.createElement('span');s.className='dot';s.style.background=col;dd.append(s);}dd.append(document.createTextNode(v));tr.append(dt,dd);}
+  for(const[a,v,col]of[['Типаж',b.type],['Порода',b.breed],['Комплекция',b.build],['Окрас',b.color,b.pattern==='points'?b.point:b.fur],['Глаза',b.eyeName,b.eye]]){const dt=document.createElement('dt');dt.textContent=a;const dd=document.createElement('dd');if(col){const s=document.createElement('span');s.className='dot';s.style.background=col;dd.append(s);}dd.append(document.createTextNode(v));tr.append(dt,dd);}
   const st=$('pvStats');st.innerHTML='';
-  for(const[a,v,max,txt]of[['Наглость',b.hp,290,b.hp],['Скорость',b.speed,180,''],['Регенерация',b.regen,5.5,`+${b.regen}/с`],['Агрессия',b.aggr,1.2,''],['Громкость',b.loud,1.7,'']]){const d=document.createElement('div');d.className='stat';d.innerHTML='<span></span><span class="track"><i></i></span>';d.firstChild.textContent=a+(txt!==''?` · ${txt}`:'');d.querySelector('i').style.width=clamp(v/max*100,8,100)+'%';st.append(d);}
+  for(const[a,v,max,txt]of[['Наглость',b.hp,290,b.hp],['Скорость',b.speed,200,''],['Регенерация',b.regen,5.5,`+${b.regen}/с`],['Агрессия',b.aggr,1.2,''],['Громкость',b.loud,1.7,'']]){const d=document.createElement('div');d.className='stat';d.innerHTML='<span></span><span class="track"><i></i></span>';d.firstChild.textContent=a+(txt!==''?` · ${txt}`:'');d.querySelector('i').style.width=clamp(v/max*100,8,100)+'%';st.append(d);}
+  setLogo(b);
+}
+function setLogo(b){
+  $('furA').setAttribute('fill',b.title[0]);$('furB').setAttribute('fill',b.title[1]);
+  const seed=String(1+Math.floor(Math.random()*90));for(const id of['fluffOut','fluffIn'])$(id).querySelector('feTurbulence').setAttribute('seed',seed);
+  const g=$('furB');for(const e of g.children){e.setAttribute('cx',String(Math.round(rnd(0,560))));e.setAttribute('cy',String(Math.round(rnd(10,190))));}
 }
 const pv=$('preview'),pvc=pv.getContext('2d');
 function renderPreview(t){
@@ -1025,14 +1103,16 @@ cv.addEventListener('pointerdown',e=>{
 cv.addEventListener('pointermove',e=>{const p=toWorld(e);mouse.x=p.x;mouse.y=p.y;mouse.in=e.pointerType!=='touch';});
 cv.addEventListener('pointerleave',()=>{mouse.in=false;});
 addEventListener('keydown',e=>{
+  if(!$('startOv').hidden&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){setCat(catIdx+(e.key==='ArrowLeft'?-1:1));return;}
   if(e.key>='1'&&e.key<='4'&&game.running){selectKind(AMMO_ORDER[+e.key-1]);}
   else if((e.key==='h'||e.key==='H'||e.key==='р'||e.key==='Р')&&game.running&&!game.paused)useBestMed();
   else if(e.key==='p'||e.key==='P'||e.key==='з'||e.key==='З'||e.key==='Escape')setPause(!game.paused);
 });
 $('startBtn').addEventListener('click',()=>{au();newGame();});
-$('rerollBtn').addEventListener('click',()=>{au();rollCat();});
+$('prevCat').addEventListener('click',()=>setCat(catIdx-1));
+$('nextCat').addEventListener('click',()=>setCat(catIdx+1));
 $('againBtn').addEventListener('click',()=>{au();newGame();});
-$('newCatBtn').addEventListener('click',()=>{rollCat();showMenu();});
+$('newCatBtn').addEventListener('click',()=>{setCat(catIdx+1);showMenu();});
 $('resumeBtn').addEventListener('click',()=>setPause(false));
 $('quitBtn').addEventListener('click',()=>{game.paused=false;showMenu();});
 $('pauseBtn').addEventListener('click',()=>setPause(!game.paused));
@@ -1051,7 +1131,7 @@ function loop(now){
 }
 function start(data){
   if(data&&data.best>game.best)game.best=data.best;
-  layout();buildTrays();rollCat();
+  layout();buildTrays();setCat(catIdx);
   ammo={slipper:2,ball:3,towel:1,pillow:1};meds={plaster:1,plantain:0,zelenka:0,bandage:0,kit:0};updateTrays();
   requestAnimationFrame(loop);
 }
