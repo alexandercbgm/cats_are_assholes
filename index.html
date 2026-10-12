@@ -1048,6 +1048,7 @@ function update(dt){
   // projectiles
   for(let i=projs.length-1;i>=0;i--){
     const p=projs[i],a=ITEM[p.kind];
+    if(p.mode==='out'){p.t2+=dt;p.vy+=G*.6*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;p.sc=Math.max(.45,1-p.t2*.55);if(p.y>OPEN.y2+60||p.t2>3)projs.splice(i,1);continue;}
     if(p.mode==='fly'){
       p.t+=dt;const tt=Math.min(p.t,p.T);p.x=p.sx+p.vx*tt;p.y=p.sy+p.vy*tt+.5*G*tt*tt;p.rot+=p.vr*dt;
       const u=tt/p.T;let bounced=false;
@@ -1062,7 +1063,9 @@ function update(dt){
         else{
           if(!p.touched&&hitFurniture(FRONT,p)){}
           else if(!p.touched&&inRect(OPEN,p.x,p.y)){
-            projs.splice(i,1);game.lost++;miss();pop(p.x,p.y-20,`${ITEM[p.kind].name} улетел в окно`,'#cfe0ff',20);nz(.5,.18,'bandpass',1800,300,1);continue;
+            game.lost++;miss();pop(p.x,p.y-20,`${ITEM[p.kind].name} улетел в окно`,'#cfe0ff',20);nz(.5,.18,'bandpass',1800,300,1);
+            // keeps flying outside: a small arc that drops below the window sill
+            p.mode='out';p.t2=0;p.vx=(742-p.x)*.7+clamp(p.vx*.05,-25,25);p.vy=-210;p.sc=1;continue;
           }
           else if(!p.touched&&inRect(WINDOW,p.x,p.y)){if(a.obj>=1){if(!cracks.length)addDamage({cost:5000,label:'Окно'},p.x,p.y-30);cracks.push({x:p.x,y:p.y});sCrash();}else sThud();}
           else if(!p.touched&&hitFurniture(BACK,p)){}
@@ -1139,6 +1142,9 @@ function render(now){
   if(lamp&&lamp.state==='stand'){const g=c.createRadialGradient(lamp.x,lamp.y-75,10,lamp.x,lamp.y-60,300);g.addColorStop(0,'rgba(255,214,130,.38)');g.addColorStop(1,'rgba(255,214,130,0)');c.fillStyle=g;c.fillRect(lamp.x-320,lamp.y-380,640,620);}
   c.save();c.beginPath();c.rect(WINDOW.x1,WINDOW.y1,WINDOW.x2-WINDOW.x1,WINDOW.y2-WINDOW.y1);c.clip();
   for(const cr of cracks){c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=1.8;c.beginPath();for(let i=0;i<9;i++){const a=i/9*Math.PI*2+.4,l=40+((i*37)%50);c.moveTo(cr.x,cr.y);c.lineTo(cr.x+Math.cos(a)*l*.5,cr.y+Math.sin(a)*l*.5+((i*13)%9)-4);c.lineTo(cr.x+Math.cos(a)*l,cr.y+Math.sin(a)*l);}c.stroke();c.beginPath();c.arc(cr.x,cr.y,14,0,Math.PI*2);c.stroke();}
+  c.restore();
+  c.save();c.beginPath();c.rect(OPEN.x1,OPEN.y1,OPEN.x2-OPEN.x1,OPEN.y2-OPEN.y1);c.clip();
+  for(const p of projs)if(p.mode==='out')drawItem(c,p.kind,p.x,p.y,p.sc,p.rot,false,t,p.col);
   c.restore();
   drawFurniture(c,t,game.running&&!game.paused?Math.min(.033,t-(render.lt||t)):0);render.lt=t;
   for(const d of debris){for(const s of d.sh){c.save();c.translate(d.x+s.dx,d.y-2);c.rotate(s.rot);poly(c,s.pts);fs(c,s.color,1.5);c.restore();}if(d.type==='pot'){ell(c,d.x,d.y-4,34,8);c.fillStyle='#4a2e1c';c.fill();}if(d.type==='glass'){ell(c,d.x+10,d.y-1,30,4);c.fillStyle='rgba(120,190,255,.45)';c.fill();}}
