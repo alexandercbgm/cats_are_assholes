@@ -1093,7 +1093,7 @@ function endGame(win,reason){
   const acc=game.throws?Math.round(game.hits/game.throws*100):0;
   $('endEyebrow').textContent=win?'Уровень 1 пройден':'Уровень 1 провален';
   if(win){$('endTitle').textContent=`${game.name} уснул`;$('endMsg').textContent=`На часах ${$('clock').textContent}. До будильника ещё можно поспать. Осколки уберёте утром.`;sWin();}
-  else if(reason==='hp'){$('endTitle').textContent='Кот победил';$('endMsg').textContent=`${game.name} исцарапал вас до вызова скорой.\nСам он, кстати, уже спит :)`;sHiss();}
+  else if(reason==='hp'){$('endTitle').textContent='Кот победил';$('endMsg').textContent=`${game.name} исцарапал вас до вызова скорой.\nСам он, кстати, уже спит. :)`;sHiss();}
   else{$('endTitle').textContent='07:00. Будильник';$('endMsg').textContent=`${game.name} проорал всю ночь. Он выспится днём, а вы пойдёте на работу.`;sAlarm();}
   $('endStats').innerHTML='';
   const rows=[['Очки',fmt(game.score)],['Попаданий',`${game.hits} из ${game.throws} (${acc}%)`],['Ущерб',fmt(game.damage)+' ₽'],['Здоровье',Math.ceil(player.hp)],['Рекорд',fmt(game.best)],['Кот',`${game.breed.breed}`]];
