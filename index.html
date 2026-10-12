@@ -331,7 +331,7 @@ const platById=id=>PLATS.find(p=>p.id===id);
 const WINDOW={x1:572,y1:134,x2:796,y2:372},OPEN={x1:691,y1:137,x2:794,y2:370};
 let GLASS=[WINDOW],EXIT=OPEN,LV=null,flood=0;
 
-const STATE_LABEL={fish:'Ест рыбу!',fridge:'Жрёт колбасу',dunk:'Купается',climb:'Выбирается',shake:'Отряхивается',idle:'Строит планы',walk:'Шастает',jump:'Прыгает',prejump:'Примеряется',yell:'Орёт',knock:'Роняет вещи',windup:'Сейчас прыгнет!',pounce:'АТАКУЕТ!',asleep:'Спит'};
+const STATE_LABEL={fish:'Ест рыбу!',fridge:'Жрёт колбасу',freezer:'Хрустит рыбой',sucked:'Засасывает!',dunk:'Купается',climb:'Выбирается',shake:'Отряхивается',idle:'Строит планы',walk:'Шастает',jump:'Прыгает',prejump:'Примеряется',yell:'Орёт',knock:'Роняет вещи',windup:'Сейчас прыгнет!',pounce:'АТАКУЕТ!',asleep:'Спит'};
 const STUN_LABEL={daze:'Оглушён',towel:'Запутался',pillow:'Придавлен'};
 
 /* ---------------- drawing helpers ---------------- */
@@ -527,7 +527,7 @@ function makeObjs(){
     O('pot',1214,FLOOR,'floor',{w:64,h:128,fragile:true,knockable:false,cost:900,label:'Фикус',drop:'plantain'}),
   ];
 }
-const OBJ_COLORS={jar:['#dff0f5','#a86b3c'],bowl:['#e8d4b0','#c75b4a'],pan:['#3a3a42'],candle:['#ffe0b0','#f3c27a'],perfume:['#f2b6d8','#e8c35a'],cup:['#cfeeff','#ffffff'],clock:['#f6efe1','#1d1428','#c9b99a'],vase:['#4f7fd1','#fff','#2f5fb0'],glass:['#cdeeff','#9fd6ff'],lamp:['#f6c75b','#3b3b4e'],frame:['#c88c4e','#e8d9b5'],pot:['#c8643c','#4a2e1c','#3e9b4f'],books:['#d9534f','#f0c040'],laptop:['#9aa3b5']};
+const OBJ_COLORS={plate:['#fffdf8','#e8f1f7','#9fc3dd'],jar:['#dff0f5','#a86b3c'],bowl:['#e8d4b0','#c75b4a'],pan:['#3a3a42'],candle:['#ffe0b0','#f3c27a'],perfume:['#f2b6d8','#e8c35a'],cup:['#cfeeff','#ffffff'],clock:['#f6efe1','#1d1428','#c9b99a'],vase:['#4f7fd1','#fff','#2f5fb0'],glass:['#cdeeff','#9fd6ff'],lamp:['#f6c75b','#3b3b4e'],frame:['#c88c4e','#e8d9b5'],pot:['#c8643c','#4a2e1c','#3e9b4f'],books:['#d9534f','#f0c040'],laptop:['#9aa3b5']};
 function drawObj(c,o,t){
   c.save();
   if(o.state==='lying'){c.translate(o.x,o.y-o.w/2);c.rotate(o.rot);c.translate(0,o.h/2);}
@@ -557,6 +557,9 @@ function drawObj(c,o,t){
   case 'lamp':
     ell(c,0,-4,18,5);fs(c,'#3b3b4e',2.5);c.strokeStyle=OUT;c.lineWidth=7;c.beginPath();c.moveTo(0,-6);c.lineTo(0,-60);c.stroke();c.strokeStyle='#3b3b4e';c.lineWidth=3.5;c.stroke();
     poly(c,[-24,-56,24,-56,15,-94,-15,-94]);fs(c,'#f6c75b',3);
+    break;
+  case 'plate':
+    ell(c,0,-5,17,5);fs(c,'#fffdf8',2);ell(c,0,-5,10,2.6);c.lineWidth=1.4;c.strokeStyle='rgba(90,140,180,.6)';c.stroke();
     break;
   case 'jar':
     rr(c,-15,-34,30,34,7);c.fillStyle='rgba(220,236,242,.6)';c.fill();for(const[x,y]of[[-6,-8],[6,-12],[-2,-20]]){ell(c,x,y,6,5);fs(c,'#b5773f',1.5);}
@@ -875,11 +878,11 @@ function pounceView(k){const u=clamp(k.pt/.42,0,1),e=u*u;return{x:lerp(k.px,640,
 function catHit(k,x,y,r){
   if(k.state==='asleep')return 0;
   if(k.state==='pounce'){const v=pounceView(k);return Math.hypot(x-v.x,y-v.y)<v.z*60+r?1:0;}
-  if(k.state==='dunk'){const h=catHead(k);return Math.hypot(x-h.x,y-h.y)<h.r+r?2:0;}
+  if(k.state==='dunk'){if(k.dunkType==='bin'){const inn=platById('bin').inner;return Math.hypot(x-inn.cx,y-(inn.clip-18))<44+r?1:0;}const h=catHead(k);return Math.hypot(x-h.x,y-h.y)<h.r+r?2:0;}
   const h=catHead(k);if(Math.hypot(x-h.x,y-h.y)<h.r+r)return 2;
   const bd=catBody(k),dx=(x-bd.x)/(bd.rx+r),dy=(y-bd.y)/(bd.ry+r);return dx*dx+dy*dy<1?1:0;
 }
-function catActive(){return!['stunned','asleep','pounce','dunk','fridge'].includes(cat.state);}
+function catActive(){return!['stunned','asleep','pounce','dunk','fridge','freezer','sucked'].includes(cat.state);}
 
 /* ---------------- effects ---------------- */
 function pop(x,y,text,color,size){pops.push({x,y,text,color:color||'#fff',size:size||26,life:1.2,max:1.2});}
@@ -937,6 +940,7 @@ function inRect(f,x,y){return x>f.x1&&x<f.x2&&y>f.y1&&y<f.y2;}
 function hitFurniture(ids,p){
   const a=ITEM[p.kind];
   for(const id of ids){const f=furn[id];if(f.broken||!inRect(f,p.x,p.y))continue;
+    if(f.toggle){kitch[f.toggle]=!kitch[f.toggle];sClick();pop(p.x,p.y-30,`${f.label}: ${kitch[f.toggle]?'вкл':'выкл'}`,'#fff',20);return true;}
     if(a.obj<1){sThud();return true;}
     f.hp--;marks.push({x:p.x,y:p.y,type:id==='cabinet'?'crack':id==='toilet'?'crackD':id.startsWith('curt')?'tear':'dent',seed:Math.random()*10,id});
     if(f.cost){game.damage+=f.cost;pop(p.x,p.y-30,`−${fmt(f.cost)} ₽`,'#ffcf5a',20);}
@@ -946,7 +950,7 @@ function hitFurniture(ids,p){
 }
 function breakFurn(id){
   const f=furn[id];f.broken=true;f.t=0;sCrash();shake=Math.max(shake,.2);
-  addDamage({cost:f.brk,label:{rod:'Гардина рухнула',shelf:'Полка рухнула',curtL:'Штора сорвана',curtR:'Штора сорвана',wardrobe:'Шкаф сломан',stand:'Тумбочка сломана',desk:'Стол сломан',cabinet:'Зеркало разбито',toilet:'Унитаз разбит',fridge:'Холодильник вскрыт',cab1:'Дверца выбита',cab2:'Дверца выбита',cab3:'Дверца выбита'}[id]},(f.x1+f.x2)/2,Math.max(140,f.y1+40));
+  addDamage({cost:f.brk,label:{rod:'Гардина рухнула',shelf:'Полка рухнула',curtL:'Штора сорвана',curtR:'Штора сорвана',wardrobe:'Шкаф сломан',stand:'Тумбочка сломана',desk:'Стол сломан',cabinet:'Зеркало разбито',toilet:'Унитаз разбит',fridge:'Холодильник вскрыт',freezer:'Морозилка вскрыта',medcab:'Аптечный шкафчик вскрыт',cab1:'Дверца выбита',cab2:'Дверца выбита',cab3:'Дверца выбита'}[id]},(f.x1+f.x2)/2,Math.max(140,f.y1+40));
   if(id==='rod'&&!furn.curtL.broken){furn.curtL.broken=true;furn.curtL.t=0;dropPick('curtain',553,420);}
   if(id==='curtL')dropPick('curtain',553,420);
   if(id==='curtR')dropPick('curtain',836,420);
@@ -964,9 +968,12 @@ function breakFurn(id){
   if(id==='cabinet'){marks=marks.filter(m=>m.id!=='cabinet');dropPick('kit',566,240);dropPick('bandage',612,240);toast('Дверца вылетела! Внутри аптечка и бинт.');}
   if(id==='fridge'){platById('fridgeIn').off=false;toast('Холодильник открыт! Кот полезет за колбасой — зато не будет мешать.',3);}
   if(id==='cab1')dropPick('kit',376,200);
-  if(id==='cab2'){dropPick('bandage',506,200);dropPick('plaster',546,200);}
-  if(id==='cab3'){dropPick('zelenka',940,200);dropPick('towel',990,200);}
-  if(id.startsWith('cab')&&id!=='cabinet')toast('Дверца вылетела — внутри что-то есть.');
+  if(id==='cab2'){dropPick('bandage',506,200);dropPick('plaster',546,200);dropPick('orange',576,200);}
+  if(id==='cab3'){dropPick('zelenka',940,200);dropPick('towel',990,200);dropPick('banana',1030,200);}
+  if(/^cab\d$/.test(id))toast('Дверца вылетела — внутри что-то есть.');
+  if(['fridge','freezer','medcab','cab1','cab2','cab3'].includes(id))marks=marks.filter(m=>m.id!==id);
+  if(id==='freezer'){platById('freezerIn').off=false;toast('Морозилка открыта: там мороженая рыба. Кот будет её грызть.',3);}
+  if(id==='medcab'){for(const it of picks)if(it.hiddenIn==='medcab')it.hidden=false;toast('Аптечный шкафчик открыт — лекарства на полках.',3);}
   if(id==='toilet'){flood=.001;toast('Унитаз потёк! Кот больше не сможет стоять на полу.',3);}
   const porc=id==='cabinet'||id==='toilet';
   burst((f.x1+f.x2)/2,Math.min(f.y2-20,f.y1+60),porc?['#f3f6f6','#cfe3ea','#ffffff']:['#a7633e','#c27d4f','#8c4f2d'],porc?18:10,porc?360:260,'shard');
@@ -1117,7 +1124,8 @@ function picksL2(){return[
 ];}
 // pickups: a hanging towel keeps its rail look until someone takes it
 function drawPick(c,it,t){
-  if(it.hang){rr(c,it.x-17,it.y-37,34,74,4);fs(c,'#e98b6a',2.5);c.fillStyle='#fff';c.fillRect(it.x-17,it.y+15,34,5);c.fillRect(it.x-17,it.y+25,34,3);return;}
+  if(it.hidden)return;
+  if(it.hang){rr(c,it.x-17,it.y-37,34,74,4);fs(c,'#3fa9d4',2.5);c.fillStyle='#fff';c.fillRect(it.x-9,it.y-37,4,74);c.fillRect(it.x+5,it.y-37,4,74);c.strokeStyle=OUT;c.lineWidth=1.5;for(let i=0;i<6;i++){c.beginPath();c.moveTo(it.x-14+i*5.6,it.y+37);c.lineTo(it.x-14+i*5.6,it.y+42);c.stroke();}return;}
   drawItem(c,it.kind,it.x,it.y,1,it.rot,true,t,it.col);
 }
 function drawMarks(c){
@@ -1163,7 +1171,7 @@ function startDunk(k,pl){
   if(k.stunType==='towel')dropPick(k.wrap||'towel',k.x,k.y-60);
   k.state='dunk';k.dunkType=d;k.dunkPlat=pl.id;k.dunkT={tub:3.4,toilet:2.8,sink:2.2,ksink:3,bin:2.6}[d];k.kvx=0;k.air=null;k.stunType=null;
   const cx=d==='tub'?clamp(k.x+k.face*hx,inn.x1+30,inn.x2-30):inn.cx;
-  k.x=cx-k.face*hx;k.y=inn.head+62*s;
+  k.x=d==='bin'?inn.cx:cx-k.face*hx;k.y=inn.head+62*s;
   const pts=250*Math.max(1,game.combo);game.score+=pts;
   pop(cx,inn.clip-80,{tub:'В ванну!',toilet:'В унитаз!',sink:'В раковину!',ksink:'В мойку!',bin:'В мусорку!'}[d]+` +${fmt(pts)}`,'#a8f0ff',24);
   k.bubble={tub:'БУЛЬ!',toilet:'ФУУУ!',sink:'Застрял!',ksink:'БУЛЬ!',bin:'ФУ-ФУ!'}[d];k.bubbleT=1.4;
@@ -1213,10 +1221,11 @@ const PLATS_L3=[
  {id:'fridgeTop',x1:48,x2:224,y:116},
  {id:'table',x1:1092,x2:1238,y:466},
  {id:'fridgeIn',x1:66,x2:208,y:380,noCat:true},
+ {id:'freezerIn',x1:66,x2:208,y:252,noCat:true},
  {id:'bin',x1:508,x2:612,y:468,noCat:true,dunk:'bin',inner:{x1:510,x2:610,head:462,clip:468,cx:560}},
 ];
 const EXIT_L3={x1:744,y1:120,x2:826,y2:296},GLASS_L3=[{x1:656,y1:120,x2:736,y2:296}];
-let kitch={fish:100,sausage:3,fx:430};
+let kitch={fish:100,sausage:3,ffish:100,fx:430,plates:5,stoveOn:false,hoodOn:false};
 function drawKitchen(c){
   let g=c.createLinearGradient(0,0,0,560);g.addColorStop(0,'#e9c98a');g.addColorStop(1,'#d9b06c');c.fillStyle=g;c.fillRect(0,0,W,562);
   c.save();c.globalAlpha=.08;c.fillStyle='#fff';for(let x=0;x<W;x+=56)c.fillRect(x,0,22,560);c.restore();
@@ -1239,9 +1248,6 @@ function drawKitchen(c){
   c.save();c.globalAlpha=.13;c.fillStyle='#fff';c.beginPath();c.rect(656,120,80,176);c.clip();poly(c,[656,260,656,290,736,170,736,140]);c.fill();c.restore();
   poly(c,[826,118,862,104,862,312,826,298]);fs(c,'#f6f2ea',3);poly(c,[832,128,856,118,856,300,832,290]);c.fillStyle='rgba(150,180,255,.28)';c.fill();c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
   rr(c,640,300,204,10,3);fs(c,'#f6f2ea',2.5);
-  // wall calendar with a cat on it
-  rr(c,1110,190,92,110,4);fs(c,'#fffaf0',2.5);rr(c,1118,198,76,50,3);fs(c,'#ee8b2e',2);c.fillStyle=OUT;ell(c,1146,222,3,3);c.fill();ell(c,1166,222,3,3);c.fill();
-  c.strokeStyle='rgba(36,27,51,.35)';c.lineWidth=1.5;for(let r=0;r<4;r++)for(let q=0;q<5;q++){c.strokeRect(1118+q*15,256+r*10,13,8);}
   // hood over the stove
   poly(c,[902,252,1038,252,1062,300,878,300]);fs(c,'#c9d0d4',3);rr(c,874,296,192,10,3);fs(c,'#b5bec3',2.5);
   // counter: base cabinets, top, sink with water and a plate
@@ -1249,8 +1255,6 @@ function drawKitchen(c){
   for(const[x,w]of[[270,118],[394,108],[664,72],[740,72]]){rr(c,x,420,w,170,6);fs(c,'#8cc0a7',2.5);ell(c,x+w-12,440,4,4);fs(c,'#f2c75a',2);}
   rr(c,256,390,570,16,4);fs(c,'#d8c3a2',3);
   ell(c,740,398,74,9);fs(c,'#6a7479',2.5);ell(c,740,400,68,6);c.fillStyle='#a9d3e6';c.fill();
-  c.save();c.translate(712,396);c.rotate(-.3);ell(c,0,0,18,6);fs(c,'#fffdf8',2);c.restore();
-  for(let i=0;i<7;i++){ell(c,694+i*14,398-((i*7)%4),6,4);c.fillStyle='#ffffff';c.fill();}
   c.lineWidth=7;c.strokeStyle=OUT;c.beginPath();c.moveTo(796,392);c.lineTo(796,350);c.quadraticCurveTo(796,334,780,334);c.lineTo(770,342);c.stroke();c.lineWidth=3.5;c.strokeStyle='#cfd8dc';c.stroke();
   // big trash bin in front of the counter
   poly(c,[508,468,612,468,604,600,516,600]);fs(c,'#8d989e',3);rr(c,502,460,116,12,4);fs(c,'#76818a',3);
@@ -1280,16 +1284,22 @@ function makeObjsL3(){
   ];
 }
 function makeFurnL3(){return{
-  fridge:{x1:40,y1:120,x2:232,y2:598,hp:3,cost:600,brk:1500,label:'Холодильник'},
+  freezer:{x1:40,y1:120,x2:232,y2:262,hp:2,cost:400,brk:800,label:'Морозилка'},
+  fridge:{x1:40,y1:262,x2:232,y2:598,hp:3,cost:600,brk:1500,label:'Холодильник'},
   cab1:{x1:302,y1:110,x2:450,y2:252,hp:2,cost:300,brk:900,label:'Шкафчик'},
   cab2:{x1:452,y1:110,x2:600,y2:252,hp:2,cost:300,brk:900,label:'Шкафчик'},
   cab3:{x1:882,y1:110,x2:1050,y2:252,hp:2,cost:300,brk:900,label:'Шкафчик'},
+  medcab:{x1:1100,y1:140,x2:1220,y2:272,hp:2,cost:300,brk:700,label:'Аптечный шкафчик'},
+  hood:{x1:878,y1:252,x2:1062,y2:306,hp:999,toggle:'hoodOn',label:'Вытяжка'},
+  stove:{x1:856,y1:398,x2:1064,y2:600,hp:999,toggle:'stoveOn',label:'Плита'},
 };}
 function picksL3(){
   const fruit=(k,x,y)=>Object.assign(mkPick(k,x,y),{inBowl:true});
+  const shut=(k,x,y)=>Object.assign(mkPick(k,x,y),{hidden:true,hiddenIn:'medcab'});
   return[
     fruit('apple',1146,454),fruit('orange',1166,452),fruit('apple',1186,454),fruit('banana',1166,442),
     mkPick('towel',925,456),mkPick('towel',995,456),mkPick('slipper',360,FLOOR),
+    shut('kit',1132,206),shut('bandage',1186,206),shut('zelenka',1140,262),shut('bandage',1186,262),
   ];
 }
 function cabinetDoor(c,id,x1,x2,inside){
@@ -1297,25 +1307,54 @@ function cabinetDoor(c,id,x1,x2,inside){
   if(!f.broken){rr(c,x1+5,113,w-10,134,6);fs(c,'#7fb39a',2.5);rr(c,x1+16,124,w-32,112,5);c.lineWidth=2;c.strokeStyle='rgba(30,60,45,.35)';c.stroke();ell(c,x1+w/2,226,4,4);fs(c,'#f2c75a',2);}
   else{rr(c,x1+5,113,w-10,134,4);fs(c,'#4b3d33',2.5);c.fillStyle='#e8e2d4';c.fillRect(x1+5,178,w-10,5);inside(c,x1,w);rr(c,x1+5,113,6,30,2);fs(c,'#7fb39a',1.5);}
 }
+// what each cabinet shows once its door is gone
+const CAB_INSIDE={
+  cab1:(c,x,w)=>{const cols=['#c8524c','#f0c040','#5fb36a','#e98b6a','#8a6bd6','#5fb3e8'];for(let r=0;r<2;r++)for(let i=0;i<5;i++){const jx=x+16+i*25,jy=r?236:172;rr(c,jx,jy-24,16,24,3);fs(c,'#f4efe4',1.5);rr(c,jx,jy-30,16,7,2);fs(c,cols[(i+r*2)%6],1.5);}},
+  cab2:(c,x,w)=>{for(let i=0;i<6;i++){ell(c,x+30+i*3,172-i*3,22,4);fs(c,'#fffdf8',1.5);}for(let i=0;i<3;i++){rr(c,x+76+i*22,152,16,22,4);fs(c,['#e98b6a','#5fb3e8','#f0c040'][i],1.5);c.beginPath();c.arc(x+93+i*22,163,5,-1.4,1.4);c.lineWidth=2;c.strokeStyle=OUT;c.stroke();}
+    for(let i=0;i<4;i++){rr(c,x+16+i*30,210,20,30,3);c.fillStyle='rgba(205,236,250,.7)';c.fill();c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();}},
+  cab3:(c,x,w)=>{rr(c,x+16,140,46,34,6);fs(c,'#8d989e',1.8);rr(c,x+70,128,36,46,3);fs(c,'#f0c040',1.5);rr(c,x+112,132,36,42,3);fs(c,'#c8524c',1.5);
+    ell(c,x+40,236,26,8);fs(c,'#3a3a42',1.8);rr(c,x+72,206,30,30,4);fs(c,'#e8d4b0',1.5);rr(c,x+112,198,40,38,4);fs(c,'#cfe3ea',1.5);},
+};
 function drawKitchenDyn(c,t,dt){
-  // fridge: closed, or open with the light on and sausage inside
-  const F=furn.fridge;
-  if(!F.broken){rr(c,40,118,192,482,14);fs(c,'#e9eef1',3);c.strokeStyle=OUT;c.lineWidth=2.5;c.beginPath();c.moveTo(42,262);c.lineTo(230,262);c.stroke();
-    rr(c,206,150,10,80,4);fs(c,'#cfd8dc',2);rr(c,206,290,10,140,4);fs(c,'#cfd8dc',2);
-    ell(c,90,200,8,8);fs(c,'#e8433c',1.5);rr(c,120,310,40,30,2);fs(c,'#fffaf0',1.5);ell(c,140,300,5,5);fs(c,'#5fb3e8',1.5);}
+  // fridge body; the freezer (top) and the fridge (bottom) open separately
+  const Fz=furn.freezer,F=furn.fridge;
+  if(Fz.broken||F.broken){const g=c.createRadialGradient(136,300,10,136,320,260);g.addColorStop(0,'rgba(255,250,220,.5)');g.addColorStop(1,'rgba(255,250,220,0)');c.fillStyle=g;c.fillRect(-60,80,400,520);}
+  rr(c,40,118,192,482,14);fs(c,Fz.broken||F.broken?'#dfe6ea':'#e9eef1',3);
+  c.strokeStyle=OUT;c.lineWidth=2.5;c.beginPath();c.moveTo(42,262);c.lineTo(230,262);c.stroke();
+  if(!Fz.broken){rr(c,206,150,10,80,4);fs(c,'#cfd8dc',2);ell(c,90,200,8,8);fs(c,'#e8433c',1.5);rr(c,120,180,38,26,2);fs(c,'#fffaf0',1.5);}
   else{
-    const g=c.createRadialGradient(136,300,10,136,320,260);g.addColorStop(0,'rgba(255,250,220,.55)');g.addColorStop(1,'rgba(255,250,220,0)');c.fillStyle=g;c.fillRect(-60,80,400,520);
-    rr(c,40,118,192,482,14);fs(c,'#dfe6ea',3);rr(c,50,128,172,462,8);fs(c,'#fffbea',2);
-    for(const y of[262,380,480]){c.fillStyle='rgba(180,210,225,.8)';c.fillRect(52,y,168,5);}
-    rr(c,64,206,24,56,3);fs(c,'#fff',2);rr(c,64,206,24,14,2);fs(c,'#5fb3e8',1.5);
-    poly(c,[130,262,176,262,176,238]);fs(c,'#f6d34a',2);ell(c,198,252,8,10);fs(c,'#fffdf5',1.5);
-    for(let i=0;i<Math.ceil(kitch.sausage);i++){c.save();c.translate(84+i*36,372);c.rotate(-.08);rr(c,-16,-7,32,14,7);fs(c,'#c8524c',2);c.fillStyle='#f3d6c8';for(let j=0;j<3;j++){ell(c,-8+j*8,-1+(j%2)*3,1.8,1.8);c.fill();}c.restore();}
-    rr(c,70,456,40,24,4);fs(c,'#f6d34a',2);rr(c,130,448,30,32,5);fs(c,'#e98b6a',2);
-    poly(c,[40,118,4,96,4,622,40,598]);fs(c,'#e3e9ec',3);for(const y of[230,380,500]){c.fillStyle='rgba(150,170,180,.6)';poly(c,[8,y,36,y+6,36,y+12,8,y+6]);c.fill();}
+    rr(c,50,128,172,128,6);fs(c,'#e6f4fb',2);c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=2;for(let i=0;i<9;i++){c.beginPath();c.moveTo(56+i*19,130);c.lineTo(60+i*19,140+(i%3)*5);c.stroke();}
+    if(kitch.ffish>0){const f=.4+.6*kitch.ffish/100;rr(c,70,222,130*f+10,30,6);c.fillStyle='rgba(200,230,245,.85)';c.fill();c.lineWidth=2;c.strokeStyle='#9fc6dc';c.stroke();
+      ell(c,74+65*f,237,58*f,10);fs(c,'#8fb3cc',2);poly(c,[74+120*f,237,88+122*f,228,88+122*f,246]);fs(c,'#7e9cb0',2);ell(c,84,234,2.5,2.5);c.fillStyle=OUT;c.fill();}
+    rr(c,150,160,46,40,4);fs(c,'#cfe3ea',1.5);
+    poly(c,[40,118,4,96,4,272,40,262]);fs(c,'#e3e9ec',3);
   }
-  // wall cabinets: break a door to get what's inside
-  const plates=(c,x,w)=>{for(let i=0;i<3;i++){ell(c,x+w*.3+i*6,170,14,4);fs(c,'#f4f1ea',1.5);}rr(c,x+w*.62,150,16,26,3);fs(c,'#e98b6a',1.5);rr(c,x+w*.3,212,20,30,3);fs(c,'#cfe3ea',1.5);};
-  cabinetDoor(c,'cab1',302,450,plates);cabinetDoor(c,'cab2',452,600,plates);cabinetDoor(c,'cab3',882,1050,plates);
+  if(!F.broken){rr(c,206,290,10,140,4);fs(c,'#cfd8dc',2);rr(c,120,310,40,30,2);fs(c,'#fffaf0',1.5);ell(c,140,300,5,5);fs(c,'#5fb3e8',1.5);}
+  else{
+    rr(c,50,270,172,320,8);fs(c,'#fffbea',2);for(const y of[380,480]){c.fillStyle='rgba(180,210,225,.8)';c.fillRect(52,y,168,5);}
+    rr(c,176,322,24,56,3);fs(c,'#fff',2);rr(c,176,322,24,14,2);fs(c,'#5fb3e8',1.5);
+    for(let i=0;i<Math.ceil(kitch.sausage);i++){c.save();c.translate(84+i*36,372);c.rotate(-.08);rr(c,-16,-7,32,14,7);fs(c,'#c8524c',2);c.fillStyle='#f3d6c8';for(let j=0;j<3;j++){ell(c,-8+j*8,-1+(j%2)*3,1.8,1.8);c.fill();}c.restore();}
+    rr(c,70,456,40,24,4);fs(c,'#f6d34a',2);rr(c,130,448,30,32,5);fs(c,'#e98b6a',2);ell(c,186,470,10,10);fs(c,'#8fd36b',1.5);
+    poly(c,[40,264,4,262,4,622,40,598]);fs(c,'#e3e9ec',3);for(const y of[380,500]){c.fillStyle='rgba(150,170,180,.6)';poly(c,[8,y,36,y+6,36,y+12,8,y+6]);c.fill();}
+  }
+  // wall cabinets, each with its own contents
+  for(const[id,x1,x2]of[['cab1',302,450],['cab2',452,600],['cab3',882,1050]])cabinetDoor(c,id,x1,x2,CAB_INSIDE[id]);
+  // first-aid cabinet: its contents stay on the shelves
+  const M=furn.medcab;rr(c,1100,140,120,132,6);fs(c,'#f7f7f4',3);
+  if(!M.broken){rr(c,1106,146,108,120,5);fs(c,'#fbfbf8',2);c.fillStyle='#e8433c';c.fillRect(1152,174,16,50);c.fillRect(1135,191,50,16);ell(c,1206,206,3,3);fs(c,'#cfd8dc',1.5);}
+  else{rr(c,1106,146,108,120,4);fs(c,'#e3ecef',2);c.fillStyle='#cfd8dc';c.fillRect(1106,212,108,4);c.fillRect(1106,266,108,3);rr(c,1106,146,6,28,2);fs(c,'#fbfbf8',1.5);}
+  // hood: light and suction when on
+  if(kitch.hoodOn){c.fillStyle='rgba(255,240,180,.85)';c.fillRect(890,300,160,5);
+    c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=2;for(let i=0;i<5;i++){const u=(t*1.6+i/5)%1;c.globalAlpha=1-u;c.beginPath();c.arc(970+Math.sin(i*2+t*3)*40,400-u*90,10+u*8,0,Math.PI*1.4);c.stroke();}c.globalAlpha=1;
+    ell(c,1052,282,4,4);fs(c,'#7cf0a8',1.5);}
+  // stove: burner flames when on
+  if(kitch.stoveOn){for(const x of[900,1020]){const g=c.createRadialGradient(x,400,2,x,400,60);g.addColorStop(0,'rgba(255,140,60,.45)');g.addColorStop(1,'rgba(255,140,60,0)');c.fillStyle=g;c.fillRect(x-60,340,120,90);
+      for(let i=0;i<7;i++){const a=i/7*Math.PI,fx2=x-22+i*7.3,h=10+Math.sin(t*20+i*1.7)*4;poly(c,[fx2-4,404,fx2,404-h,fx2+4,404]);c.fillStyle=i%2?'#5fb3ff':'#ffb347';c.fill();}}
+    ell(c,1046,428,4,4);fs(c,'#ff5a3a',1.5);}
+  // sink: dishes waiting to be washed
+  for(let i=0;i<kitch.plates;i++){c.save();c.translate(688+i*22,394);c.rotate(-.55+i*.26);ell(c,0,-6,6,17);fs(c,i%2?'#fffdf8':'#e8f1f7',2);ell(c,0,-6,2.5,10);c.lineWidth=1.4;c.strokeStyle='rgba(90,140,180,.5)';c.stroke();c.restore();}
+  if(kitch.plates>0){rr(c,790,370,14,26,3);c.fillStyle='rgba(205,236,250,.7)';c.fill();c.lineWidth=1.8;c.strokeStyle=OUT;c.stroke();}
+  for(let i=0;i<9;i++){ell(c,684+i*14,399-((i*7)%4),6,3.5);c.fillStyle='#ffffff';c.fill();}
   // cutting board with the fish the cat wants
   const fx=kitch.fx,f=kitch.fish/100;rr(c,fx-60,380,120,12,4);fs(c,'#c79a62',2.5);
   if(kitch.fish>0){const rx=44*(.35+.65*f);c.save();c.translate(fx,372);
@@ -1327,13 +1366,28 @@ function drawKitchenDyn(c,t,dt){
   for(const id in furn)if(furn[id].broken)furn[id].t=(furn[id].t||0)+dt;
   drawMarks(c);
 }
+// stove and hood hurt a cat that sits on the cooktop
+const sClick=()=>{tone('square',900,600,.05,.1);tone('square',600,900,.05,.08,.06);};
+const sWhirl=()=>nz(1.1,.3,'bandpass',300,1800,2);
+function hurtCat(k,dmg,label){
+  k.hp=Math.max(0,k.hp-dmg);k.flash=.15;const pts=200*Math.max(1,game.combo);game.score+=pts;
+  pop(k.x,k.y-130,`${label} +${fmt(pts)}`,'#ffd25c',22);pop(k.x,k.y-100,`−${dmg}`,'#ffd25c',26);sHit();
+  if(k.hp<=0){catSleep();return true;}return false;
+}
+function stoveHazard(k){
+  if(kitch.hoodOn){k.state='sucked';k.timer=1.1;k.sy=k.y;k.sx=k.x;sWhirl();k.bubble='ААА!';k.bubbleT=1.1;return;}
+  for(let i=0;i<12;i++)parts.push({type:'dust',x:k.x+rnd(-30,30),y:k.y-rnd(0,30),vx:rnd(-40,40),vy:rnd(-120,-60),size:rnd(6,12),color:'',life:.9,max:.9});
+  sHiss();k.bubble='АЙ! ГОРЯЧО!';k.bubbleT=1.2;
+  if(hurtCat(k,18,'Подгорел!'))return;
+  k.state='stunned';k.stunType='daze';k.stunT=.8;jumpTo(k,k.x<960?rnd(780,840):rnd(1080,1180),'floor');
+}
 LEVELS.push({n:3,name:'Кухня',sub:'Холодильник, рыба и мусорное ведро',plats:PLATS_L3,glass:GLASS_L3,exit:EXIT_L3,
-  front:['cab1','cab2','cab3','fridge'],back:[],
+  front:['cab1','cab2','cab3','medcab','hood','freezer','fridge'],back:['stove'],
   ammo:['slipper','towel','apple','orange','banana'],ammo0:{slipper:2,apple:1},meds0:{plaster:1},
   room:drawKitchen,fg:drawKitchenFG,objs:makeObjsL3,furn:makeFurnL3,dyn:drawKitchenDyn,picks:picksL3,
   catX:760,outTo:'В окно',lostLabel:'Улетело в окно',lostWhere:'улетело в окно',glassLabel:'Окно',
   win:'Колбасу докупите утром.',hello:'Не подпускайте кота к рыбе! Сбейте его со столешницы — лучше прямо в ведро.',
-  kitchen:true,init:()=>{kitch={fish:100,sausage:3,fx:430};platById('fridgeIn').off=true;}});
+  kitchen:true,init:()=>{kitch={fish:100,sausage:3,ffish:100,fx:430,plates:5,stoveOn:false,hoodOn:false};platById('fridgeIn').off=true;platById('freezerIn').off=true;}});
 
 /* ---------------- physics ---------------- */
 function surf(e,prevY,r,rest,fric,roll,dt,ignore){
@@ -1352,7 +1406,7 @@ function walls(e,r){if(e.x<14+r){e.x=14+r;e.vx=Math.abs(e.vx)*.5;}if(e.x>W-14-r)
 
 /* ---------------- player actions ---------------- */
 function toWorld(ev){const r=cv.getBoundingClientRect();return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H};}
-function pickAt(x,y){let best=null,bd=1e9;for(const it of picks){if(!it.rest)continue;const d=Math.hypot(it.x-x,it.y-y);if(d<it.r+24&&d<bd){bd=d;best=it;}}return best;}
+function pickAt(x,y){let best=null,bd=1e9;for(const it of picks){if(!it.rest||it.hidden)continue;const d=Math.hypot(it.x-x,it.y-y);if(d<it.r+24&&d<bd){bd=d;best=it;}}return best;}
 function catDanger(it){if(!catActive())return false;const bd=catBody(cat);return Math.hypot(bd.x-it.x,bd.y-it.y)<190*cat.b.size;}
 function tryCollect(it){
   if(catDanger(it)){
@@ -1412,7 +1466,7 @@ function hitCat(p,head){
   fur(k,8);sHit();if(a.squeak)sSqueak();
   if(k.hp<=0){catSleep();return;}
   if(k.state==='dunk'){k.dunkT=Math.min(k.dunkT+.4,4.5);return;}
-  if(!k.air&&k.plat==='fridgeIn'){k.state='stunned';k.stunType='daze';k.stunT=Math.max(1.2,a.stun);jumpTo(k,rnd(260,380),'floor');pop(k.x,k.y-120,'Вон из холодильника!','#fff',20);return;}
+  if(!k.air&&(k.plat==='fridgeIn'||k.plat==='freezerIn')){k.state='stunned';k.stunType='daze';k.stunT=Math.max(1.2,a.stun);jumpTo(k,rnd(260,380),'floor');pop(k.x,k.y-120,'Вон из холодильника!','#fff',20);return;}
   if(!k.air&&k.plat==='counter'&&LV.kitchen&&k.state!=='climb'){
     const bin=platById('bin');if(k.x>bin.x1-14&&k.x<bin.x2+14){startDunk(k,bin);return;}
     k.state='stunned';k.stunType='daze';k.stunT=Math.max(1,a.stun);k.kvx=0;jumpTo(k,clamp(k.x+(Math.sign(p.vx)||1)*80,60,1220),'floor');
@@ -1439,6 +1493,7 @@ function platX(pl,k){const m=40*k.b.size;return rnd(pl.x1+m,pl.x2-m);}
 function think(){
   const k=cat,b=k.b,pl=platById(k.plat);
   if(LV.kitchen){
+    if(furn.freezer.broken&&kitch.ffish>0&&k.plat!=='freezerIn'&&Math.random()<.22){k.state='prejump';k.timer=.3;k.jumpDest=platById('freezerIn');k.jumpX=138;return;}
     if(furn.fridge.broken&&kitch.sausage>0&&k.plat!=='fridgeIn'&&Math.random()<.35){k.state='prejump';k.timer=.3;k.jumpDest=platById('fridgeIn');k.jumpX=138;return;}
     if(kitch.fish>0&&Math.random()<.42){const cp=platById('counter'),side=k.x<kitch.fx?-1:1;
       if(k.plat==='counter'){walkTo(k,clamp(kitch.fx+side*64*b.size,cp.x1+30,cp.x2-30),'fish');}
@@ -1462,9 +1517,10 @@ function updateCat(dt){
   if(k.state!=='stunned'&&k.state!=='dunk')k.hp=Math.min(k.max,k.hp+b.regen*dt);
   if(k.wet>0){k.wet-=dt;if(Math.random()<dt*9&&k.state!=='dunk')parts.push({type:'drop',x:k.x+rnd(-30,30),y:k.y-30*b.size,vx:rnd(-20,20),vy:0,size:rnd(3,5),color:'#9fd3f5',life:.9,max:.9,floor:k.y});}
   if(k.wetPaws>0)k.wetPaws-=dt;
+  if(LV.kitchen&&!k.air&&k.plat==='stove'&&(kitch.stoveOn||kitch.hoodOn)&&['idle','walk','yell','knock','prejump','windup','fish'].includes(k.state))stoveHazard(k);
   if(flood>.25&&!k.air&&k.plat==='floor'&&['idle','walk','yell','knock','prejump','windup'].includes(k.state))floodHop(k);
   if(k.air){const a=k.air;a.t+=dt;const tt=Math.min(a.t,a.T);k.x=lerp(a.x0,a.x1,tt/a.T);k.y=a.y0+a.vy*tt+.5*G*tt*tt;
-    if(a.t>=a.T){k.x=a.x1;k.y=a.y1;k.plat=a.plat;k.air=null;dust(k.x,k.y,8);sThud();if(k.plat==='fridgeIn'&&k.state==='jump'){k.state='fridge';k.timer=rnd(5,8);k.face=1;k.yellTick=0;}if(k.state==='jump'){if(k.shakeOnLand){k.shakeOnLand=false;k.state='shake';k.timer=1.2;sShake();}else{k.state='idle';k.timer=rnd(.3,.8);}}}}
+    if(a.t>=a.T){k.x=a.x1;k.y=a.y1;k.plat=a.plat;k.air=null;dust(k.x,k.y,8);sThud();if(k.plat==='fridgeIn'&&k.state==='jump'){k.state='fridge';k.timer=rnd(5,8);k.face=1;k.yellTick=0;}if(k.plat==='freezerIn'&&k.state==='jump'){k.state='freezer';k.timer=rnd(5,8);k.face=1;k.yellTick=0;}if(k.state==='jump'){if(k.shakeOnLand){k.shakeOnLand=false;k.state='shake';k.timer=1.2;sShake();}else{k.state='idle';k.timer=rnd(.3,.8);}}}}
   switch(k.state){
   case 'idle':k.timer-=dt;if(k.timer<=0)think();break;
   case 'walk':{const d=k.tx-k.x;if(Math.abs(d)<4){k.x=k.tx;if(k.after==='fish'&&kitch.fish>0){k.state='fish';k.timer=rnd(4,7);k.face=Math.sign(kitch.fx-k.x)||1;k.yellTick=0;}else if(k.after==='knock'&&k.target&&k.target.state==='stand'){k.state='knock';k.timer=1.1;k.knocked=false;k.face=Math.sign(k.target.x-k.x)||1;}else{k.state='idle';k.timer=rnd(.3,.9);}}
@@ -1486,8 +1542,20 @@ function updateCat(dt){
     k.yellTick-=dt;if(k.yellTick<=0){k.yellTick=rnd(1,1.6);k.bubble=pick(['Ом-ном','Колбаска!','Ням']);k.bubbleT=.9;}
     if(k.timer<=0||kitch.sausage<=0){k.state='jump';jumpTo(k,rnd(260,400),'floor');}
     break;
+  case 'freezer':
+    k.timer-=dt;kitch.ffish=Math.max(0,kitch.ffish-5*dt);
+    if(k.hp<k.max)k.hp=Math.min(k.max,k.hp+5*dt);else{const g=Math.min(3*dt,b.hp*2-k.max);if(g>0){k.max+=g;k.hp=k.max;}}
+    k.yellTick-=dt;if(k.yellTick<=0){k.yellTick=rnd(1,1.6);k.bubble=pick(['Хрум!','Брр, вкусно','Ледяная!']);k.bubbleT=.9;}
+    if(k.timer<=0||kitch.ffish<=0){k.state='jump';jumpTo(k,rnd(260,400),'floor');}
+    break;
+  case 'sucked':{
+    k.timer-=dt;const u=Math.min(1,(1.1-k.timer)/.7);k.y=lerp(k.sy,330,u*u);k.x=lerp(k.sx,970,u);
+    if(Math.random()<dt*20)parts.push({type:'fur',x:k.x+rnd(-30,30),y:k.y-40,vx:rnd(-30,30),vy:rnd(-220,-120),rot:0,vr:3,size:rnd(4,7),color:k.b.fur,life:.6,max:.6});
+    if(k.timer<=0){if(hurtCat(k,15,'Засосало!'))break;k.state='stunned';k.stunType='daze';k.stunT=1.2;jumpTo(k,rnd(1080,1180),'floor');}
+    break;}
   case 'dunk':
     k.dunkT-=dt;if(k.dunkType!=='sink'&&Math.random()<dt*3)sBlub();
+    if(k.dunkT<=0&&k.dunkType==='ksink'&&kitch.plates>0){for(let i=0;i<kitch.plates;i++)objs.push({type:'plate',x:688+i*22,y:392,plat:'ksink',state:'fall',from:'ksink',vx:rnd(-300,300),vy:rnd(-620,-420),vr:rnd(-10,10),rot:0,w:34,h:10,fragile:true,knockable:false,cost:250,label:'Тарелка'});kitch.plates=0;}
     if(k.dunkT<=0){const pl=platById(k.dunkPlat);k.state='climb';k.timer=.5;k.y=pl.y;k.x=clamp(k.x,pl.x1+25,pl.x2-25);
       if(['tub','toilet','ksink'].includes(k.dunkType)){k.wet=14;burst(k.x,pl.y-30,['#bfe6ff','#ffffff'],10,200,'drop');}k.bubble=k.dunkType==='sink'?'Хм.':'Брр!';k.bubbleT=1;}
     break;
@@ -1592,15 +1660,45 @@ function renderCat(k,t){
     if(s==='pounce'){o.pounce=1;o.eyes='wide';o.mouth=1;}
     if(s==='stunned'){if(k.stunType==='towel'){o.towel=1;o.wrapCol=ITEM[k.wrap||'towel'].wrap;}else if(k.stunType==='pillow'){o.flat=1;o.pillow=1;o.eyes='spiral';o.tailDown=1;}else{o.eyes='spiral';o.headTilt=Math.sin(k.anim*5)*.2;o.tailDown=1;}}
     if(k.smug>0&&(s==='idle'||s==='walk'))o.eyes='smug';
-    if(s==='dunk'){o.eyes=k.dunkType==='sink'?'spiral':'wide';o.mouth=k.dunkType==='sink'?0:.45+.4*Math.abs(Math.sin(k.anim*8));o.headTilt=Math.sin(k.anim*6)*.22;o.tailFlick=1;}
+    if(s==='dunk'&&k.dunkType==='bin'){o.walk=true;o.phase=k.anim*22;}
+    else if(s==='dunk'){o.eyes=k.dunkType==='sink'?'spiral':'wide';o.mouth=k.dunkType==='sink'?0:.45+.4*Math.abs(Math.sin(k.anim*8));o.headTilt=Math.sin(k.anim*6)*.22;o.tailFlick=1;}
     if(s==='climb'){o.crouch=6;o.eyes='angry';}
-    if(s==='fish'||s==='fridge'){o.eyes='closed';o.mouth=.2+.25*Math.abs(Math.sin(k.anim*10));o.headTilt=.32;o.tailFlick=1;}
+    if(s==='sucked'){o.eyes='spiral';o.mouth=.8;o.stretch=1;cb.translate(0,-40);cb.rotate(k.anim*14);cb.translate(0,40);}
+    if(s==='fish'||s==='fridge'||s==='freezer'){o.eyes='closed';o.mouth=.2+.25*Math.abs(Math.sin(k.anim*10));o.headTilt=.32;o.tailFlick=1;}
     if(s==='shake'){o.eyes='closed';cb.translate(Math.sin(k.anim*60)*5,0);cb.rotate(Math.sin(k.anim*60)*.05);}
     if(k.flash>0)o.eyes='hurt';
     drawCatPose(cb,bb,o,t);
   }
   cb.restore();
   if(k.flash>0){cb.setTransform(1,0,0,1,0,0);cb.globalCompositeOperation='source-atop';cb.fillStyle=`rgba(255,255,255,${k.flash/.15*.7})`;cb.fillRect(0,0,1280,960);cb.globalCompositeOperation='source-over';}
+}
+// head-first in the bin: only the haunches, kicking hind legs and the tail stick out
+function drawBinCat(c,b,t,cx,rim,flash){
+  const sz=b.size,fat=b.fat,w=8*Math.min(1.25,fat),wob=Math.sin(t*9)*.1;
+  c.save();c.translate(cx,rim+4);c.scale(sz,sz);c.rotate(wob);
+  const L=legCols(b);
+  const leg=(side,col,pawCol)=>{
+    const a=Math.sin(t*13+(side>0?0:Math.PI)),hip=[side*20*fat,-30];
+    const t1=side*(.25+.35*a),t2=t1-side*(.9-.5*a);
+    const kn=[hip[0]+Math.sin(t1)*26,hip[1]-Math.cos(t1)*26],pw=[kn[0]+Math.sin(t2)*24,kn[1]-Math.cos(t2)*24];
+    const path=()=>{c.beginPath();c.moveTo(hip[0],hip[1]);c.lineTo(kn[0],kn[1]);c.lineTo(pw[0],pw[1]);};
+    c.lineCap='round';c.lineJoin='round';
+    c.strokeStyle=OUT;c.lineWidth=w*2+6;path();c.stroke();c.strokeStyle=col;c.lineWidth=w*2;path();c.stroke();
+    c.save();c.translate(pw[0],pw[1]);c.rotate(t2);ell(c,0,-4,w+3,w+2);fs(c,pawCol,3);
+    ell(c,0,-2,w*.5,w*.4);c.fillStyle='#f2a0b4';c.fill();for(const dx of[-w*.6,0,w*.6]){ell(c,dx,-w-1,2.2,2.2);c.fill();}c.restore();
+  };
+  leg(-1,L.far,L.farPaw);
+  // tail whips around above the rump
+  const sw=Math.sin(t*7),tp=()=>{c.beginPath();c.moveTo(0,-40*fat);c.bezierCurveTo(sw*18,-80,-sw*30,-96,sw*26-8,-126);};
+  c.lineCap='round';strokeTail(c,b,tailW(b),tp);
+  // rump
+  const rx=40*fat,ry=30*fat;
+  ell(c,0,-12,rx,ry);fs(c,b.fur,3);
+  c.save();ell(c,0,-12,rx,ry);c.clip();furPattern(c,b,0,-14,rx,ry);
+  ell(c,0,10,rx*.75,ry*.5);c.fillStyle=b.belly;c.fill();c.restore();
+  ell(c,0,-12,rx,ry);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();
+  leg(1,L.near,L.paw);
+  c.restore();
 }
 function bubble(c,x,y,text,color){
   c.font=`800 22px ${UIF}`;const w=c.measureText(text).width+26;x=clamp(x,w/2+10,W-w/2-10);
@@ -1629,6 +1727,7 @@ function render(now){
   if(objs)for(const o of objs)if(o.state!=='broken')drawObj(c,o,t);
   // pickups
   for(const it of picks){
+    if(it.hidden)continue;
     if(it.rest){const pulse=.5+.5*Math.sin(t*4+it.x);ell(c,it.x,it.y,it.r+12+pulse*3,(it.r+12+pulse*3)*.75);c.fillStyle=`rgba(255,236,150,${.14+pulse*.12})`;c.fill();}
     drawPick(c,it,t);
   }
@@ -1639,7 +1738,8 @@ function render(now){
     if(k.state!=='pounce'&&k.state!=='dunk'){ell(c,k.x,gy,46*k.b.size*k.b.fat,8);c.fillStyle='rgba(10,5,20,.3)';c.fill();}
     renderCat(k,t);
     if(k.state!=='pounce'){
-      if(k.state==='dunk'){const inn=platById(k.dunkPlat).inner;c.save();c.beginPath();c.rect(inn.x1-70,0,inn.x2-inn.x1+140,inn.clip);c.clip();c.drawImage(catBuf,k.x-320,k.y-380,640,480);c.restore();
+      if(k.state==='dunk'&&k.dunkType==='bin'){const inn=platById('bin').inner;c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,inn.clip);c.clip();drawBinCat(c,k.wet>0?wetB(k.b):k.b,k.anim,inn.cx,inn.clip,k.flash>0);c.restore();}
+      else if(k.state==='dunk'){const inn=platById(k.dunkPlat).inner;c.save();c.beginPath();c.rect(inn.x1-70,0,inn.x2-inn.x1+140,inn.clip);c.clip();c.drawImage(catBuf,k.x-320,k.y-380,640,480);c.restore();
         const hx=catHead(k).x;
         if(k.dunkType==='tub'||k.dunkType==='ksink')foamStrip(c,hx-(k.dunkType==='tub'?110:60),hx+(k.dunkType==='tub'?110:60),inn.clip-4,t);
         else if(k.dunkType==='toilet'){c.strokeStyle='rgba(160,215,235,.95)';c.lineWidth=2;for(let i=0;i<2;i++){const a=(t*1.5+i*.5)%1;ell(c,inn.cx,inn.clip-2,22+a*22,3+a*3);c.globalAlpha=1-a;c.stroke();}c.globalAlpha=1;}}
@@ -1712,12 +1812,12 @@ function updateHUD(){
   $('hpBar').style.width=player.hp+'%';$('hpTxt').textContent=Math.ceil(player.hp);
   $('sleepBar').style.width=player.sleep+'%';
   const mins=180+(1-player.sleep/100)*240,hh=Math.floor(mins/60),mm=Math.floor(mins%60);$('clock').textContent=`0${hh}:${String(mm).padStart(2,'0')}`;
-  const k=cat;$('catBar').style.width=(k.hp/k.max*100)+'%';$('catHpTxt').textContent=`${Math.ceil(k.hp)} / ${k.max}`;
+  const k=cat;$('catBar').style.width=(k.hp/k.max*100)+'%';$('catHpTxt').textContent=`${Math.round(k.hp)} / ${Math.round(k.max)}`;
   $('regenTxt').textContent=k.state==='stunned'||k.state==='asleep'||k.state==='dunk'?'восстановление на паузе':`+${k.b.regen}/с`;
   const chip=$('catState');let lbl=STATE_LABEL[k.state]||'',cls='';
   if(k.state==='stunned'){lbl=`${STUN_LABEL[k.stunType]} · ${k.stunT.toFixed(1)} с`;cls='good';}
   else if(k.state==='dunk'){lbl=`${{tub:'В ванне',toilet:'В унитазе',sink:'Застрял в раковине',ksink:'В мойке',bin:'В мусорке'}[k.dunkType]} · ${k.dunkT.toFixed(1)} с`;cls='good';}
-  else if(k.state==='asleep')cls='good';else if(k.state==='yell'||k.state==='fish')cls='warn';else if(k.state==='fridge')cls='good';else if(k.state==='windup'||k.state==='pounce')cls='danger';
+  else if(k.state==='asleep')cls='good';else if(k.state==='yell'||k.state==='fish')cls='warn';else if(k.state==='fridge'||k.state==='freezer'||k.state==='sucked')cls='good';else if(k.state==='windup'||k.state==='pounce')cls='danger';
   chip.textContent=lbl;chip.className='chip '+cls;
   $('scoreTxt').textContent=fmt(game.score);$('comboTxt').textContent='×'+game.combo;$('dmgTxt').textContent=fmt(game.damage)+' ₽';
 }
