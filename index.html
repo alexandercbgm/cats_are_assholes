@@ -1092,7 +1092,7 @@ function endGame(win,reason){
   const total=Math.max(0,Math.round(game.score-game.damage/20));const isBest=total>game.best;if(isBest){game.best=total;try{localStorage.setItem('ugomoni-best',String(total));}catch(e){}}
   const acc=game.throws?Math.round(game.hits/game.throws*100):0;
   $('endEyebrow').textContent=win?'Уровень 1 пройден':'Уровень 1 провален';
-  if(win){$('endTitle').textContent=`${game.name} уснул`;$('endMsg').textContent=`На часах ${$('clock').textContent}. До будильника ещё можно поспать. Осколки уберёте утром.`;sWin();}
+  if(win){$('endTitle').textContent=`${game.name} уснул`;$('endMsg').textContent=`На часах ${$('clock').textContent}. До будильника ещё можно поспать.\nОсколки уберёте утром.`;sWin();}
   else if(reason==='hp'){$('endTitle').textContent='Кот победил';$('endMsg').textContent=`${game.name} исцарапал вас до вызова скорой.\nСам он, кстати, уже спит. :)`;sHiss();}
   else{$('endTitle').textContent='07:00. Будильник';$('endMsg').textContent=`${game.name} проорал всю ночь. Он выспится днём, а вы пойдёте на работу.`;sAlarm();}
   $('endStats').innerHTML='';
