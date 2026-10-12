@@ -1,0 +1,4 @@
+android/.tools/
+android/build/
+android/*.p12
+*.p12
