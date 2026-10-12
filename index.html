@@ -1365,7 +1365,6 @@ function drawKitchenDyn(c,t,dt){
   for(let i=0;i<kitch.plates;i++){const[px,py,rot,up]=SINK_PILE[i];c.save();c.translate(px,py);c.rotate(rot);
     if(up){ell(c,0,0,6,18);fs(c,i%2?'#fffdf8':'#e8f1f7',2);ell(c,0,0,2.5,11);c.lineWidth=1.4;c.strokeStyle='rgba(90,140,180,.5)';c.stroke();}
     else{ell(c,0,0,25,6);fs(c,i%2?'#fffdf8':'#e8f1f7',2);ell(c,0,-1,14,3);c.lineWidth=1.4;c.strokeStyle='rgba(90,140,180,.5)';c.stroke();}c.restore();}
-  if(kitch.plates>0){rr(c,790,370,14,26,3);c.fillStyle='rgba(205,236,250,.7)';c.fill();c.lineWidth=1.8;c.strokeStyle=OUT;c.stroke();}
   for(let i=0;i<9;i++){ell(c,684+i*14,399-((i*7)%4),6,3.5);c.fillStyle='#ffffff';c.fill();}
   // cutting board with the fish the cat wants
   const fx=kitch.fx,f=kitch.fish/100;rr(c,fx-60,380,120,12,4);fs(c,'#c79a62',2.5);
