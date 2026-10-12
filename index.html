@@ -239,7 +239,7 @@ const ITEM={
  slipper:{name:'Тапок',r:13,fr:16,ammo:true,T:.42,dmg:22,obj:2,stun:.8,st:'daze',rest:.25,fric:.6,roll:5,kb:120},
  ball:{name:'Мяч',r:11,fr:12,ammo:true,T:.3,dmg:9,obj:1,stun:.3,st:'daze',rest:.72,fric:.85,roll:1.2,kb:40},
  curtain:{name:'Штора',r:12,fr:32,ammo:true,T:.66,dmg:6,obj:0,stun:4.6,st:'towel',rest:0,fric:.3,roll:9,kb:0,wrap:'#c9527a'},
- book:{name:'Книга',r:10,fr:15,ammo:true,T:.4,dmg:18,obj:2,stun:.7,st:'daze',rest:.15,fric:.5,roll:7,kb:90},
+ book:{name:'Книга',r:8,fr:18,ammo:true,T:.4,dmg:18,obj:2,stun:.7,st:'daze',rest:.15,fric:.5,roll:7,kb:90},
  towel:{name:'Полотенце',r:8,fr:24,ammo:true,T:.6,dmg:4,obj:0,stun:3.6,st:'towel',rest:0,fric:.3,roll:8,kb:0},
  pillow:{name:'Подушка',r:14,fr:28,ammo:true,T:.55,dmg:14,obj:1,stun:1.8,st:'pillow',rest:.15,fric:.4,roll:6,kb:260},
  plaster:{name:'Пластырь',r:6,heal:10},
@@ -248,6 +248,7 @@ const ITEM={
  bandage:{name:'Бинт',r:11,heal:20},
  kit:{name:'Аптечка',r:13,heal:45},
 };
+const BOOK_COLS=['#d9534f','#f0c040','#5fb36a','#7f6bd6'];
 const AMMO_ORDER=['slipper','ball','towel','pillow','book','curtain'];
 const MED_ORDER=['plaster','plantain','zelenka','bandage','kit'];
 
@@ -276,7 +277,7 @@ function hexA(h,a){const[r,g,b]=hexRgb(h);return`rgba(${r},${g},${b},${a})`;}
 function paw(c,x,y,s){ell(c,x,y+s*.4,s,s*.8);c.fill();for(let i=-1;i<=1;i++){ell(c,x+i*s*.9,y-s*.75+Math.abs(i)*s*.3,s*.38,s*.42);c.fill();}}
 
 /* ---------------- items ---------------- */
-function drawItem(c,kind,x,y,sc,rot,lying,t){
+function drawItem(c,kind,x,y,sc,rot,lying,t,col){
   c.save();c.translate(x,y);c.rotate(rot||0);c.scale(sc,sc);c.lineJoin='round';c.lineCap='round';
   switch(kind){
   case 'slipper':
@@ -296,8 +297,10 @@ function drawItem(c,kind,x,y,sc,rot,lying,t){
       c.strokeStyle='rgba(60,10,35,.45)';c.lineWidth=3;for(const x of[-16,4,22]){c.beginPath();c.moveTo(x,-18);c.quadraticCurveTo(x+4+f*.3,0,x,20);c.stroke();}}
     break;}
   case 'book':
-    rr(c,-15,-10,30,20,3);fs(c,'#7f6bd6',2.5);c.fillStyle='#f4ecd8';c.fillRect(-12,5,25,3);
-    c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(-10,-10);c.lineTo(-10,10);c.stroke();rr(c,-4,-5,13,5,1);c.fillStyle='#f0c040';c.fill();
+    // same 48x15 book as on the shelf, lying on its side: cover, page edge, spine bands
+    rr(c,-24,-7.5,48,15,2);fs(c,col||BOOK_COLS[0],2.5);
+    c.fillStyle='#f4ecd8';c.fillRect(-21,3,42,2.5);
+    c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=2;c.beginPath();c.moveTo(-17,-7);c.lineTo(-17,2);c.moveTo(17,-7);c.lineTo(17,2);c.stroke();
     break;
   case 'towel':
     if(lying){
@@ -778,7 +781,7 @@ function landObj(o,pl){
   if(o.fragile){breakObj(o);return;}
   o.state='lying';o.rot=(o.vr>=0?1:-1)*Math.PI/2;o.plat=pl.id;sThud();dust(o.x,pl.y,6);
   if(!o.charged){o.charged=true;addDamage(o,o.x,pl.y-60);}
-  if(o.type==='books'){o.state='broken';for(const dx of[-16,0,16])dropPick('book',o.x+dx,pl.y-20);}
+  if(o.type==='books'){o.state='broken';BOOK_COLS.forEach((col,i)=>dropPick('book',o.x+(i-1.5)*44,pl.y-24,col));}
 }
 function hitObj(o,p){
   const a=ITEM[p.kind],dir=Math.sign(p.vx)||1;
@@ -788,14 +791,14 @@ function hitObj(o,p){
   if(o.plat&&o.plat!=='floor')slide(o,dir,420);
   else if(o.fragile)breakObj(o);
 }
-function dropPick(kind,x,y){picks.push({kind,x,y,vx:rnd(-60,60),vy:-220,r:ITEM[kind].r,rest:false,rot:0,on:null});}
+function dropPick(kind,x,y,col){const it={kind,x,y,vx:rnd(-60,60),vy:-220,r:ITEM[kind].r,rest:false,rot:0,on:null,col};picks.push(it);return it;}
 
 /* ---------------- furniture ---------------- */
 let furn={},marks=[],cracks=[];
 function makeFurn(){return{
   rod:{x1:494,y1:98,x2:874,y2:120,hp:1,cost:0,brk:2500,label:'Гардина',tilt:0},
   curtL:{x1:512,y1:120,x2:594,y2:484,hp:3,cost:300,brk:2000,label:'Штора'},
-  curtR:{x1:844,y1:120,x2:906,y2:430,hp:3,cost:300,brk:2000,label:'Штора'},
+  curtR:{x1:842,y1:120,x2:866,y2:474,hp:3,cost:300,brk:2000,label:'Штора'},
   shelf:{x1:294,y1:286,x2:506,y2:328,hp:2,cost:400,brk:1500,label:'Полка',tilt:0},
   wardrobe:{x1:24,y1:160,x2:236,y2:598,hp:4,cost:900,brk:6000,label:'Шкаф',drop:'towel'},
   stand:{x1:292,y1:484,x2:438,y2:598,hp:3,cost:500,brk:3000,label:'Тумбочка',drop:'plaster'},
@@ -819,7 +822,7 @@ function breakFurn(id){
   addDamage({cost:f.brk,label:{rod:'Гардина рухнула',shelf:'Полка рухнула',curtL:'Штора сорвана',curtR:'Штора сорвана',wardrobe:'Шкаф сломан',stand:'Тумбочка сломана',desk:'Стол сломан'}[id]},(f.x1+f.x2)/2,Math.max(140,f.y1+40));
   if(id==='rod'&&!furn.curtL.broken){furn.curtL.broken=true;furn.curtL.t=0;dropPick('curtain',553,420);}
   if(id==='curtL')dropPick('curtain',553,420);
-  if(id==='curtR')dropPick('curtain',872,400);
+  if(id==='curtR')dropPick('curtain',836,420);
   if(id.startsWith('curt')||id==='rod')toast('Штору можно подобрать и бросить в кота.');
   if(id.startsWith('curt')||id==='rod')marks=marks.filter(m=>!(m.id==='curtL'&&furn.curtL.broken)&&!(m.id==='curtR'&&furn.curtR.broken));
   if(id==='shelf'){
@@ -833,16 +836,11 @@ function breakFurn(id){
   if(id==='desk')dropPick('ball',1090,500);
   burst((f.x1+f.x2)/2,Math.min(f.y2-20,f.y1+60),['#a7633e','#c27d4f','#8c4f2d'],10,260,'shard');
 }
-// right curtain: mirror of the left one, with the open casement pressed into its inner edge
+// right curtain: a narrow strip hanging straight down behind the open sash
 function curtainR(c){
-  const g=c.createLinearGradient(840,0,904,0);g.addColorStop(0,'#a33c63');g.addColorStop(.5,'#c9527a');g.addColorStop(1,'#a33c63');
-  c.beginPath();c.moveTo(784,104);c.lineTo(864,104);
-  c.bezierCurveTo(896,170,912,330,902,428);c.quadraticCurveTo(872,442,842,426);
-  c.bezierCurveTo(838,412,844,402,850,394);c.bezierCurveTo(856,320,856,200,850,140);c.quadraticCurveTo(840,110,784,104);c.closePath();fs(c,g,3);
-  c.strokeStyle='rgba(60,10,35,.45)';c.lineWidth=3;
-  for(const[x0,cx,x1]of[[856,880,866],[860,896,880],[864,908,894]]){c.beginPath();c.moveTo(x0,110);c.quadraticCurveTo(cx,280,x1,424);c.stroke();}
-  // shadow where the sash dents the fabric
-  c.strokeStyle='rgba(60,10,35,.3)';c.lineWidth=6;c.beginPath();c.moveTo(854,150);c.bezierCurveTo(860,220,860,320,854,392);c.stroke();
+  const x1=806,x2=866,g=c.createLinearGradient(x1,0,x2,0);g.addColorStop(0,'#a33c63');g.addColorStop(.5,'#c9527a');g.addColorStop(1,'#a33c63');
+  c.beginPath();c.moveTo(x1,104);c.lineTo(x2,104);c.lineTo(x2,470);c.quadraticCurveTo((x1+x2)/2,482,x1,470);c.closePath();fs(c,g,3);
+  c.strokeStyle='rgba(60,10,35,.45)';c.lineWidth=3;for(const x of[826,846]){c.beginPath();c.moveTo(x,110);c.quadraticCurveTo(x+4,300,x,468);c.stroke();}
 }
 function drawFurniture(c,t,dt){
   // curtains + rod
@@ -919,7 +917,7 @@ function throwAt(tx,ty){
   ammo[k]--;game.cd=.22;game.throws++;
   ty=Math.min(ty,FLOOR-4);
   const a=ITEM[k],sx=640+rnd(-70,70),sy=770,d=Math.hypot(tx-sx,ty-sy),T=a.T*(.7+d/1500);
-  projs.push({kind:k,mode:'fly',x:sx,y:sy,sx,sy,vx:(tx-sx)/T,vy:(ty-sy-.5*G*T*T)/T,t:0,T,rot:rnd(0,6),vr:rnd(-12,12)*(k==='ball'?1.5:1),hit:false,touched:false,r:a.fr});
+  projs.push({kind:k,mode:'fly',x:sx,y:sy,sx,sy,vx:(tx-sx)/T,vy:(ty-sy-.5*G*T*T)/T,t:0,T,rot:rnd(0,6),vr:rnd(-12,12)*(k==='ball'?1.5:1),hit:false,touched:false,r:a.fr,col:k==='book'?BOOK_COLS[game.throws%4]:undefined});
   sWhoosh();
   if(ammo[k]===0){const n=nextAvailable();if(n)game.kind=n;}
   updateTrays();
@@ -1052,7 +1050,7 @@ function update(dt){
     const sp=Math.hypot(p.vx,p.vy);
     if(!p.hit&&sp>300){const part=catHit(cat,p.x,p.y,p.r*.8);if(part){hitCat(p,part===2);p.vx*=-.3;p.vy=-Math.abs(p.vy)*.3;}}
     if(sp>300)for(const o of objs){if(o.state!=='stand'||o.type==='frame'||o.type==='clock')continue;if(Math.abs(p.x-o.x)<o.w/2&&p.y>o.y-o.h&&p.y<o.y){hitObj(o,p);p.vx*=-.3;break;}}
-    if(s===1&&Math.abs(p.vx)<14){projs.splice(i,1);picks.push({kind:p.kind,x:p.x,y:p.y,vx:0,vy:0,r:ITEM[p.kind].r,rest:true,rot:p.kind==='ball'?p.rot:0,on:null});if(!p.hit)miss();}
+    if(s===1&&Math.abs(p.vx)<14){projs.splice(i,1);picks.push({kind:p.kind,x:p.x,y:p.y,vx:0,vy:0,r:ITEM[p.kind].r,rest:true,rot:p.kind==='ball'?p.rot:0,on:null,col:p.col});if(!p.hit)miss();}
   }
   if(cat.state!=='asleep'&&!projs.length&&AMMO_ORDER.every(k=>ammo[k]===0)&&!picks.some(it=>ITEM[it.kind].ammo)&&cat.stunType!=='towel'){endGame(false,'ammo');return;}
   // loose pickups
@@ -1119,9 +1117,9 @@ function render(now){
   // pickups
   for(const it of picks){
     if(it.rest){const pulse=.5+.5*Math.sin(t*4+it.x);ell(c,it.x,it.y,it.r+12+pulse*3,(it.r+12+pulse*3)*.75);c.fillStyle=`rgba(255,236,150,${.14+pulse*.12})`;c.fill();}
-    drawItem(c,it.kind,it.x,it.y,1,it.rot,true,t);
+    drawItem(c,it.kind,it.x,it.y,1,it.rot,true,t,it.col);
   }
-  for(const p of projs)if(p.mode==='scene')drawItem(c,p.kind,p.x,p.y,1,p.rot,p.kind==='towel'?false:false,t);
+  for(const p of projs)if(p.mode==='scene')drawItem(c,p.kind,p.x,p.y,1,p.rot,false,t,p.col);
   // cat
   if(cat){
     const k=cat,pl=platById(k.plat),gy=k.air?Math.max(k.y,(PLATS.filter(p=>k.x>=p.x1&&k.x<=p.x2&&p.y>=k.y-2).sort((a,b)=>a.y-b.y)[0]||pl).y):k.y;
@@ -1148,7 +1146,7 @@ function render(now){
   c.globalAlpha=1;
   c.drawImage(fg,0,0,W,H);
   // flying projectiles (between player and room)
-  for(const p of projs)if(p.mode==='fly'){const u=Math.min(1,p.t/p.T),sc=lerp(2.6,1,1-(1-u)*(1-u));drawItem(c,p.kind,p.x,p.y,sc,p.rot,false,t);}
+  for(const p of projs)if(p.mode==='fly'){const u=Math.min(1,p.t/p.T),sc=lerp(2.6,1,1-(1-u)*(1-u));drawItem(c,p.kind,p.x,p.y,sc,p.rot,false,t,p.col);}
   // pounce
   if(cat&&cat.state==='pounce'){const v=pounceView(cat),z=v.z,s=cat.b.size;c.fillStyle=`rgba(10,5,20,${clamp(cat.pt/.42,0,1)*.35})`;c.fillRect(0,0,W,H);c.drawImage(catBuf,v.x-320*z,v.y+40*s*z-380*z,640*z,480*z);}
   // claws
@@ -1173,7 +1171,7 @@ function render(now){
 /* ---------------- HUD ---------------- */
 function mkSlot(kind,key,onClick){
   const b=document.createElement('button');b.className='slot';b.type='button';b.dataset.k=kind;b.title=ITEM[kind].name+(ITEM[kind].heal?` (+${ITEM[kind].heal} здоровья)`:'');
-  const cvs=document.createElement('canvas');cvs.width=120;cvs.height=96;const c=cvs.getContext('2d');c.scale(2,2);drawItem(c,kind,30,26,kind==='curtain'?.62:kind==='pillow'||kind==='towel'?.8:1.1,0,true,0);
+  const cvs=document.createElement('canvas');cvs.width=120;cvs.height=96;const c=cvs.getContext('2d');c.scale(2,2);drawItem(c,kind,30,26,kind==='curtain'?.62:kind==='book'?.95:kind==='pillow'||kind==='towel'?.8:1.1,0,true,0);
   b.append(cvs);const nm=document.createElement('span');nm.className='nm';nm.textContent=ITEM[kind].heal?`${ITEM[kind].name} +${ITEM[kind].heal}`:ITEM[kind].name;b.append(nm);
   const cnt=document.createElement('span');cnt.className='cnt';b.append(cnt);if(key){const ks=document.createElement('span');ks.className='key';ks.textContent=key;b.append(ks);}
   b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('click',()=>{au();onClick(kind);b.blur();});return b;
