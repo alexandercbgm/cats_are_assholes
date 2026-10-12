@@ -92,50 +92,55 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .card.pause{width:340px}
 .col{display:flex;flex-direction:column;min-width:0;min-height:0}
 .eyebrow{margin:0 0 2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--muted)}
-h1{margin:0 0 6px;line-height:0}
-.logo svg{width:250px;height:auto;display:block;overflow:visible}
+h1{margin:2px 0 8px;line-height:0}
+.logo svg{width:100%;height:auto;display:block;overflow:visible}
 .logotext{font-family:'Rubik',system-ui,sans-serif;font-weight:900;font-size:96px}
 h2{font-family:var(--f-display);font-weight:900;font-size:20px;line-height:1.15;margin:0;text-wrap:balance}
 .lead{font-size:12.5px;line-height:1.45;margin:0 0 10px;color:#3d3449}
 .tips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.lead{margin-bottom:10px}
 .tip{display:grid;grid-template-columns:30px 1fr;gap:7px;align-items:center;padding:6px 8px 6px 6px;border-radius:10px;min-height:44px;box-sizing:border-box}
 .tip canvas{width:30px;height:30px}
 .tip b{display:block;font-size:12px;font-weight:900;line-height:1.2}
 .tip span{display:block;font-size:10.5px;line-height:1.3;color:#5a5166}
 .t1{background:#fde9e3}.t2{background:#e4f1fa}.t3{background:#fdeacc}.t4{background:#fbe3e6}.t5{background:#e8e9fb}.t6{background:#e5f3e9}
-.foot{margin-top:auto;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
-.lvl{display:grid;grid-template-columns:20px 104px minmax(0,1fr) 20px;align-items:center;gap:6px;padding:5px;border-radius:12px;background:#f3ebdf}
-.lvl canvas{width:104px;height:58px;border-radius:7px;display:block}
-.lvlinfo{display:grid;min-width:0;gap:1px}
-.lvlinfo .n{font-size:9px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--muted)}
-.lvlinfo b{font-size:14px;font-weight:900;line-height:1.15}
-.lvlinfo .s{font-size:10px;line-height:1.25;color:#5a5166}
+.lvl{margin-top:auto;display:grid;grid-template-columns:176px minmax(0,1fr);gap:12px;padding:8px;border-radius:14px;background:#f3ebdf}
+.lvlthumb{position:relative;width:176px;height:99px}
+.lvlthumb canvas{width:176px;height:99px;border-radius:9px;display:block}
+.nav2{position:absolute;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;border-radius:50%;background:rgba(20,16,36,.55);color:#fff;font:800 15px/1 var(--f-ui);cursor:pointer;padding:0 0 2px;display:grid;place-items:center}
+#prevLvl{left:5px}#nextLvl{right:5px}
+.nav2:hover{background:rgba(20,16,36,.75)}
+.nav2:disabled{opacity:0;pointer-events:none}
+.nav2:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.lvlinfo{display:flex;flex-direction:column;min-width:0;gap:1px}
+.lvlinfo .n{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--muted)}
+.lvlinfo b{font-size:17px;font-weight:900;line-height:1.15}
+.lvlinfo .s{font-size:11px;line-height:1.3;color:#5a5166}
+.lvlinfo .btn{margin-top:auto;align-self:flex-end}
 .lvl.locked b{color:var(--muted)}
-.nav2{width:20px;height:58px;border:0;border-radius:7px;background:rgba(36,27,51,.07);color:var(--ink);font:800 15px/1 var(--f-ui);cursor:pointer;padding:0}
-.nav2:hover{background:rgba(36,27,51,.14)}
-.nav2:disabled{opacity:.3;cursor:default}
 .btn:disabled,.btn.primary:disabled{background:rgba(36,27,51,.12);color:var(--muted);box-shadow:none;cursor:default}
-.keys{margin:6px 0 0;font-size:10.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.keys{margin:6px 0 6px;font-size:10.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
 kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;border-radius:5px;background:#fff;color:var(--ink);box-shadow:0 1.5px 0 rgba(36,27,51,.18),0 0 0 1px var(--line);text-align:center}
-.catcard{background:linear-gradient(180deg,#2e3462,#262b52);color:var(--paper);border-radius:14px;padding:8px 12px 12px;min-width:0;display:flex;flex-direction:column}
+.catcard{background:linear-gradient(180deg,#2e3462,#262b52);color:var(--paper);border-radius:14px;padding:6px 14px 14px;min-width:0;display:flex;flex-direction:column}
 .picker{position:relative}
-#preview{width:100%;height:auto;aspect-ratio:560/320;display:block}
+#preview{width:100%;height:auto;aspect-ratio:560/340;display:block}
 .nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:var(--paper);font:800 17px/1 var(--f-ui);cursor:pointer;display:grid;place-items:center;padding:0 0 2px;transition:background .15s}
 .nav:hover{background:rgba(255,255,255,.24)}
 .nav:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
 #prevCat{left:0}#nextCat{right:0}
 .pvhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-#pvCount{font-weight:700;font-size:10.5px;opacity:.6;font-variant-numeric:tabular-nums}
-.pvtag{margin:2px 0 0;font-size:11px;line-height:1.35;opacity:.78}
-.catgrid{margin-top:auto;display:grid;grid-template-columns:1.2fr 1fr;gap:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1)}
-.traits{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;margin:0;font-size:10.5px;align-content:start}
+#pvName{font-size:22px}
+#pvCount{font-weight:700;font-size:11px;opacity:.6;font-variant-numeric:tabular-nums}
+.pvtag{margin:3px 0 0;font-size:12px;line-height:1.4;opacity:.8}
+.catgrid{margin-top:auto;display:grid;grid-template-columns:1.35fr 1fr;gap:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
+.traits{display:grid;grid-template-columns:auto 1fr;gap:4px 9px;margin:0;font-size:11.5px;align-content:start}
 .traits dt{opacity:.6}
 .traits dd{margin:0;font-weight:700;display:flex;align-items:center;gap:5px;min-width:0}
 .dot{width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,255,255,.25);display:inline-block;flex:none}
-.stats{display:grid;gap:4px;font-size:10px;align-content:start}
-.stat{display:grid;gap:2px}
+.stats{display:grid;gap:6px;font-size:11px;align-content:start}
+.stat{display:grid;gap:3px}
 .stat span:first-child{opacity:.8}
-.stat .track{height:4px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
+.stat .track{height:5px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden}
 .stat .track i{display:block;height:100%;background:var(--gold);border-radius:4px}
 .actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .btn{font:inherit;font-size:13.5px;font-weight:800;padding:9px 18px;border-radius:11px;border:0;cursor:pointer;color:var(--ink);background:rgba(36,27,51,.07);transition:background .15s,transform .08s;white-space:nowrap}
@@ -189,17 +194,17 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
  <div class="screen">
   <div class="card start">
     <div class="col">
-      <h1 class="logo"><svg viewBox="0 0 560 210" role="img" aria-label="Угомони кота">
+      <h1 class="logo"><svg viewBox="0 0 1000 116" role="img" aria-label="Угомони кота">
         <defs>
           <filter id="fluffOut" x="-6%" y="-12%" width="112%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
           <filter id="fluffIn" x="-6%" y="-12%" width="112%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
-          <pattern id="furPat" patternUnits="userSpaceOnUse" width="560" height="210">
-            <rect width="560" height="210" fill="#ee8b2e"/>
+          <pattern id="furPat" patternUnits="userSpaceOnUse" width="1000" height="116">
+            <rect width="1000" height="116" fill="#ee8b2e"/>
           </pattern>
         </defs>
         <g class="logotext">
-          <g filter="url(#fluffOut)" fill="#1d1428" stroke="#1d1428" stroke-width="14" stroke-linejoin="round"><text x="14" y="96">Угомони</text><text x="14" y="194">кота</text></g>
-          <g filter="url(#fluffIn)" fill="url(#furPat)"><text x="14" y="96">Угомони</text><text x="14" y="194">кота</text></g>
+          <g filter="url(#fluffOut)" fill="#1d1428" stroke="#1d1428" stroke-width="14" stroke-linejoin="round"><text x="12" y="96">Угомони кота</text></g>
+          <g filter="url(#fluffIn)" fill="url(#furPat)"><text x="12" y="96">Угомони кота</text></g>
         </g>
       </svg></h1>
       <p class="lead">Три часа ночи. Вам утром на работу, а коту приспичило поорать. Уложите его спать раньше, чем зазвонит будильник.</p>
@@ -212,20 +217,22 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
         <div class="tip t6"><canvas data-ico="book" width="88" height="88"></canvas><div><b>Ломай с пользой</b><span>Упавшие книги и шторы тоже летают.</span></div></div>
       </div>
       <p class="keys"><kbd>1</kbd>–<kbd>7</kbd> снаряд <kbd>H</kbd> лечиться <kbd>P</kbd> пауза</p>
-      <div class="foot">
-        <div class="lvl" id="lvlBox">
+      <div class="lvl" id="lvlBox">
+        <div class="lvlthumb">
+          <canvas id="lvlThumb" width="352" height="198"></canvas>
           <button class="nav2" id="prevLvl" type="button" aria-label="Предыдущий уровень">‹</button>
-          <canvas id="lvlThumb" width="208" height="116"></canvas>
-          <div class="lvlinfo"><span class="n" id="lvlNum">Уровень 1</span><b id="lvlName">Спальня</b><span class="s" id="lvlSub"></span></div>
           <button class="nav2" id="nextLvl" type="button" aria-label="Следующий уровень">›</button>
         </div>
-        <button class="btn primary" id="startBtn" type="button">Начать</button>
+        <div class="lvlinfo">
+          <span class="n" id="lvlNum">Уровень 1</span><b id="lvlName">Спальня</b><span class="s" id="lvlSub"></span>
+          <button class="btn primary" id="startBtn" type="button">Начать</button>
+        </div>
       </div>
     </div>
     <div class="catcard">
       <div class="picker">
         <button class="nav" id="prevCat" type="button" aria-label="Предыдущий кот">‹</button>
-        <canvas id="preview" width="560" height="320"></canvas>
+        <canvas id="preview" width="560" height="340"></canvas>
         <button class="nav" id="nextCat" type="button" aria-label="Следующий кот">›</button>
       </div>
       <div class="pvhead"><h2 id="pvName">Кот</h2><span id="pvCount">1 / 7</span></div>
@@ -275,12 +282,12 @@ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- data ---------------- */
 const BREEDS=[
- {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бесоёб',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Жёлто-зелёные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true},
+ {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бесоёб',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Кислотные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true},
  {id:'brit',name:'Барон Булкин',breed:'Британец',type:'Кот-батон',tag:'Медленный, но непробиваемый. Требует завтрак с достоинством.',build:'Толстый',size:1.05,fat:1.28,fur:'#8f9cb2',belly:'#aab6c8',paw:'#9eabc0',tail:'#8f9cb2',lid:'#8f9cb2',pattern:'solid',eye:'#e3892b',eyeName:'Медные',color:'Голубой',nose:'#6f7b93',whisk:'rgba(255,255,255,.75)',hp:220,speed:85,regen:4.5,aggr:.55,loud:.9,dmgMul:1,pitch:.8},
  {id:'siam',name:'Сирена',breed:'Сиамская',type:'Сиамская истеричка',tag:'Орёт громче будильника и прекрасно об этом знает.',build:'Стройная',size:.95,fat:.86,fur:'#efe1c6',belly:'#f8f0df',paw:'#4a3328',tail:'#4a3328',point:'#4a3328',lid:'#4a3328',pattern:'points',eye:'#3f9ce9',eyeName:'Голубые',color:'Сил-пойнт',nose:'#3a2820',whisk:'rgba(60,40,40,.6)',hp:130,speed:175,regen:3,aggr:.85,loud:1.7,dmgMul:.9,pitch:1.25},
  {id:'mcoon',name:'Бигфут',breed:'Мейн-кун',type:'Рысь-переросток',tag:'Огромный, пушистый и тяжёлый. Царапает больнее всех.',build:'Громадный',size:1.28,fat:1.1,fur:'#8b5b33',belly:'#d7b48c',paw:'#d7b48c',tail:'#7a4e2a',stripe:'#3d2513',lid:'#8b5b33',pattern:'tabby',eye:'#86c541',eyeName:'Зелёные',color:'Табби',nose:'#e98a94',whisk:'rgba(255,255,255,.75)',hp:280,speed:110,regen:5,aggr:.7,loud:1,dmgMul:1.4,pitch:.72,tufts:true},
  {id:'sphynx',name:'Доби',breed:'Сфинкс',type:'Лысый домовой',tag:'Тёплый, морщинистый и очень мстительный.',build:'Морщинистый',size:.95,fat:.9,fur:'#e8b5a2',belly:'#f2cbbb',paw:'#e8b5a2',tail:'#e8b5a2',lid:'#d9a08c',pattern:'sphynx',eye:'#c3e46b',eyeName:'Лимонные',color:'Розовый',nose:'#d27d86',whisk:'rgba(90,50,50,.5)',hp:120,speed:155,regen:3,aggr:1,loud:1.5,dmgMul:.9,pitch:1.2,bigEars:true},
- {id:'bengal',name:'Турбо',breed:'Бенгальская',type:'Мини-леопард',tag:'Работает на батарейках, которые никогда не садятся.',build:'Атлетичный',size:1.02,fat:.95,fur:'#e2a24c',belly:'#f6dfb0',paw:'#f0c98a',tail:'#e2a24c',stripe:'#4a2a14',lid:'#e2a24c',pattern:'spots',eye:'#9bc43a',eyeName:'Зелёно-золотые',color:'Леопардовый',nose:'#c9706e',whisk:'rgba(255,255,255,.8)',hp:140,speed:195,regen:3.6,aggr:1,loud:1.1,dmgMul:1.1,pitch:1.1},
+ {id:'bengal',name:'Турбо',breed:'Бенгальская',type:'Мини-леопард',tag:'Работает на батарейках, которые никогда не садятся.',build:'Атлетичный',size:1.02,fat:.95,fur:'#e2a24c',belly:'#f6dfb0',paw:'#f0c98a',tail:'#e2a24c',stripe:'#4a2a14',lid:'#e2a24c',pattern:'spots',eye:'#9bc43a',eyeName:'Оливковые',color:'Леопардовый',nose:'#c9706e',whisk:'rgba(255,255,255,.8)',hp:140,speed:195,regen:3.6,aggr:1,loud:1.1,dmgMul:1.1,pitch:1.1},
  {id:'ginger',name:'Апельсин',breed:'Рыжий дворовый',type:'Одна извилина',tag:'Делит одну извилину со всеми рыжими котами мира. Сегодня не его очередь.',build:'Жилистый',size:1,fat:1,fur:'#ee8b2e',belly:'#f8d29b',paw:'#f8e3c4',tail:'#ee8b2e',stripe:'#b9561a',lid:'#ee8b2e',pattern:'tabby',eye:'#f2c62f',eyeName:'Жёлтые, косые',color:'Рыжий',nose:'#e7798b',whisk:'rgba(255,255,255,.8)',hp:160,speed:150,regen:3.8,aggr:1.15,loud:1.2,dmgMul:1.15,pitch:1,torn:true,derp:true},
 ];
 const PHRASES=['МЯЯЯУ!','МРРРАУ!','КОРМИ!','АААУУУ!','МЯУ-МЯУ!','ОТКРОЙ ДВЕРЬ!','МИСКА ПУСТАЯ!','ВСТАВАЙ!','МЯ!'];
@@ -1550,9 +1557,9 @@ function renderLvl(){
   const L=LEVELS[selLvl-1],locked=selLvl>unlocked;
   $('lvlNum').textContent=`Уровень ${L.n} из ${LEVELS.length}`;$('lvlName').textContent=L.name;$('lvlSub').textContent=locked?`Откроется после уровня ${L.n-1}`:L.sub;
   $('lvlBox').classList.toggle('locked',locked);$('prevLvl').disabled=selLvl<=1;$('nextLvl').disabled=selLvl>=LEVELS.length;
-  const c=$('lvlThumb').getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,208,116);
-  if(L.thumb){c.filter=locked?'grayscale(1) brightness(.8)':'none';c.drawImage(L.thumb,0,0,208,116);c.filter='none';}
-  if(locked){c.fillStyle='rgba(30,26,44,.4)';c.fillRect(0,0,208,116);c.save();c.translate(104,58);c.lineWidth=5;c.strokeStyle='#fff';c.beginPath();c.arc(0,-6,11,Math.PI,0);c.stroke();rr(c,-17,-6,34,26,5);c.fillStyle='#fff';c.fill();ell(c,0,5,3.5,3.5);c.fillStyle='#5a5166';c.fill();c.restore();}
+  const c=$('lvlThumb').getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,352,198);
+  if(L.thumb){c.filter=locked?'grayscale(1) brightness(.8)':'none';c.drawImage(L.thumb,0,0,352,198);c.filter='none';}
+  if(locked){c.fillStyle='rgba(30,26,44,.4)';c.fillRect(0,0,352,198);c.save();c.translate(176,99);c.scale(1.3,1.3);c.lineWidth=5;c.strokeStyle='#fff';c.beginPath();c.arc(0,-6,11,Math.PI,0);c.stroke();rr(c,-17,-6,34,26,5);c.fillStyle='#fff';c.fill();ell(c,0,5,3.5,3.5);c.fillStyle='#5a5166';c.fill();c.restore();}
   const b=$('startBtn');b.disabled=locked;b.textContent=locked?'Закрыт':(selLvl===unlocked&&unlocked>1?'Продолжить':'Начать');
 }
 function setLvl(i){selLvl=clamp(i,1,LEVELS.length);renderLvl();}
@@ -1569,15 +1576,15 @@ function renderPreviewInfo(){
 function setLogo(b){
   const NS='http://www.w3.org/2000/svg',pat=$('furPat');pat.textContent='';
   const add=(tag,a)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);pat.append(e);return e;};
-  add('rect',{width:560,height:210,fill:b.fur});
-  const lines=[[26,96],[124,194]];
-  if(b.pattern==='points'){for(let i=0;i<7;i++){const o=String(.95-i*.14);add('rect',{x:i*16,y:0,width:16,height:210,fill:b.point,opacity:o});add('rect',{x:544-i*16,y:0,width:16,height:210,fill:b.point,opacity:o});}}
-  if(b.pattern==='tabby'){for(const[t,bt]of lines)for(let x=-6;x<580;x+=38)add('path',{d:`M${x} ${t+4}q12 ${(bt-t)*.4} -3 ${bt-t-18}`,stroke:b.stripe,'stroke-width':10,'stroke-linecap':'round',fill:'none'});}
-  if(b.pattern==='spots'){let r=0;for(const[t,bt]of lines)for(let y=t+24;y<bt-14;y+=19,r++)for(let x=(r%2)*19+((r*7)%11);x<570;x+=38){add('ellipse',{cx:x,cy:y,rx:8.5,ry:6.5,fill:'none',stroke:b.stripe,'stroke-width':4});add('ellipse',{cx:x+1,cy:y,rx:3.5,ry:2.6,fill:shade(b.fur,-.15)});}}
+  const LW=1000;add('rect',{width:LW,height:116,fill:b.fur});
+  const lines=[[26,96]];
+  if(b.pattern==='points'){for(let i=0;i<7;i++){const o=String(.95-i*.14);add('rect',{x:i*16,y:0,width:16,height:116,fill:b.point,opacity:o});add('rect',{x:LW-16-i*16,y:0,width:16,height:116,fill:b.point,opacity:o});}}
+  if(b.pattern==='tabby'){for(const[t,bt]of lines)for(let x=-6;x<LW+20;x+=38)add('path',{d:`M${x} ${t+4}q12 ${(bt-t)*.4} -3 ${bt-t-18}`,stroke:b.stripe,'stroke-width':10,'stroke-linecap':'round',fill:'none'});}
+  if(b.pattern==='spots'){let r=0;for(const[t,bt]of lines)for(let y=t+24;y<bt-14;y+=19,r++)for(let x=(r%2)*19+((r*7)%11);x<LW+10;x+=38){add('ellipse',{cx:x,cy:y,rx:8.5,ry:6.5,fill:'none',stroke:b.stripe,'stroke-width':4});add('ellipse',{cx:x+1,cy:y,rx:3.5,ry:2.6,fill:shade(b.fur,-.15)});}}
   for(const[t,bt]of lines){
-    let d=`M0 ${bt-14}`;for(let x=0;x<=560;x+=70)d+=` Q${x+35} ${bt-22+((x/70)%2)*12} ${x+70} ${bt-14}`;d+=` L560 ${bt+20} L0 ${bt+20}Z`;
+    let d=`M0 ${bt-14}`;for(let x=0;x<=LW;x+=70)d+=` Q${x+35} ${bt-22+((x/70)%2)*12} ${x+70} ${bt-14}`;d+=` L${LW} ${bt+20} L0 ${bt+20}Z`;
     add('path',{d,fill:b.belly});
-    add('ellipse',{cx:280,cy:t+10,rx:300,ry:12,fill:'#fff',opacity:b.id==='black'?'.22':'.16'});
+    add('ellipse',{cx:LW/2,cy:t+10,rx:LW*.55,ry:12,fill:'#fff',opacity:b.id==='black'?'.22':'.16'});
   }
   const seed=String(1+Math.floor(Math.random()*90));for(const id of['fluffOut','fluffIn'])$(id).querySelector('feTurbulence').setAttribute('seed',seed);
 }
@@ -1592,10 +1599,10 @@ function drawTipIcons(){
 const pv=$('preview'),pvc=pv.getContext('2d');
 function renderPreview(t){
   if($('startOv').hidden||!game.breed)return;
-  pvc.setTransform(1,0,0,1,0,0);pvc.clearRect(0,0,560,320);
-  const g=pvc.createRadialGradient(280,250,20,280,230,260);g.addColorStop(0,'rgba(255,214,130,.35)');g.addColorStop(1,'rgba(255,214,130,0)');pvc.fillStyle=g;pvc.fillRect(0,0,560,320);
-  ell(pvc,280,292,170,22);pvc.fillStyle='#3f7f6c';pvc.fill();
-  const b=game.breed,z=1.75/Math.max(1,b.size*.95);pvc.setTransform(z,0,0,z,280-10*z,292);
+  pvc.setTransform(1,0,0,1,0,0);pvc.clearRect(0,0,560,340);
+  const g=pvc.createRadialGradient(280,210,20,280,190,250);g.addColorStop(0,'rgba(255,214,130,.35)');g.addColorStop(1,'rgba(255,214,130,0)');pvc.fillStyle=g;pvc.fillRect(0,0,560,320);
+  ell(pvc,280,268,165,20);pvc.fillStyle='#3f7f6c';pvc.fill();
+  const b=game.breed,z=1.75/Math.max(1,b.size*.95);pvc.setTransform(z,0,0,z,280-10*z,268);
   const blink=(t%3.2)>3.05;drawCatPose(pvc,b,{eyes:blink?'closed':'normal',seed:1},t);
 }
 
