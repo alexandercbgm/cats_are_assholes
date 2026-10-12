@@ -557,8 +557,9 @@ function drawHead(c,b,o,t){
     c.beginPath();c.moveTo(7.5,9);c.quadraticCurveTo(5,14,1,12);c.moveTo(7.5,9);c.quadraticCurveTo(10,14,14,12);c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
   }
   c.strokeStyle=b.whisk;c.lineWidth=1.4;c.beginPath();
-  if(b.pattern==='sphynx'){c.moveTo(20,10);c.quadraticCurveTo(30,5,38,9);}
-  else{c.moveTo(20,9);c.lineTo(46,4);c.moveTo(20,12);c.lineTo(45,15);c.moveTo(19,14);c.lineTo(42,22);}
+  // mirrored around the nose (x=7.5) so both sides match
+  if(b.pattern==='sphynx'){c.moveTo(20,10);c.quadraticCurveTo(30,5,38,9);c.moveTo(-5,10);c.quadraticCurveTo(-15,5,-23,9);}
+  else{c.moveTo(20,9);c.lineTo(46,4);c.moveTo(20,12);c.lineTo(45,15);c.moveTo(19,14);c.lineTo(42,22);c.moveTo(-5,9);c.lineTo(-31,4);c.moveTo(-5,12);c.lineTo(-30,15);c.moveTo(-4,14);c.lineTo(-27,22);}
   c.stroke();
 }
 function tailPath(c,brx,bcy,sway,down){c.beginPath();c.moveTo(-brx+8,bcy-4);c.bezierCurveTo(-brx-30,bcy-4,-brx-38+sway*8,bcy-50+down,-brx-22+sway*22,bcy-88+down*1.6);}
