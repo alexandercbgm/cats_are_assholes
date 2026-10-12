@@ -553,7 +553,7 @@ function drawHead(c,b,o,t){
     ell(c,8,15+oh*.8,4.5,2.6);c.fillStyle='#ff7a95';c.fill();
     poly(c,[3,11,5.5,11,4.2,15.5]);fs(c,'#fff',1);poly(c,[10.5,11,13,11,11.8,15.5]);fs(c,'#fff',1);
   }else{
-    if(o.tongue){rr(c,4,10.5,8,12,4);fs(c,'#ff7a95',2.2);c.beginPath();c.moveTo(8,13);c.lineTo(8,19);c.lineWidth=1.4;c.strokeStyle='#c94a66';c.stroke();}
+    if(o.tongue){const sw=o.tongueSway||0;c.beginPath();c.moveTo(4,11);c.lineTo(12,11);c.quadraticCurveTo(12.5+sw,22,8+sw,24);c.quadraticCurveTo(3.5+sw,22,4,11);c.closePath();fs(c,'#ff7a95',2.2);c.beginPath();c.moveTo(8,13);c.lineTo(8+sw*.7,20);c.lineWidth=1.4;c.strokeStyle='#c94a66';c.stroke();}
     c.beginPath();c.moveTo(7.5,9);c.quadraticCurveTo(5,14,1,12);c.moveTo(7.5,9);c.quadraticCurveTo(10,14,14,12);c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
   }
   c.strokeStyle=b.whisk;c.lineWidth=1.4;c.beginPath();
@@ -601,29 +601,57 @@ function drawCatPose(c,b,o,t){
   c.restore();
   if(o.pillow){c.save();c.scale(b.size,b.size);drawItem(c,'pillow',6,-38,1.7,-.1+Math.sin(t*3)*.03,false,t);c.restore();}
 }
-// knocked out: on its back (paws up) or on its side (paws stiff), X eyes, tongue out
-function drawCatKO(c,b,t,variant){
-  const fat=b.fat,brx=50*fat,bry=26*fat,L=legCols(b),tw=tailW(b),tw2=Math.sin(t*9)*2.5,br=1+Math.sin(t*2.2)*.03;
-  const head={eyes:'x',mouth:0,tongue:1};
+// two-segment limb (thigh/shin or upper arm/forearm) with a visible joint and a paw flopped at the wrist
+function jointLimb(c,A,B,C,w1,w2,col,pc,body,pawAng){
+  c.lineCap='round';c.lineJoin='round';
+  const s1=()=>{c.beginPath();c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);},s2=()=>{c.beginPath();c.moveTo(B[0],B[1]);c.lineTo(C[0],C[1]);};
+  if(body){c.save();ell(c,body.cx,body.cy,body.rx-1.5,body.ry-1.5,body.rot||0);c.clip();ell(c,A[0],A[1],w1*.8,w1*.7);c.fillStyle=col;c.fill();c.restore();}
+  c.save();if(body)outsideClip(c,body);c.strokeStyle=OUT;c.lineWidth=w1+6;s1();c.stroke();c.lineWidth=w2+6;s2();c.stroke();c.restore();
+  c.strokeStyle=col;c.lineWidth=w1;s1();c.stroke();c.lineWidth=w2;s2();c.stroke();
+  c.save();c.translate(C[0],C[1]);c.rotate(pawAng);ell(c,4,0,10,7);fs(c,pc,3);
+  c.beginPath();c.moveTo(13.5,-2.5);c.lineTo(9,-2);c.moveTo(13.5,2.5);c.lineTo(9,2);c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();c.restore();
+}
+function hangTongue(c,x,y,len,sw){
+  c.beginPath();c.moveTo(x-4,y);c.lineTo(x+4,y);c.quadraticCurveTo(x+4.5+sw,y+len*.8,x+sw,y+len);c.quadraticCurveTo(x-4.5+sw,y+len*.8,x-4,y);c.closePath();fs(c,'#ff7a95',2.2);
+  c.beginPath();c.moveTo(x,y+2);c.lineTo(x+sw*.7,y+len*.7);c.lineWidth=1.4;c.strokeStyle='#c94a66';c.stroke();
+}
+// head lolled to the side; the tongue hangs toward the floor whatever the head angle
+function koHead(c,b,t,hx,hy,rot){
+  c.save();c.translate(hx,hy);c.rotate(rot);drawHead(c,b,{eyes:'x',mouth:0},t);c.restore();
+  const mx=hx+8*Math.cos(rot)-12*Math.sin(rot),my=hy+8*Math.sin(rot)+12*Math.cos(rot);
+  hangTongue(c,mx,my,clamp(-my-1,9,16),Math.sin(t*2.4)*1.6);
+}
+// sharp short pulse every few seconds: reads as a nervous twitch, not constant jitter
+const twitch=(t,period,phase)=>{const u=((t+phase)%period)/period;return u<.06?Math.sin(u/.06*Math.PI):0;};
+// knocked out: 'back' = belly up with bent paws in the air; 'side' = sprawled on its side, legs stretched out
+function drawCatKO(c,b,t,variant,age){
+  const fat=b.fat,brx=50*fat,bry=26*fat,L=legCols(b),tw=tailW(b),breath=Math.sin(t*2.4);
   c.save();c.scale(b.size,b.size);c.lineJoin='round';c.lineCap='round';
+  if(age<.4){const u=1-age/.4,bounce=Math.sin(age/.4*Math.PI);c.translate(0,-bounce*14);c.scale(1+.12*u,1-.14*u);}
   if(variant==='back'){
-    const bcy=-24,body={cx:0,cy:bcy,rx:brx,ry:bry*.92*br};
-    strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-brx+8,bcy+6);c.quadraticCurveTo(-brx-34,-2,-brx-74,-4);});
-    limb(c,-26,bcy-12,-38,bcy-62+tw2,L.far,L.farPaw,0);limb(c,22,bcy-14,30,bcy-64-tw2,L.far,L.farPaw,0);
-    ell(c,0,bcy,body.rx,body.ry);fs(c,b.fur,0);
-    c.save();ell(c,0,bcy,body.rx,body.ry);c.clip();furPattern(c,b,0,bcy+bry*.3,brx,bry);ell(c,0,bcy-bry*.5,brx*.78,bry*.62);c.fillStyle=b.belly;c.fill();c.restore();
-    ell(c,0,bcy,body.rx,body.ry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
-    limb(c,-14,bcy-10,-18,bcy-66-tw2,L.near,L.paw,0,body);limb(c,32,bcy-10,46,bcy-60+tw2,L.near,L.paw,0,body);
-    c.save();c.translate(brx+14,-26);c.rotate(2.3);drawHead(c,b,head,t);c.restore();
+    const ry=bry*.88*(1+breath*.04),bcy=-ry-2,top=bcy-ry,body={cx:0,cy:bcy,rx:brx,ry};
+    const k1=twitch(t,2.7,0),k2=twitch(t,3.4,1.3);
+    strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-brx+8,bcy+6);c.bezierCurveTo(-brx-26,-4,-brx-50,-4,-brx-62,-8);c.quadraticCurveTo(-brx-74,-10-k2*10,-brx-70,-22-k2*10);});
+    jointLimb(c,[-brx*.62,top+10],[-brx*.62-22,top-12],[-brx*.62-26,top-38],17,11,L.far,L.farPaw,null,-1.9);
+    jointLimb(c,[brx*.3,top+8],[brx*.3-2,top-24],[brx*.3+14,top-34],13,10,L.far,L.farPaw,null,.9);
+    ell(c,0,bcy,brx,ry);fs(c,b.fur,0);
+    c.save();ell(c,0,bcy,brx,ry);c.clip();furPattern(c,b,0,bcy+ry*.45,brx,bry);ell(c,2,top+ry*.6,brx*.82,ry*.62);c.fillStyle=b.belly;c.fill();c.restore();
+    ell(c,0,bcy,brx,ry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
+    jointLimb(c,[-brx*.36,top+6],[-brx*.36-20,top-20-k1*6],[-brx*.36-8,top-46-k1*10],19,12,L.near,L.paw,body,-1.2+k1*.5);
+    jointLimb(c,[brx*.52,top+6],[brx*.52+8,top-30],[brx*.52+24,top-32+k2*4],14,10.5,L.near,L.paw,body,1.15);
+    koHead(c,b,t,brx+12,-25,Math.PI/2+.15+Math.sin(t*1.1)*.04);
   }else{
-    const rot=-.06,bcy=-26,body={cx:0,cy:bcy,rx:brx,ry:bry*.88*br,rot};
-    strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-brx+6,bcy+4);c.quadraticCurveTo(-brx-30,-4,-brx-68,-2);});
-    limb(c,-20,bcy-10,8,bcy-56+tw2,L.far,L.farPaw,0);limb(c,26,bcy-12,60,bcy-50-tw2,L.far,L.farPaw,0);
-    ell(c,0,bcy,body.rx,body.ry,rot);fs(c,b.fur,0);
-    c.save();ell(c,0,bcy,body.rx,body.ry,rot);c.clip();furPattern(c,b,0,bcy,brx,bry);ell(c,10,bcy-bry*.55,brx*.7,bry*.45);c.fillStyle=b.belly;c.fill();c.restore();
-    ell(c,0,bcy,body.rx,body.ry,rot);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
-    limb(c,-30,bcy-8,-6,bcy-50-tw2,L.near,L.paw,0,body);limb(c,34,bcy-8,72,bcy-40+tw2,L.near,L.paw,0,body);
-    c.save();c.translate(brx+16,-22);c.rotate(1.25);drawHead(c,b,head,t);c.restore();
+    const ry=bry*.8*(1+breath*.05),rx=brx*1.04,bcy=-ry-1,body={cx:0,cy:bcy,rx,ry};
+    const k1=twitch(t,2.9,.4),k2=twitch(t,3.7,2);
+    jointLimb(c,[rx*.42,bcy+ry*.2],[rx*.42+20,bcy+ry*.2-6],[rx+28,bcy-2],12,9.5,L.far,L.farPaw,null,-.25);
+    jointLimb(c,[-rx*.5,bcy+ry*.2],[-rx*.5-22,bcy-2],[-rx-34,bcy-8],16,10,L.far,L.farPaw,null,Math.PI+.3);
+    strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-rx+6,bcy-ry*.3);c.bezierCurveTo(-rx-20,bcy-ry*.6,-rx-40,-4,-rx-64,-4);c.quadraticCurveTo(-rx-80,-4-k2*12,-rx-78,-16-k2*12);});
+    ell(c,0,bcy,rx,ry);fs(c,b.fur,0);
+    c.save();ell(c,0,bcy,rx,ry);c.clip();furPattern(c,b,0,bcy-2,rx,bry*.9);ell(c,4,bcy+ry*.75,rx*.8,ry*.42);c.fillStyle=b.belly;c.fill();c.restore();
+    ell(c,0,bcy,rx,ry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
+    jointLimb(c,[-rx*.38,bcy+ry*.45],[-rx*.38-26,bcy+ry*.75],[-rx-28,-6],19,12,L.near,L.paw,body,Math.PI+.1);
+    jointLimb(c,[rx*.5,bcy+ry*.45],[rx*.5+22,bcy+ry*.8],[rx+42,-6-k1*6],14,10.5,L.near,L.paw,body,-.15-k1*.4);
+    koHead(c,b,t,rx+4,-25,.28+Math.sin(t*1.1)*.03);
   }
   c.restore();
 }
@@ -827,7 +855,7 @@ function hitCat(p,head){
 function catSleep(){
   const k=cat;if(k.stunType==='towel')dropPick('towel',k.x,k.y-60);
   if(k.air){k.x=k.air.x1;k.y=k.air.y1;k.plat=k.air.plat;k.air=null;}
-  k.state='asleep';k.ko=Math.random()<.5?'back':'side';k.stunType=null;k.bubble=null;
+  k.state='asleep';k.ko=Math.random()<.5?'back':'side';k.koStart=k.anim;dust(k.x,k.y,14);k.stunType=null;k.bubble=null;
   game.score+=1000+Math.round(player.hp)*10+Math.round(player.sleep)*10;game.winT=2.4;sWin();
   pop(k.x,k.y-150,'Уснул!','#9ff0c4',40);
 }
@@ -934,7 +962,7 @@ function update(dt){
 function renderCat(k,t){
   cb.setTransform(1,0,0,1,0,0);cb.clearRect(0,0,1280,960);cb.setTransform(2,0,0,2,640,760);
   cb.save();cb.scale(k.face,1);
-  if(k.state==='asleep')drawCatKO(cb,k.b,t,k.ko);
+  if(k.state==='asleep')drawCatKO(cb,k.b,t,k.ko,k.anim-(k.koStart||0));
   else{
     const s=k.state,o={walk:s==='walk',phase:k.phase,eyes:'normal',mouth:0,headTilt:0,seed:k.seed};
     if(s==='yell'){o.mouth=.55+.45*Math.abs(Math.sin(k.anim*7));o.eyes='angry';o.headTilt=-.25;o.tailFlick=1;}
