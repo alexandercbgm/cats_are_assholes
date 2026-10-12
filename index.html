@@ -797,7 +797,7 @@ let furn={},marks=[],cracks=[];
 function makeFurn(){return{
   rod:{x1:494,y1:98,x2:874,y2:120,hp:1,cost:0,brk:2500,label:'Гардина',tilt:0},
   curtL:{x1:512,y1:120,x2:594,y2:484,hp:3,cost:300,brk:2000,label:'Штора'},
-  curtR:{x1:774,y1:120,x2:856,y2:484,hp:3,cost:300,brk:2000,label:'Штора'},
+  curtR:{x1:846,y1:120,x2:926,y2:484,hp:3,cost:300,brk:2000,label:'Штора'},
   shelf:{x1:294,y1:286,x2:506,y2:328,hp:2,cost:400,brk:1500,label:'Полка',tilt:0},
   wardrobe:{x1:24,y1:160,x2:236,y2:598,hp:4,cost:900,brk:6000,label:'Шкаф',drop:'towel'},
   stand:{x1:292,y1:484,x2:438,y2:598,hp:3,cost:500,brk:3000,label:'Тумбочка',drop:'plaster'},
@@ -821,7 +821,7 @@ function breakFurn(id){
   addDamage({cost:f.brk,label:{rod:'Гардина рухнула',shelf:'Полка рухнула',curtL:'Штора сорвана',curtR:'Штора сорвана',wardrobe:'Шкаф сломан',stand:'Тумбочка сломана',desk:'Стол сломан'}[id]},(f.x1+f.x2)/2,Math.max(140,f.y1+40));
   if(id==='rod'&&!furn.curtL.broken){furn.curtL.broken=true;furn.curtL.t=0;dropPick('curtain',553,420);}
   if(id==='curtL')dropPick('curtain',553,420);
-  if(id==='curtR')dropPick('curtain',815,420);
+  if(id==='curtR')dropPick('curtain',884,420);
   if(id.startsWith('curt')||id==='rod')toast('Штору можно подобрать и бросить в кота.');
   if(id.startsWith('curt')||id==='rod')marks=marks.filter(m=>!(m.id==='curtL'&&furn.curtL.broken)&&!(m.id==='curtR'&&furn.curtR.broken));
   if(id==='shelf'){
@@ -835,10 +835,19 @@ function breakFurn(id){
   if(id==='desk')dropPick('ball',1090,500);
   burst((f.x1+f.x2)/2,Math.min(f.y2-20,f.y1+60),['#a7633e','#c27d4f','#8c4f2d'],10,260,'shard');
 }
+// right curtain pushed aside by the open casement: hangs from the rod, then bellies out to the right of the sash
+function curtainR(c){
+  const g=c.createLinearGradient(840,0,930,0);g.addColorStop(0,'#a33c63');g.addColorStop(.5,'#c9527a');g.addColorStop(1,'#a33c63');
+  c.beginPath();c.moveTo(778,104);c.lineTo(866,104);c.bezierCurveTo(906,170,934,300,918,474);c.quadraticCurveTo(884,488,850,472);
+  c.bezierCurveTo(846,430,848,400,846,388);c.lineTo(846,118);c.quadraticCurveTo(812,108,778,104);c.closePath();fs(c,g,3);
+  c.strokeStyle='rgba(60,10,35,.45)';c.lineWidth=3;
+  for(const[x0,x1,x2]of[[856,872,866],[870,896,886],[884,914,904]]){c.beginPath();c.moveTo(x0,112);c.quadraticCurveTo(x1,300,x2,468);c.stroke();}
+  rr(c,872,324,34,12,6);fs(c,'#f0c75a',2.5);
+}
 function drawFurniture(c,t,dt){
   // curtains + rod
   const R=furn.rod,L=furn.curtL,Rc=furn.curtR;
-  if(!Rc.broken)curtain(c,774,856,1);
+  if(!Rc.broken)curtainR(c);
   if(!L.broken)curtain(c,512,594,-1);
   poly(c,[796,128,842,112,842,396,796,378]);fs(c,'#efe6d6',3);
   poly(c,[802,140,836,128,836,382,802,368]);c.fillStyle='rgba(150,180,255,.28)';c.fill();c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
