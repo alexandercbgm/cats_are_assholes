@@ -155,8 +155,7 @@ h2{font-family:var(--f-display);font-weight:900;font-size:30px;margin:0;text-wra
           <filter id="fluffOut" x="-6%" y="-12%" width="112%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
           <filter id="fluffIn" x="-6%" y="-12%" width="112%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
           <pattern id="furPat" patternUnits="userSpaceOnUse" width="560" height="210">
-            <rect id="furA" width="560" height="210" fill="#2b2934"/>
-            <g id="furB" fill="#ee8b2e"><ellipse cx="60" cy="40" rx="80" ry="46"/><ellipse cx="300" cy="60" rx="90" ry="40"/><ellipse cx="190" cy="180" rx="90" ry="44"/><ellipse cx="480" cy="110" rx="70" ry="60"/></g>
+            <rect width="560" height="210" fill="#ee8b2e"/>
           </pattern>
         </defs>
         <g class="logotext">
@@ -225,13 +224,13 @@ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- data ---------------- */
 const BREEDS=[
- {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бесоёб',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Жёлто-зелёные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true,title:['#2b2934','#ee8b2e']},
- {id:'brit',name:'Барон Булкин',breed:'Британец',type:'Кот-батон',tag:'Медленный, но непробиваемый. Требует завтрак с достоинством.',build:'Толстый',size:1.05,fat:1.28,fur:'#8f9cb2',belly:'#aab6c8',paw:'#9eabc0',tail:'#8f9cb2',lid:'#8f9cb2',pattern:'solid',eye:'#e3892b',eyeName:'Медные',color:'Голубой',nose:'#6f7b93',whisk:'rgba(255,255,255,.75)',hp:220,speed:85,regen:4.5,aggr:.55,loud:.9,dmgMul:1,pitch:.8,title:['#8f9cb2','#e3892b']},
- {id:'siam',name:'Сирена',breed:'Сиамская',type:'Сиамская истеричка',tag:'Орёт громче будильника и прекрасно об этом знает.',build:'Стройная',size:.95,fat:.86,fur:'#efe1c6',belly:'#f8f0df',paw:'#4a3328',tail:'#4a3328',point:'#4a3328',lid:'#4a3328',pattern:'points',eye:'#3f9ce9',eyeName:'Голубые',color:'Сил-пойнт',nose:'#3a2820',whisk:'rgba(60,40,40,.6)',hp:130,speed:175,regen:3,aggr:.85,loud:1.7,dmgMul:.9,pitch:1.25,title:['#efe1c6','#4a3328']},
- {id:'mcoon',name:'Бигфут',breed:'Мейн-кун',type:'Рысь-переросток',tag:'Огромный, пушистый и тяжёлый. Царапает больнее всех.',build:'Громадный',size:1.28,fat:1.1,fur:'#8b5b33',belly:'#d7b48c',paw:'#d7b48c',tail:'#7a4e2a',stripe:'#3d2513',lid:'#8b5b33',pattern:'tabby',eye:'#86c541',eyeName:'Зелёные',color:'Табби',nose:'#e98a94',whisk:'rgba(255,255,255,.75)',hp:280,speed:110,regen:5,aggr:.7,loud:1,dmgMul:1.4,pitch:.72,tufts:true,title:['#8b5b33','#2a1a0d']},
- {id:'sphynx',name:'Доби',breed:'Сфинкс',type:'Лысый домовой',tag:'Тёплый, морщинистый и очень мстительный.',build:'Морщинистый',size:.95,fat:.9,fur:'#e8b5a2',belly:'#f2cbbb',paw:'#e8b5a2',tail:'#e8b5a2',lid:'#d9a08c',pattern:'sphynx',eye:'#c3e46b',eyeName:'Лимонные',color:'Розовый',nose:'#d27d86',whisk:'rgba(90,50,50,.5)',hp:120,speed:155,regen:3,aggr:1,loud:1.5,dmgMul:.9,pitch:1.2,bigEars:true,title:['#e8b5a2','#9a4f63']},
- {id:'bengal',name:'Турбо',breed:'Бенгальская',type:'Мини-леопард',tag:'Работает на батарейках, которые никогда не садятся.',build:'Атлетичный',size:1.02,fat:.95,fur:'#e2a24c',belly:'#f6dfb0',paw:'#f0c98a',tail:'#e2a24c',stripe:'#4a2a14',lid:'#e2a24c',pattern:'spots',eye:'#9bc43a',eyeName:'Зелёно-золотые',color:'Леопардовый',nose:'#c9706e',whisk:'rgba(255,255,255,.8)',hp:140,speed:195,regen:3.6,aggr:1,loud:1.1,dmgMul:1.1,pitch:1.1,title:['#e2a24c','#4a2a14']},
- {id:'ginger',name:'Апельсин',breed:'Рыжий дворовый',type:'Одна извилина',tag:'Делит одну извилину со всеми рыжими котами мира. Сегодня не его очередь.',build:'Жилистый',size:1,fat:1,fur:'#ee8b2e',belly:'#f8d29b',paw:'#f8e3c4',tail:'#ee8b2e',stripe:'#b9561a',lid:'#ee8b2e',pattern:'tabby',eye:'#f2c62f',eyeName:'Жёлтые, в разные стороны',color:'Рыжий',nose:'#e7798b',whisk:'rgba(255,255,255,.8)',hp:160,speed:150,regen:3.8,aggr:1.15,loud:1.2,dmgMul:1.15,pitch:1,torn:true,derp:true,title:['#ee8b2e','#fff1d6']},
+ {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бесоёб',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Жёлто-зелёные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true},
+ {id:'brit',name:'Барон Булкин',breed:'Британец',type:'Кот-батон',tag:'Медленный, но непробиваемый. Требует завтрак с достоинством.',build:'Толстый',size:1.05,fat:1.28,fur:'#8f9cb2',belly:'#aab6c8',paw:'#9eabc0',tail:'#8f9cb2',lid:'#8f9cb2',pattern:'solid',eye:'#e3892b',eyeName:'Медные',color:'Голубой',nose:'#6f7b93',whisk:'rgba(255,255,255,.75)',hp:220,speed:85,regen:4.5,aggr:.55,loud:.9,dmgMul:1,pitch:.8},
+ {id:'siam',name:'Сирена',breed:'Сиамская',type:'Сиамская истеричка',tag:'Орёт громче будильника и прекрасно об этом знает.',build:'Стройная',size:.95,fat:.86,fur:'#efe1c6',belly:'#f8f0df',paw:'#4a3328',tail:'#4a3328',point:'#4a3328',lid:'#4a3328',pattern:'points',eye:'#3f9ce9',eyeName:'Голубые',color:'Сил-пойнт',nose:'#3a2820',whisk:'rgba(60,40,40,.6)',hp:130,speed:175,regen:3,aggr:.85,loud:1.7,dmgMul:.9,pitch:1.25},
+ {id:'mcoon',name:'Бигфут',breed:'Мейн-кун',type:'Рысь-переросток',tag:'Огромный, пушистый и тяжёлый. Царапает больнее всех.',build:'Громадный',size:1.28,fat:1.1,fur:'#8b5b33',belly:'#d7b48c',paw:'#d7b48c',tail:'#7a4e2a',stripe:'#3d2513',lid:'#8b5b33',pattern:'tabby',eye:'#86c541',eyeName:'Зелёные',color:'Табби',nose:'#e98a94',whisk:'rgba(255,255,255,.75)',hp:280,speed:110,regen:5,aggr:.7,loud:1,dmgMul:1.4,pitch:.72,tufts:true},
+ {id:'sphynx',name:'Доби',breed:'Сфинкс',type:'Лысый домовой',tag:'Тёплый, морщинистый и очень мстительный.',build:'Морщинистый',size:.95,fat:.9,fur:'#e8b5a2',belly:'#f2cbbb',paw:'#e8b5a2',tail:'#e8b5a2',lid:'#d9a08c',pattern:'sphynx',eye:'#c3e46b',eyeName:'Лимонные',color:'Розовый',nose:'#d27d86',whisk:'rgba(90,50,50,.5)',hp:120,speed:155,regen:3,aggr:1,loud:1.5,dmgMul:.9,pitch:1.2,bigEars:true},
+ {id:'bengal',name:'Турбо',breed:'Бенгальская',type:'Мини-леопард',tag:'Работает на батарейках, которые никогда не садятся.',build:'Атлетичный',size:1.02,fat:.95,fur:'#e2a24c',belly:'#f6dfb0',paw:'#f0c98a',tail:'#e2a24c',stripe:'#4a2a14',lid:'#e2a24c',pattern:'spots',eye:'#9bc43a',eyeName:'Зелёно-золотые',color:'Леопардовый',nose:'#c9706e',whisk:'rgba(255,255,255,.8)',hp:140,speed:195,regen:3.6,aggr:1,loud:1.1,dmgMul:1.1,pitch:1.1},
+ {id:'ginger',name:'Апельсин',breed:'Рыжий дворовый',type:'Одна извилина',tag:'Делит одну извилину со всеми рыжими котами мира. Сегодня не его очередь.',build:'Жилистый',size:1,fat:1,fur:'#ee8b2e',belly:'#f8d29b',paw:'#f8e3c4',tail:'#ee8b2e',stripe:'#b9561a',lid:'#ee8b2e',pattern:'tabby',eye:'#f2c62f',eyeName:'Жёлтые, в разные стороны',color:'Рыжий',nose:'#e7798b',whisk:'rgba(255,255,255,.8)',hp:160,speed:150,regen:3.8,aggr:1.15,loud:1.2,dmgMul:1.15,pitch:1,torn:true,derp:true},
 ];
 const PHRASES=['МЯЯЯУ!','МРРРАУ!','КОРМИ!','АААУУУ!','МЯУ-МЯУ!','ОТКРОЙ ДВЕРЬ!','МИСКА ПУСТАЯ!','ВСТАВАЙ!','МЯ!'];
 
@@ -475,19 +474,21 @@ function outsideClip(c,body){
 }
 function edgeY(x,g){const u=clamp(x/g.brx,-.97,.97);return g.bcy+g.bry*Math.sqrt(1-u*u);}
 function leg(c,x,s,col,pc,g,hind,near){
-  const lift=Math.max(0,s)*7,sw=s*7,px=x+sw*.6,py=-6-lift;
-  const ey=edgeY(x,g),top=ey-(near?(hind?8:5):16),w1=hind?12:9,w2=hind?7:6.5;
-  const path=()=>{c.beginPath();c.moveTo(x-w1,top);
-    if(hind)c.bezierCurveTo(x-w1-5,ey+2,px-w2-4,py-12,px-w2,py);else c.quadraticCurveTo(x-w1+1,(top+py)/2,px-w2,py);
-    c.lineTo(px+w2,py);
-    if(hind)c.bezierCurveTo(px+w2+2,py-14,x+w1+3,ey,x+w1,top);else c.quadraticCurveTo(x+w1-1,(top+py)/2,x+w1,top);
-    c.closePath();};
-  if(near){c.save();ell(c,0,g.bcy,g.brx-1.5,g.bry-1.5);c.clip();if(hind)ell(c,x-1,ey-13,17,17);else ell(c,x+3,ey-6,11,11);c.fillStyle=col;c.fill();c.restore();}
+  const lift=Math.max(0,s)*7,sw=s*7,px=x+sw*.6,py=-6-lift,ey=edgeY(x,g);
+  let path;
+  if(hind){
+    const top=ey-(near?8:16),w1=12,w2=7;
+    path=()=>{c.beginPath();c.moveTo(x-w1,top);c.bezierCurveTo(x-w1-5,ey+2,px-w2-4,py-12,px-w2,py);c.lineTo(px+w2,py);c.bezierCurveTo(px+w2+2,py-14,x+w1+3,ey,x+w1,top);c.closePath();};
+  }else{
+    // front leg: broad at the shoulder, slim wrist, slight forward bend at the paw
+    const top=ey-(near?6:16);
+    path=()=>{c.beginPath();c.moveTo(x-11,top);c.bezierCurveTo(x-10,ey+6,px-7,py-16,px-5.5,py);c.lineTo(px+6,py);c.bezierCurveTo(px+4,py-12,x+8,ey+2,x+9,top);c.closePath();};
+  }
+  if(near){c.save();ell(c,0,g.bcy,g.brx-1.5,g.bry-1.5);c.clip();if(hind)ell(c,x-1,ey-13,17,17);else ell(c,x-1,ey-9,13,12);c.fillStyle=col;c.fill();c.restore();}
   path();c.fillStyle=col;c.fill();
-  if(g.stripe){c.save();path();c.clip();c.strokeStyle=g.stripe;c.lineWidth=4;for(let i=0;i<2;i++){const yy=lerp(ey,py,.3+i*.32);c.beginPath();c.moveTo(x-15,yy+2);c.lineTo(x+15,yy-2);c.stroke();}c.restore();}
   c.save();outsideClip(c,{cx:0,cy:g.bcy,rx:g.brx,ry:g.bry});path();c.lineWidth=3;c.strokeStyle=OUT;c.stroke();c.restore();
-  if(near){c.beginPath();if(hind)c.arc(x-1,ey-13,17,Math.PI*1.08,Math.PI*1.78);else c.arc(x+3,ey-6,11,Math.PI*1.55,Math.PI*1.95);c.lineWidth=2.6;c.strokeStyle=OUT;c.stroke();}
-  ell(c,px+2,py+1,10,6);fs(c,pc,3);
+  if(near&&hind){c.beginPath();c.arc(x-1,ey-13,17,Math.PI*1.08,Math.PI*1.78);c.lineWidth=2.6;c.strokeStyle=OUT;c.stroke();}
+  ell(c,px+(hind?2:3),py+1,hind?10:9,6);fs(c,pc,3);
 }
 function limb(c,x0,y0,x1,y1,col,pc,claws,body){
   c.lineCap='round';const seg=()=>{c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);};
@@ -497,11 +498,16 @@ function limb(c,x0,y0,x1,y1,col,pc,claws,body){
   if(claws){const a=Math.atan2(y1-y0,x1-x0);for(let i=-1;i<=1;i++){const b=a+i*.45,px=x1+Math.cos(b)*9,py=y1+Math.sin(b)*7;poly(c,[px+Math.cos(b+1.57)*2,py+Math.sin(b+1.57)*2,px+Math.cos(b)*9,py+Math.sin(b)*9,px-Math.cos(b+1.57)*2,py-Math.sin(b+1.57)*2]);fs(c,'#fff',1.5);}}
 }
 function ear(c,a,b,tip,col,inner,torn,tuft){
-  if(torn){c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(lerp(a[0],tip[0],.75),lerp(a[1],tip[1],.75));c.lineTo(lerp(a[0],b[0],.5)+(tip[0]-a[0])*.5,lerp(a[1],b[1],.5)+(tip[1]-a[1])*.55);c.lineTo(lerp(b[0],tip[0],.8),lerp(b[1],tip[1],.8));c.lineTo(b[0],b[1]);c.closePath();}
+  const cx0=(a[0]+b[0]+tip[0])/3,cy0=(a[1]+b[1]+tip[1])/3;
+  if(torn){
+    const p1=[lerp(a[0],tip[0],.5),lerp(a[1],tip[1],.5)],p2=[lerp(a[0],tip[0],.7),lerp(a[1],tip[1],.7)],m=[(p1[0]+p2[0])/2,(p1[1]+p2[1])/2];
+    const d=Math.hypot(cx0-m[0],cy0-m[1]),n=[m[0]+(cx0-m[0])/d*5,m[1]+(cy0-m[1])/d*5];
+    poly(c,[a[0],a[1],p1[0],p1[1],n[0],n[1],p2[0],p2[1],tip[0],tip[1],b[0],b[1]]);
+  }
   else poly(c,[a[0],a[1],tip[0],tip[1],b[0],b[1]]);
   fs(c,col,3);
   const cx=(a[0]+b[0]+tip[0])/3,cy=(a[1]+b[1]+tip[1])/3,k=.55;
-  poly(c,[cx+(a[0]-cx)*k,cy+(a[1]-cy)*k,cx+(tip[0]-cx)*k*(torn?.7:1),cy+(tip[1]-cy)*k*(torn?.7:1),cx+(b[0]-cx)*k,cy+(b[1]-cy)*k]);c.fillStyle=inner;c.fill();
+  poly(c,[cx+(a[0]-cx)*k,cy+(a[1]-cy)*k,cx+(tip[0]-cx)*k,cy+(tip[1]-cy)*k,cx+(b[0]-cx)*k,cy+(b[1]-cy)*k]);c.fillStyle=inner;c.fill();
   if(tuft){c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(tip[0],tip[1]);c.lineTo(tip[0]-2,tip[1]-11);c.moveTo(tip[0],tip[1]);c.lineTo(tip[0]+4,tip[1]-9);c.stroke();}
 }
 function eye(c,x,y,b,m,t,inner){
@@ -527,7 +533,6 @@ function furPattern(c,b,cx,cy,rx,ry){
   if(b.pattern==='tabby'){c.strokeStyle=b.stripe;c.lineWidth=6;for(let i=-2;i<=2;i++){const x=cx+i*rx*.34;c.beginPath();c.moveTo(x-6,cy-ry-2);c.quadraticCurveTo(x+5,cy-ry*.2,x-2,cy+ry*.35);c.stroke();}}
   if(b.pattern==='spots'){for(const[sx,sy]of SPOTS){const x=cx+sx*rx/50,y=cy+sy*ry/26;ell(c,x,y,6,4.8,sx*.02);c.fillStyle=b.stripe;c.fill();ell(c,x+.6,y,2.8,2.1);c.fillStyle=shade(b.fur,-.1);c.fill();}}
   if(b.pattern==='points'){const g=c.createLinearGradient(cx-rx,0,cx+rx,0);g.addColorStop(0,hexA(b.point,.45));g.addColorStop(.4,hexA(b.point,0));c.fillStyle=g;c.fillRect(cx-rx,cy-ry,rx*2,ry*2);}
-  if(b.pattern==='sphynx'){c.strokeStyle='rgba(120,60,60,.35)';c.lineWidth=1.8;for(let i=0;i<3;i++){c.beginPath();c.arc(cx+rx*.55,cy-6+i*6,12,Math.PI*.6,Math.PI*1.3);c.stroke();}}
 }
 function drawHead(c,b,o,t){
   const cheek=b.id==='brit'?1.18:b.id==='siam'?.92:1.04,eh=b.bigEars?42:26;
@@ -538,7 +543,6 @@ function drawHead(c,b,o,t){
   c.save();ell(c,0,0,27*cheek,24.5);c.clip();
   if(b.pattern==='points'){const g=c.createRadialGradient(5,8,2,5,8,26);g.addColorStop(0,hexA(b.point,.95));g.addColorStop(.55,hexA(b.point,.75));g.addColorStop(1,hexA(b.point,0));c.fillStyle=g;c.fillRect(-40,-30,80,60);}
   if(b.pattern==='tabby'||b.pattern==='spots'){c.strokeStyle=b.stripe;c.lineWidth=3.2;c.beginPath();c.moveTo(-7,-23);c.lineTo(-4,-13);c.moveTo(2,-25);c.lineTo(2,-14);c.moveTo(11,-23);c.lineTo(8,-13);c.moveTo(-27,-2);c.lineTo(-17,0);c.moveTo(-27,6);c.lineTo(-18,6);c.stroke();}
-  if(b.pattern==='sphynx'){c.strokeStyle='rgba(120,60,60,.4)';c.lineWidth=1.8;for(let i=0;i<3;i++){c.beginPath();c.arc(3,-10-i*5,9+i*3,Math.PI*1.15,Math.PI*1.85);c.stroke();}}
   if(b.pattern!=='points'&&b.pattern!=='solid'){ell(c,1,10,9,6.5);c.fillStyle=b.belly;c.fill();ell(c,15,10,9,6.5);c.fill();}
   c.restore();
   const em=o.eyes||'normal';
@@ -553,8 +557,8 @@ function drawHead(c,b,o,t){
     c.beginPath();c.moveTo(7.5,9);c.quadraticCurveTo(5,14,1,12);c.moveTo(7.5,9);c.quadraticCurveTo(10,14,14,12);c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
   }
   c.strokeStyle=b.whisk;c.lineWidth=1.4;c.beginPath();
-  if(b.pattern==='sphynx'){c.moveTo(-6,10);c.quadraticCurveTo(-18,4,-26,10);c.moveTo(20,10);c.quadraticCurveTo(32,4,40,10);}
-  else{c.moveTo(-5,9);c.lineTo(-36,4);c.moveTo(-5,12);c.lineTo(-35,15);c.moveTo(20,9);c.lineTo(46,4);c.moveTo(20,12);c.lineTo(45,15);}
+  if(b.pattern==='sphynx'){c.moveTo(20,10);c.quadraticCurveTo(30,5,38,9);}
+  else{c.moveTo(20,9);c.lineTo(46,4);c.moveTo(20,12);c.lineTo(45,15);c.moveTo(19,14);c.lineTo(42,22);}
   c.stroke();
 }
 function tailPath(c,brx,bcy,sway,down){c.beginPath();c.moveTo(-brx+8,bcy-4);c.bezierCurveTo(-brx-30,bcy-4,-brx-38+sway*8,bcy-50+down,-brx-22+sway*22,bcy-88+down*1.6);}
@@ -575,7 +579,7 @@ function drawCatPose(c,b,o,t){
   c.lineJoin='round';c.lineCap='round';
   const lp=off=>o.walk?Math.sin(o.phase+off):0;
   if(o.pounce){limb(c,-28,-34,-66,-14,L.far,L.farPaw,0);limb(c,34,-46,92,-62,L.far,L.farPaw,1);}
-  else{leg(c,-34,lp(Math.PI),L.far,L.farPaw,g,true,false);leg(c,26,lp(0),L.far,L.farPaw,g,false,false);}
+  else{leg(c,-36,lp(Math.PI),L.far,L.farPaw,g,true,false);leg(c,14,lp(0),L.far,L.farPaw,g,false,false);}
   const sway=Math.sin(t*2.6+(o.seed||0))+(o.tailFlick?Math.sin(t*14)*.6:0),down=o.tailDown?40:0;
   strokeTail(c,b,tailW(b),()=>tailPath(c,brx,bcy,sway,down));
   ell(c,0,bcy,brx,bry);fs(c,fur,0);
@@ -586,7 +590,7 @@ function drawCatPose(c,b,o,t){
   c.restore();
   ell(c,0,bcy,brx,bry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
   if(o.pounce){limb(c,-16,-30,-56,-4,L.near,L.paw,0,body);limb(c,40,-40,96,-88,L.near,L.paw,1,body);}
-  else{leg(c,-20,lp(0),L.near,L.paw,g,true,true);if(o.paw)limb(c,36,-40,76,-58+Math.sin(t*12)*4,L.near,L.paw,0,body);else leg(c,38,lp(Math.PI),L.near,L.paw,g,false,true);}
+  else{leg(c,-22,lp(0),L.near,L.paw,g,true,true);if(o.paw)limb(c,28,-40,70,-58+Math.sin(t*12)*4,L.near,L.paw,0,body);else leg(c,27,lp(Math.PI),L.near,L.paw,g,false,true);}
   c.save();c.translate(brx*.82,bcy-22-(o.stretch?6:0));c.rotate(o.headTilt||0);drawHead(c,b,o,t);c.restore();
   if(o.towel){
     c.beginPath();c.moveTo(-brx-8,-4);c.bezierCurveTo(-brx-14,-70,10,-118,brx+44,-104);c.bezierCurveTo(brx+72,-70,brx+46,-14,brx+24,-4);c.closePath();fs(c,'#3fa9d4',3.5);
@@ -1078,10 +1082,21 @@ function renderPreviewInfo(){
   for(const[a,v,max,txt]of[['Наглость',b.hp,290,b.hp],['Скорость',b.speed,200,''],['Регенерация',b.regen,5.5,`+${b.regen}/с`],['Агрессия',b.aggr,1.2,''],['Громкость',b.loud,1.7,'']]){const d=document.createElement('div');d.className='stat';d.innerHTML='<span></span><span class="track"><i></i></span>';d.firstChild.textContent=a+(txt!==''?` · ${txt}`:'');d.querySelector('i').style.width=clamp(v/max*100,8,100)+'%';st.append(d);}
   setLogo(b);
 }
+// title fill follows the selected cat's coat: base fur, light belly band, sheen, plus stripes / rosettes / points
 function setLogo(b){
-  $('furA').setAttribute('fill',b.title[0]);$('furB').setAttribute('fill',b.title[1]);
+  const NS='http://www.w3.org/2000/svg',pat=$('furPat');pat.textContent='';
+  const add=(tag,a)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);pat.append(e);return e;};
+  add('rect',{width:560,height:210,fill:b.fur});
+  const lines=[[26,96],[124,194]];
+  if(b.pattern==='points'){for(let i=0;i<7;i++){const o=String(.95-i*.14);add('rect',{x:i*16,y:0,width:16,height:210,fill:b.point,opacity:o});add('rect',{x:544-i*16,y:0,width:16,height:210,fill:b.point,opacity:o});}}
+  if(b.pattern==='tabby'){for(const[t,bt]of lines)for(let x=-6;x<580;x+=38)add('path',{d:`M${x} ${t+4}q12 ${(bt-t)*.4} -3 ${bt-t-18}`,stroke:b.stripe,'stroke-width':10,'stroke-linecap':'round',fill:'none'});}
+  if(b.pattern==='spots'){let r=0;for(const[t,bt]of lines)for(let y=t+24;y<bt-14;y+=19,r++)for(let x=(r%2)*19+((r*7)%11);x<570;x+=38){add('ellipse',{cx:x,cy:y,rx:8.5,ry:6.5,fill:'none',stroke:b.stripe,'stroke-width':4});add('ellipse',{cx:x+1,cy:y,rx:3.5,ry:2.6,fill:shade(b.fur,-.15)});}}
+  for(const[t,bt]of lines){
+    let d=`M0 ${bt-14}`;for(let x=0;x<=560;x+=70)d+=` Q${x+35} ${bt-22+((x/70)%2)*12} ${x+70} ${bt-14}`;d+=` L560 ${bt+20} L0 ${bt+20}Z`;
+    add('path',{d,fill:b.belly});
+    add('ellipse',{cx:280,cy:t+10,rx:300,ry:12,fill:'#fff',opacity:b.id==='black'?'.22':'.16'});
+  }
   const seed=String(1+Math.floor(Math.random()*90));for(const id of['fluffOut','fluffIn'])$(id).querySelector('feTurbulence').setAttribute('seed',seed);
-  const g=$('furB');for(const e of g.children){e.setAttribute('cx',String(Math.round(rnd(0,560))));e.setAttribute('cy',String(Math.round(rnd(10,190))));}
 }
 const pv=$('preview'),pvc=pv.getContext('2d');
 function renderPreview(t){
