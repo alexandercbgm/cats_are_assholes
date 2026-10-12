@@ -40,7 +40,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 /* ---- HUD ---- */
 .hud{position:absolute;inset:0;pointer-events:none;font-size:max(9px,calc(var(--u)*16px))}
 .panel{position:absolute;top:1em;background:rgba(255,250,242,.93);color:var(--ink);border-radius:.85em;padding:.55em .8em .45em;box-shadow:0 .3em 1.1em rgba(10,6,24,.3)}
-.you{left:1em;width:13.5em}
+.you{left:1em;width:12.5em;padding:.6em .7em}
 .catp{left:50%;transform:translateX(-50%);width:20em}
 .score{right:1em;width:11em;text-align:right}
 .row{display:flex;justify-content:space-between;align-items:center;gap:.5em;line-height:1.3}
@@ -48,13 +48,16 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .small{font-size:.8em;color:var(--muted)}
 .small b{color:var(--ink)}
 .lbl{font-size:.72em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.bar{position:relative;height:.62em;border-radius:1em;background:var(--line);margin:.25em 0 .4em;overflow:hidden}
+.meter{display:flex;align-items:center;gap:.4em;margin:.15em 0}
+.meter+.meter{margin-top:.35em}
+.ico{width:1.55em;height:1.55em;flex:none;filter:drop-shadow(0 .08em 0 rgba(36,27,51,.25))}
+.bar{position:relative;flex:1;height:1.15em;border-radius:1em;background:#3a3150;box-shadow:inset 0 .12em .2em rgba(0,0,0,.45);overflow:hidden}
+.bar i::after{content:"";position:absolute;left:.35em;right:.35em;top:.14em;height:.3em;border-radius:1em;background:rgba(255,255,255,.4)}
 .bar i{position:absolute;inset:0 auto 0 0;width:100%;border-radius:1em;transition:width .12s linear}
-.bar.hp i{background:#e0574a}
-.bar.sleep i{background:var(--sky)}
-.bar.nag{height:1em}
-.bar.nag i{background:var(--gold)}
-.bar em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:.68em;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.bar.hp i{background:linear-gradient(#ff8a76,#e0453a)}
+.bar.sleep i{background:linear-gradient(#b4c4ff,#6f86e8)}
+.bar.nag i{background:linear-gradient(#ffd86e,#ec9a2c)}
+.bar em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:.72em;font-weight:900;color:#fff;text-shadow:0 .08em .12em rgba(0,0,0,.55);font-variant-numeric:tabular-nums}
 .big{font-weight:900;font-size:1.6em;line-height:1.05;font-variant-numeric:tabular-nums}
 #catName{font-weight:800;font-size:.95em}
 .chip{font-size:.72em;font-weight:800;padding:.15em .65em;border-radius:1em;background:var(--line);white-space:nowrap}
@@ -91,6 +94,15 @@ h1{margin:0 0 12px;line-height:0}
 .logotext{font-family:'Rubik',system-ui,sans-serif;font-weight:900;font-size:96px}
 h2{font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.15;margin:0;text-wrap:balance}
 .lead{font-size:16px;line-height:1.5;margin:0 0 18px;max-width:34em;color:#3d3449}
+.tips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.tip{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;padding:8px 12px 8px 8px;border-radius:14px;background:#f6ece0}
+.tip canvas{width:44px;height:44px}
+.tip b{display:block;font-size:15px;font-weight:900;line-height:1.2}
+.tip span{display:block;font-size:13px;line-height:1.35;color:#5a5166}
+.t1{background:#fde9e3}.t2{background:#e4f1fa}.t3{background:#fdeacc}.t4{background:#fbe3e6}.t5{background:#e8e9fb}.t6{background:#e5f3e9}
+.keys{margin:0;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+kbd{font:inherit;font-weight:900;font-size:12px;min-width:22px;padding:2px 6px;border-radius:7px;background:#fff;color:var(--ink);box-shadow:0 2px 0 rgba(36,27,51,.18),0 0 0 1px var(--line);text-align:center}
+kbd+kbd{margin-left:-2px}
 .label{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 .how{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:14px;line-height:1.45;color:#4a4256}
 .how li{padding-left:16px;position:relative}
@@ -128,7 +140,8 @@ h2{font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.15;
 .endstats span{color:var(--muted)}
 .endstats b{font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 .endstats .total{grid-column:1/-1;font-size:18px;border-bottom:none;padding-top:4px}
-.endstats .total span{color:var(--ink);font-weight:700}
+.endstats .total span{color:var(--ink);font-weight:800}
+.endstats .hint{grid-column:1/-1;margin:-4px 0 0;font-size:13px;color:var(--muted)}
 .endmsg{font-size:16px;line-height:1.5;margin:8px 0 0;white-space:pre-line;color:#3d3449}
 #rotateHint{position:fixed;left:16px;right:16px;top:12px;z-index:4;text-align:center;background:var(--card);color:var(--ink);border-radius:12px;padding:9px 12px;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 @media (max-width:720px){.card{grid-template-columns:1fr;padding:20px}}
@@ -140,14 +153,12 @@ h2{font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.15;
     <canvas id="game" aria-label="Игровое поле: спальня с котом"></canvas>
     <div class="hud" id="hud">
       <div class="panel you">
-        <div class="row"><span class="lbl">Здоровье</span><b id="hpTxt">100</b></div>
-        <div class="bar hp"><i id="hpBar"></i></div>
-        <div class="row"><span class="lbl">Сон до будильника</span><b id="clock">03:00</b></div>
-        <div class="bar sleep"><i id="sleepBar"></i></div>
+        <div class="meter" title="Здоровье"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.6-4.7-9.6-9.3C1 8.3 3.1 4.4 6.8 4.4c2.1 0 3.5 1.2 4.2 2.5.8-1.3 2.2-2.5 4.3-2.5 3.7 0 5.8 3.9 4.3 7.3C19.6 16.3 12 21 12 21z" fill="#e8574a" stroke="#241b33" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 8.2c.6-.9 1.6-1.3 2.6-1" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".7"/></svg><div class="bar hp"><i id="hpBar"></i><em id="hpTxt">100</em></div></div>
+        <div class="meter" title="Сон до будильника"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.2A8.3 8.3 0 0 1 9 4.6a8.3 8.3 0 1 0 10.5 10.6z" fill="#a9bbf5" stroke="#241b33" stroke-width="1.6" stroke-linejoin="round"/><circle cx="17.5" cy="5.5" r="1.1" fill="#f3d27a"/><circle cx="20.5" cy="9" r=".8" fill="#f3d27a"/></svg><div class="bar sleep"><i id="sleepBar"></i><em id="clock">03:00</em></div></div>
       </div>
       <div class="panel catp">
         <div class="row"><span id="catName">Кот</span><span class="chip" id="catState">Строит планы</span></div>
-        <div class="bar nag"><i id="catBar"></i><em id="catHpTxt"></em></div>
+        <div class="meter" title="Наглость кота"><svg class="ico" id="catIco" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 4.6 3.4l5 3.6q2.4-.7 4.8 0l5-3.6.6 7.1q.9 6.5-8 9.7-8.9-3.2-8-9.7z" fill="currentColor" stroke="#241b33" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9" cy="12" r="1.4" fill="#241b33"/><circle cx="15" cy="12" r="1.4" fill="#241b33"/><path d="M11 15h2l-1 1.2z" fill="#e7798b"/></svg><div class="bar nag"><i id="catBar"></i><em id="catHpTxt"></em></div></div>
         <div class="row small"><span>Наглость</span><span id="regenTxt"></span></div>
       </div>
       <div class="panel score">
@@ -182,17 +193,16 @@ h2{font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.15;
           <g filter="url(#fluffIn)" fill="url(#furPat)"><text x="14" y="96">Угомони</text><text x="14" y="194">кота</text></g>
         </g>
       </svg></h1>
-      <p class="lead">Вы пытаетесь уснуть. Кот против: орёт, роняет вещи и бросается царапаться. Сбейте ему наглость до нуля, пока не зазвонил будильник.</p>
-      <p class="label">Как играть</p>
-      <ul class="how">
-        <li><b>Клик</b> по комнате — бросить выбранный снаряд. Снаряд летит по дуге, берите упреждение.</li>
-        <li><b>Клик по вещи</b> на полу или полке — подобрать. Рядом с бодрым котом это опасно: поцарапает.</li>
-        <li>Оглушите кота, накройте полотенцем или придавите подушкой — и бегом собирать снаряды.</li>
-        <li>Наглость кота восстанавливается сама, пока он не оглушён.</li>
-        <li>Кот присел и виляет задом — сейчас прыгнет. Попадите в него, чтобы сбить атаку.</li>
-        <li>Правая створка окна открыта: что улетит туда, то пропало. Упавшие шторы и книги тоже можно кидать. Кончатся снаряды — проигрыш.</li>
-        <li><b>1–6</b> — выбор снаряда, <b>H</b> — лечиться, <b>P</b> — пауза.</li>
-      </ul>
+      <p class="lead">Три часа ночи. Вам утром на работу, а коту приспичило поорать. Уложите его спать раньше, чем зазвонит будильник.</p>
+      <div class="tips">
+        <div class="tip t1"><canvas data-ico="slipper" width="88" height="88"></canvas><div><b>Кидай с запасом</b><span>Клик по комнате. Снаряды летят дугой.</span></div></div>
+        <div class="tip t2"><canvas data-ico="towel" width="88" height="88"></canvas><div><b>Оглуши и собирай</b><span>Бодрый кот вещи не отдаст и цапнет.</span></div></div>
+        <div class="tip t3"><canvas data-ico="alert" width="88" height="88"></canvas><div><b>Виляет задом?</b><span>Сейчас прыгнет. Попади, и прыжок сорвётся.</span></div></div>
+        <div class="tip t4"><canvas data-ico="kit" width="88" height="88"></canvas><div><b>Лечись</b><span>Пластыри и аптечки лежат в комнате.</span></div></div>
+        <div class="tip t5"><canvas data-ico="window" width="88" height="88"></canvas><div><b>Не в окно!</b><span>Что улетело в створку, то пропало.</span></div></div>
+        <div class="tip t6"><canvas data-ico="book" width="88" height="88"></canvas><div><b>Ломай с пользой</b><span>Упавшие книги и шторы тоже летают.</span></div></div>
+      </div>
+      <p class="keys"><kbd>1</kbd>–<kbd>6</kbd> снаряд <kbd>H</kbd> лечиться <kbd>P</kbd> пауза</p>
     </div>
     <div class="catcard">
       <div class="picker">
@@ -757,7 +767,7 @@ function newGame(){
   picks=[mkPick('slipper',700,FLOOR),mkPick('ball',1000,FLOOR),mkPick('towel',262,FLOOR),mkPick('kit',132,160),mkPick('bandage',400,484),mkPick('plaster',758,380)];
   cat={b,name:game.name,x:880,y:FLOOR,plat:'floor',face:-1,hp:b.hp,max:b.hp,state:'idle',timer:1.4,anim:0,phase:0,flash:0,anger:.2,pcd:5,smug:0,stunT:0,stunType:null,kvx:0,air:null,bubble:null,bubbleT:0,yellTick:0,seed:Math.random()*10,tx:880,after:null,target:null,pt:0,px:0,py:0,knocked:false};
   Object.assign(game,{lost:0,running:true,paused:false,over:false,kind:'slipper',score:0,combo:0,hits:0,throws:0,damage:0,cd:0,t:0,winT:0});
-  $('catName').textContent=`${game.name} · ${b.breed}`;
+  $('catName').textContent=`${game.name} · ${b.breed}`;$('catIco').style.color=b.fur;
   $('startOv').hidden=true;$('endOv').hidden=true;$('pauseOv').hidden=true;
   updateTrays();
   toast('Кот орёт — уходит сон. Сбейте ему наглость до нуля.',3.2);
@@ -1237,7 +1247,8 @@ function endGame(win,reason){
   $('endStats').innerHTML='';
   const rows=[['Очки',fmt(game.score)],['Попаданий',`${game.hits} из ${game.throws} (${acc}%)`],['Ущерб',fmt(game.damage)+' ₽'],['Здоровье',Math.ceil(player.hp)],['Улетело в окно',game.lost],['Рекорд',fmt(game.best)]];
   for(const[a,b]of rows){const d=document.createElement('div');d.innerHTML=`<span></span><b></b>`;d.firstChild.textContent=a;d.lastChild.textContent=b;$('endStats').append(d);}
-  const tot=document.createElement('div');tot.className='total';tot.innerHTML='<span>Итог: очки − ущерб/20</span><b></b>';tot.lastChild.textContent=fmt(total)+(isBest?' · рекорд':'');$('endStats').append(tot);
+  const tot=document.createElement('div');tot.className='total';tot.innerHTML='<span>Итоговый счёт</span><b></b>';tot.lastChild.textContent=fmt(total)+(isBest?' · рекорд':'');$('endStats').append(tot);
+  const fine=Math.round(Math.min(game.score,game.damage/20));if(fine>0){const h=document.createElement('p');h.className='hint';h.textContent=`Ремонт съел ${fmt(fine)} очков.`;$('endStats').append(h);}
   setTimeout(()=>{$('endOv').hidden=false;$('againBtn').focus();},win?200:900);
 }
 function setPause(p){if(!game.running)return;game.paused=p;$('pauseOv').hidden=!p;$('pauseBtn').textContent=p?'Дальше':'Пауза';}
@@ -1265,6 +1276,14 @@ function setLogo(b){
     add('ellipse',{cx:280,cy:t+10,rx:300,ry:12,fill:'#fff',opacity:b.id==='black'?'.22':'.16'});
   }
   const seed=String(1+Math.floor(Math.random()*90));for(const id of['fluffOut','fluffIn'])$(id).querySelector('feTurbulence').setAttribute('seed',seed);
+}
+function drawTipIcons(){
+  for(const cv2 of document.querySelectorAll('canvas[data-ico]')){
+    const c=cv2.getContext('2d'),k=cv2.dataset.ico;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,88,88);c.setTransform(2,0,0,2,0,0);c.lineJoin='round';c.lineCap='round';
+    if(k==='alert'){ell(c,22,22,15,15);fs(c,'#ff6b4a',2.5);c.fillStyle='#fff';rr(c,19.5,12,5,13,2.5);c.fill();ell(c,22,30.5,2.8,2.8);c.fill();}
+    else if(k==='window'){rr(c,6,8,32,30,3);fs(c,'#2a2f6b',2.5);c.fillStyle='#efe6d6';c.fillRect(21,8,2.5,30);ell(c,30,16,4,4);c.fillStyle='#fff1bf';c.fill();poly(c,[38,8,44,5,44,41,38,38]);fs(c,'#efe6d6',2);}
+    else drawItem(c,k,22,23,k==='book'?.82:k==='towel'?.78:.95,0,true,0,k==='book'?BOOK_COLS[3]:undefined);
+  }
 }
 const pv=$('preview'),pvc=pv.getContext('2d');
 function renderPreview(t){
@@ -1315,7 +1334,7 @@ function loop(now){
 function start(data){
   furn=makeFurn();
   if(data&&data.best>game.best)game.best=data.best;
-  layout();buildTrays();setCat(catIdx);
+  layout();buildTrays();setCat(catIdx);drawTipIcons();
   ammo={slipper:2,ball:3,towel:1,pillow:1,book:0,curtain:0};meds={plaster:1,plantain:0,zelenka:0,bandage:0,kit:0};updateTrays();
   requestAnimationFrame(loop);
 }
