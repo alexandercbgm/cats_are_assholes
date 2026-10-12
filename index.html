@@ -170,8 +170,8 @@ h2{font-family:var(--f-display);font-weight:900;font-size:30px;margin:0;text-wra
         <li>Оглушите кота, накройте полотенцем или придавите подушкой — и бегом собирать снаряды.</li>
         <li>Наглость кота восстанавливается сама, пока он не оглушён.</li>
         <li>Кот присел и виляет задом — сейчас прыгнет. Попадите в него, чтобы сбить атаку.</li>
-        <li>Окно приоткрыто: что улетит в щель, то пропало. Кончатся снаряды — проигрыш.</li>
-        <li><b>1–4</b> — выбор снаряда, <b>H</b> — лечиться, <b>P</b> — пауза.</li>
+        <li>Правая створка окна открыта: что улетит туда, то пропало. Упавшие шторы и книги тоже можно кидать. Кончатся снаряды — проигрыш.</li>
+        <li><b>1–6</b> — выбор снаряда, <b>H</b> — лечиться, <b>P</b> — пауза.</li>
       </ul>
     </div>
     <div class="catcard">
@@ -238,6 +238,8 @@ const PHRASES=['МЯЯЯУ!','МРРРАУ!','КОРМИ!','АААУУУ!','МЯ
 const ITEM={
  slipper:{name:'Тапок',r:13,fr:16,ammo:true,T:.42,dmg:22,obj:2,stun:.8,st:'daze',rest:.25,fric:.6,roll:5,kb:120},
  ball:{name:'Мяч',r:11,fr:12,ammo:true,T:.3,dmg:9,obj:1,stun:.3,st:'daze',rest:.72,fric:.85,roll:1.2,kb:40},
+ curtain:{name:'Штора',r:12,fr:32,ammo:true,T:.66,dmg:6,obj:0,stun:4.6,st:'towel',rest:0,fric:.3,roll:9,kb:0,wrap:'#c9527a'},
+ book:{name:'Книга',r:10,fr:15,ammo:true,T:.4,dmg:18,obj:2,stun:.7,st:'daze',rest:.15,fric:.5,roll:7,kb:90},
  towel:{name:'Полотенце',r:8,fr:24,ammo:true,T:.6,dmg:4,obj:0,stun:3.6,st:'towel',rest:0,fric:.3,roll:8,kb:0},
  pillow:{name:'Подушка',r:14,fr:28,ammo:true,T:.55,dmg:14,obj:1,stun:1.8,st:'pillow',rest:.15,fric:.4,roll:6,kb:260},
  plaster:{name:'Пластырь',r:6,heal:10},
@@ -246,7 +248,7 @@ const ITEM={
  bandage:{name:'Бинт',r:11,heal:20},
  kit:{name:'Аптечка',r:13,heal:45},
 };
-const AMMO_ORDER=['slipper','ball','towel','pillow'];
+const AMMO_ORDER=['slipper','ball','towel','pillow','book','curtain'];
 const MED_ORDER=['plaster','plantain','zelenka','bandage','kit'];
 
 const PLATS=[
@@ -258,7 +260,7 @@ const PLATS=[
  {id:'desk',x1:868,x2:1152,y:432},
 ];
 const platById=id=>PLATS.find(p=>p.id===id);
-const WINDOW={x1:572,y1:134,x2:796,y2:372},OPEN={x1:692,y1:261,x2:793,y2:369};
+const WINDOW={x1:572,y1:134,x2:796,y2:372},OPEN={x1:691,y1:137,x2:794,y2:370};
 
 const STATE_LABEL={idle:'Строит планы',walk:'Шастает',jump:'Прыгает',prejump:'Примеряется',yell:'Орёт',knock:'Роняет вещи',windup:'Сейчас прыгнет!',pounce:'АТАКУЕТ!',asleep:'Спит'};
 const STUN_LABEL={daze:'Оглушён',towel:'Запутался',pillow:'Придавлен'};
@@ -285,6 +287,17 @@ function drawItem(c,kind,x,y,sc,rot,lying,t){
   case 'ball':
     ell(c,0,0,11,11);fs(c,'#d9f24b',3);
     c.save();ell(c,0,0,10,10);c.clip();c.beginPath();c.arc(-15,0,11,-1.2,1.2);c.moveTo(15+11*Math.cos(Math.PI-1.2),11*Math.sin(Math.PI-1.2));c.arc(15,0,11,Math.PI-1.2,Math.PI+1.2,false);c.strokeStyle='#fff';c.lineWidth=2.4;c.stroke();c.restore();
+    break;
+  case 'curtain':{
+    const g=c.createLinearGradient(-36,0,36,0);g.addColorStop(0,'#a33c63');g.addColorStop(.5,'#c9527a');g.addColorStop(1,'#a33c63');
+    if(lying){c.beginPath();c.moveTo(-36,12);c.quadraticCurveTo(-34,-6,-20,-4);c.quadraticCurveTo(-10,-16,4,-6);c.quadraticCurveTo(20,-14,26,-2);c.quadraticCurveTo(38,0,36,12);c.closePath();fs(c,g,3);
+      c.strokeStyle='rgba(60,10,35,.45)';c.lineWidth=2.5;c.beginPath();c.moveTo(-18,10);c.quadraticCurveTo(-14,2,-18,-2);c.moveTo(6,10);c.quadraticCurveTo(2,0,6,-5);c.stroke();}
+    else{const f=Math.sin((t||0)*18)*9;c.beginPath();c.moveTo(-38,-20);c.quadraticCurveTo(0,-20+f,38,-20);c.lineTo(34,22);c.quadraticCurveTo(0,22-f,-34,22);c.closePath();fs(c,g,3);
+      c.strokeStyle='rgba(60,10,35,.45)';c.lineWidth=3;for(const x of[-16,4,22]){c.beginPath();c.moveTo(x,-18);c.quadraticCurveTo(x+4+f*.3,0,x,20);c.stroke();}}
+    break;}
+  case 'book':
+    rr(c,-15,-10,30,20,3);fs(c,'#7f6bd6',2.5);c.fillStyle='#f4ecd8';c.fillRect(-12,5,25,3);
+    c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(-10,-10);c.lineTo(-10,10);c.stroke();rr(c,-4,-5,13,5,1);c.fillStyle='#f0c040';c.fill();
     break;
   case 'towel':
     if(lying){
@@ -352,14 +365,13 @@ function drawRoom(c){
   c.restore();
   c.lineWidth=14;c.strokeStyle='#efe6d6';rr(c,566,128,236,250,6);c.stroke();
   c.lineWidth=3;c.strokeStyle=OUT;rr(c,559,121,250,264,9);c.stroke();rr(c,573,135,222,236,3);c.stroke();
-  c.fillStyle='#efe6d6';c.fillRect(679,135,10,236);c.fillRect(573,248,222,10);
-  c.strokeStyle=OUT;c.lineWidth=2.5;c.strokeRect(679,135,10,236);c.strokeRect(573,248,222,10);
-  // glare on the closed panes; the lower-right pane is open (no glass)
-  c.save();c.globalAlpha=.13;c.fillStyle='#fff';
-  for(const[px,py]of[[575,137],[689,137],[575,258]]){c.save();c.beginPath();c.rect(px,py,104,111);c.clip();poly(c,[px+20,py+111,px+44,py+111,px+104,py+20,px+104,py-4]);c.fill();poly(c,[px+56,py+111,px+64,py+111,px+104,py+62,px+104,py+52]);c.fill();c.restore();}
-  c.restore();
-  poly(c,[689,258,652,244,652,386,689,371]);fs(c,'#efe6d6',3);poly(c,[683,266,659,256,659,374,683,363]);c.fillStyle='rgba(150,180,255,.25)';c.fill();c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
-  c.save();c.globalAlpha=.5;c.strokeStyle='#cfe0ff';c.lineWidth=2;for(let i=0;i<3;i++){c.beginPath();c.moveTo(712+i*22,300+i*10);c.quadraticCurveTo(724+i*22,292+i*10,736+i*22,300+i*10);c.stroke();}c.restore();
+  c.fillStyle='#efe6d6';c.fillRect(679,135,10,236);
+  c.strokeStyle=OUT;c.lineWidth=2.5;c.strokeRect(679,135,10,236);
+  // left casement is closed (glass glare); right casement is open
+  c.save();c.globalAlpha=.13;c.fillStyle='#fff';c.beginPath();c.rect(575,137,104,234);c.clip();
+  poly(c,[575,300,575,340,679,190,679,150]);c.fill();poly(c,[575,362,575,371,592,371,679,246,679,234]);c.fill();c.restore();
+  rr(c,670,244,6,22,3);fs(c,'#d9b45a',2);
+  c.save();c.globalAlpha=.5;c.strokeStyle='#cfe0ff';c.lineWidth=2;for(let i=0;i<3;i++){c.beginPath();c.moveTo(708+i*24,230+i*36);c.quadraticCurveTo(720+i*24,222+i*36,732+i*24,230+i*36);c.stroke();}c.restore();
   rr(c,546,374,276,18,4);fs(c,'#efe6d6',3);
   // wardrobe
   rr(c,32,176,196,412,8);fs(c,'#a7633e',3.5);
@@ -601,8 +613,8 @@ function drawCatPose(c,b,o,t){
   else{leg(c,-22,lp(0),L.near,L.paw,g,true,true);if(o.paw)limb(c,28,-40,70,-58+Math.sin(t*12)*4,L.near,L.paw,0,body);else leg(c,27,lp(Math.PI),L.near,L.paw,g,false,true);}
   c.save();c.translate(brx*.82,bcy-22-(o.stretch?6:0));c.rotate(o.headTilt||0);drawHead(c,b,o,t);c.restore();
   if(o.towel){
-    c.beginPath();c.moveTo(-brx-8,-4);c.bezierCurveTo(-brx-14,-70,10,-118,brx+44,-104);c.bezierCurveTo(brx+72,-70,brx+46,-14,brx+24,-4);c.closePath();fs(c,'#3fa9d4',3.5);
-    c.save();c.clip();c.strokeStyle='#fff';c.lineWidth=7;for(let i=-3;i<=3;i++){c.beginPath();c.moveTo(i*26,0);c.lineTo(i*26+20,-130);c.stroke();}c.restore();
+    c.beginPath();c.moveTo(-brx-8,-4);c.bezierCurveTo(-brx-14,-70,10,-118,brx+44,-104);c.bezierCurveTo(brx+72,-70,brx+46,-14,brx+24,-4);c.closePath();fs(c,o.wrapCol||'#3fa9d4',3.5);
+    c.save();c.clip();c.strokeStyle=o.wrapCol?'rgba(60,10,35,.35)':'#fff';c.lineWidth=o.wrapCol?4:7;for(let i=-3;i<=3;i++){c.beginPath();c.moveTo(i*26,0);c.lineTo(i*26+20,-130);c.stroke();}c.restore();
     c.strokeStyle=OUT;c.lineWidth=2;for(let i=0;i<9;i++){const x=lerp(-brx-6,brx+22,i/8);c.beginPath();c.moveTo(x,-4);c.lineTo(x,4);c.stroke();}
   }
   c.restore();
@@ -716,7 +728,7 @@ let catIdx=0;try{catIdx=(+localStorage.getItem('ugomoni-cat')||0)%BREEDS.length;
 function setCat(i){catIdx=(i+BREEDS.length)%BREEDS.length;game.breed=BREEDS[catIdx];game.name=game.breed.name;try{localStorage.setItem('ugomoni-cat',String(catIdx));}catch(e){}renderPreviewInfo();}
 function newGame(){
   const b=game.breed;
-  ammo={slipper:2,ball:3,towel:1,pillow:1};
+  ammo={slipper:2,ball:3,towel:1,pillow:1,book:0,curtain:0};
   meds={plaster:1,plantain:0,zelenka:0,bandage:0,kit:0};
   player={hp:100,sleep:100};
   projs=[];parts=[];pops=[];claws=[];debris=[];cracks=[];marks=[];furn=makeFurn();for(const pl of PLATS)pl.off=false;shake=0;hurtT=0;
@@ -768,6 +780,7 @@ function landObj(o,pl){
   if(o.fragile){breakObj(o);return;}
   o.state='lying';o.rot=(o.vr>=0?1:-1)*Math.PI/2;o.plat=pl.id;sThud();dust(o.x,pl.y,6);
   if(!o.charged){o.charged=true;addDamage(o,o.x,pl.y-60);}
+  if(o.type==='books'){o.state='broken';for(const dx of[-16,0,16])dropPick('book',o.x+dx,pl.y-20);}
 }
 function hitObj(o,p){
   const a=ITEM[p.kind],dir=Math.sign(p.vx)||1;
@@ -806,7 +819,10 @@ function hitFurniture(ids,p){
 function breakFurn(id){
   const f=furn[id];f.broken=true;f.t=0;sCrash();shake=Math.max(shake,.2);
   addDamage({cost:f.brk,label:{rod:'Гардина рухнула',shelf:'Полка рухнула',curtL:'Штора сорвана',curtR:'Штора сорвана',wardrobe:'Шкаф сломан',stand:'Тумбочка сломана',desk:'Стол сломан'}[id]},(f.x1+f.x2)/2,Math.max(140,f.y1+40));
-  if(id==='rod'&&!furn.curtL.broken){furn.curtL.broken=true;furn.curtL.t=0;}
+  if(id==='rod'&&!furn.curtL.broken){furn.curtL.broken=true;furn.curtL.t=0;dropPick('curtain',553,420);}
+  if(id==='curtL')dropPick('curtain',553,420);
+  if(id==='curtR')dropPick('curtain',815,420);
+  if(id.startsWith('curt')||id==='rod')toast('Штору можно подобрать и бросить в кота.');
   if(id.startsWith('curt')||id==='rod')marks=marks.filter(m=>!(m.id==='curtL'&&furn.curtL.broken)&&!(m.id==='curtR'&&furn.curtR.broken));
   if(id==='shelf'){
     const pl=platById('shelf');pl.off=true;marks=marks.filter(m=>m.id!=='shelf');
@@ -819,16 +835,15 @@ function breakFurn(id){
   if(id==='desk')dropPick('ball',1090,500);
   burst((f.x1+f.x2)/2,Math.min(f.y2-20,f.y1+60),['#a7633e','#c27d4f','#8c4f2d'],10,260,'shard');
 }
-function drawPile(c,cx,y,col){
-  const g=c.createLinearGradient(cx-50,0,cx+50,0);g.addColorStop(0,'#a33c63');g.addColorStop(.5,'#c9527a');g.addColorStop(1,'#a33c63');
-  c.beginPath();c.moveTo(cx-56,y);c.quadraticCurveTo(cx-52,y-26,cx-30,y-22);c.quadraticCurveTo(cx-14,y-40,cx+6,y-26);c.quadraticCurveTo(cx+30,y-36,cx+40,y-18);c.quadraticCurveTo(cx+60,y-14,cx+58,y);c.closePath();fs(c,g,3);
-  c.strokeStyle='rgba(60,10,35,.45)';c.lineWidth=3;c.beginPath();c.moveTo(cx-30,y-4);c.quadraticCurveTo(cx-24,y-16,cx-28,y-20);c.moveTo(cx+8,y-4);c.quadraticCurveTo(cx+2,y-16,cx+6,y-24);c.stroke();
-}
 function drawFurniture(c,t,dt){
   // curtains + rod
   const R=furn.rod,L=furn.curtL,Rc=furn.curtR;
-  if(!Rc.broken)curtain(c,774,856,1);else drawPile(c,815,FLOOR+6);
-  if(!L.broken)curtain(c,512,594,-1);else drawPile(c,553,FLOOR+6);
+  if(!Rc.broken)curtain(c,774,856,1);
+  if(!L.broken)curtain(c,512,594,-1);
+  poly(c,[796,128,842,112,842,396,796,378]);fs(c,'#efe6d6',3);
+  poly(c,[802,140,836,128,836,382,802,368]);c.fillStyle='rgba(150,180,255,.28)';c.fill();c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
+  c.save();c.globalAlpha=.25;c.fillStyle='#fff';poly(c,[806,300,830,290,830,250,806,262]);c.fill();c.restore();
+  rr(c,830,244,6,22,3);fs(c,'#d9b45a',2);
   const tilt=R.broken?Math.min(.62,(R.t||0)*3):0;
   c.save();c.translate(868,108);c.rotate(-tilt);
   c.lineWidth=6;c.strokeStyle=OUT;c.beginPath();c.moveTo(-368,0);c.lineTo(0,0);c.stroke();c.lineWidth=3;c.strokeStyle='#d9b45a';c.stroke();
@@ -934,11 +949,11 @@ function hitCat(p,head){
   if(k.hp<=0){catSleep();return;}
   const st=a.stun*(head?1.3:1)+(wasThreat?1:0);
   if(k.state==='stunned'&&k.stunType==='towel'&&a.st!=='towel'){k.stunT=Math.max(k.stunT,.8);}
-  else{k.state='stunned';k.stunType=a.st;k.stunT=Math.max(k.state==='stunned'?k.stunT:0,st);}
+  else{k.state='stunned';k.stunType=a.st;k.stunT=Math.max(k.state==='stunned'?k.stunT:0,st);if(a.st==='towel')k.wrap=p.kind;}
   k.kvx=Math.sign(p.vx||1)*a.kb;
 }
 function catSleep(){
-  const k=cat;if(k.stunType==='towel')dropPick('towel',k.x,k.y-60);
+  const k=cat;if(k.stunType==='towel')dropPick(k.wrap||'towel',k.x,k.y-60);
   if(k.air){k.x=k.air.x1;k.y=k.air.y1;k.plat=k.air.plat;k.air=null;}
   k.state='asleep';k.ko=Math.random()<.5?'back':'side';k.koStart=k.anim;dust(k.x,k.y,14);k.stunType=null;k.bubble=null;
   game.score+=1000+Math.round(player.hp)*10+Math.round(player.sleep)*10;game.winT=2.4;sWin();
@@ -982,7 +997,7 @@ function updateCat(dt){
     k.stunT-=dt;
     if(k.kvx){k.x+=k.kvx*dt;k.kvx*=Math.pow(.02,dt);if(Math.abs(k.kvx)<5)k.kvx=0;}
     if(!k.air){const pl=platById(k.plat);if(k.plat!=='floor'&&(k.x<pl.x1||k.x>pl.x2)){jumpTo(k,clamp(k.x+(k.x<pl.x1?-30:30),60,1220),'floor');}else k.x=clamp(k.x,pl.x1,pl.x2);}
-    if(k.stunT<=0){if(k.stunType==='towel')dropPick('towel',k.x,k.y-50*b.size);k.state='idle';k.timer=.25;k.stunType=null;k.anger=Math.min(1,k.anger+.15);}
+    if(k.stunT<=0){if(k.stunType==='towel')dropPick(k.wrap||'towel',k.x,k.y-50*b.size);k.state='idle';k.timer=.25;k.stunType=null;k.anger=Math.min(1,k.anger+.15);}
     break;
   }
 }
@@ -1002,7 +1017,7 @@ function update(dt){
       const u=tt/p.T;let bounced=false;
       if(u>.8&&!p.touched){
         const part=catHit(cat,p.x,p.y,p.r);
-        if(part){hitCat(p,part===2);p.touched=true;bounced=true;if(p.kind==='towel'&&cat.state==='stunned'&&cat.stunType==='towel'){projs.splice(i,1);continue;}}
+        if(part){hitCat(p,part===2);p.touched=true;bounced=true;if(ITEM[p.kind].st==='towel'&&cat.state==='stunned'&&cat.stunType==='towel'){projs.splice(i,1);continue;}}
         else for(const o of objs){if(o.state!=='stand')continue;const L=o.x-o.w/2,R=o.x+o.w/2,T=o.y-o.h;if(p.x+p.r*.5>L&&p.x-p.r*.5<R&&p.y+p.r*.5>T&&p.y-p.r*.5<o.y){hitObj(o,p);p.touched=true;bounced=true;break;}}
       }
       if(bounced||p.t>=p.T){
@@ -1062,7 +1077,7 @@ function renderCat(k,t){
     if(s==='jump'){o.stretch=1;o.eyes='wide';}
     if(s==='knock'){o.paw=k.timer>.4?1:0;o.eyes=k.timer<.5?'smug':'normal';}
     if(s==='pounce'){o.pounce=1;o.eyes='wide';o.mouth=1;}
-    if(s==='stunned'){if(k.stunType==='towel')o.towel=1;else if(k.stunType==='pillow'){o.flat=1;o.pillow=1;o.eyes='spiral';o.tailDown=1;}else{o.eyes='spiral';o.headTilt=Math.sin(k.anim*5)*.2;o.tailDown=1;}}
+    if(s==='stunned'){if(k.stunType==='towel'){o.towel=1;o.wrapCol=ITEM[k.wrap||'towel'].wrap;}else if(k.stunType==='pillow'){o.flat=1;o.pillow=1;o.eyes='spiral';o.tailDown=1;}else{o.eyes='spiral';o.headTilt=Math.sin(k.anim*5)*.2;o.tailDown=1;}}
     if(k.smug>0&&(s==='idle'||s==='walk'))o.eyes='smug';
     if(k.flash>0)o.eyes='hurt';
     drawCatPose(cb,k.b,o,t);
@@ -1149,7 +1164,7 @@ function render(now){
 /* ---------------- HUD ---------------- */
 function mkSlot(kind,key,onClick){
   const b=document.createElement('button');b.className='slot';b.type='button';b.dataset.k=kind;b.title=ITEM[kind].name+(ITEM[kind].heal?` (+${ITEM[kind].heal} здоровья)`:'');
-  const cvs=document.createElement('canvas');cvs.width=120;cvs.height=96;const c=cvs.getContext('2d');c.scale(2,2);drawItem(c,kind,30,26,kind==='pillow'||kind==='towel'?.8:1.1,0,true,0);
+  const cvs=document.createElement('canvas');cvs.width=120;cvs.height=96;const c=cvs.getContext('2d');c.scale(2,2);drawItem(c,kind,30,26,kind==='curtain'?.62:kind==='pillow'||kind==='towel'?.8:1.1,0,true,0);
   b.append(cvs);const nm=document.createElement('span');nm.className='nm';nm.textContent=ITEM[kind].heal?`${ITEM[kind].name} +${ITEM[kind].heal}`:ITEM[kind].name;b.append(nm);
   const cnt=document.createElement('span');cnt.className='cnt';b.append(cnt);if(key){const ks=document.createElement('span');ks.className='key';ks.textContent=key;b.append(ks);}
   b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('click',()=>{au();onClick(kind);b.blur();});return b;
@@ -1241,7 +1256,7 @@ cv.addEventListener('pointermove',e=>{const p=toWorld(e);mouse.x=p.x;mouse.y=p.y
 cv.addEventListener('pointerleave',()=>{mouse.in=false;});
 addEventListener('keydown',e=>{
   if(!$('startOv').hidden&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){setCat(catIdx+(e.key==='ArrowLeft'?-1:1));return;}
-  if(e.key>='1'&&e.key<='4'&&game.running){selectKind(AMMO_ORDER[+e.key-1]);}
+  if(e.key>='1'&&e.key<='6'&&game.running){selectKind(AMMO_ORDER[+e.key-1]);}
   else if((e.key==='h'||e.key==='H'||e.key==='р'||e.key==='Р')&&game.running&&!game.paused)useBestMed();
   else if(e.key==='p'||e.key==='P'||e.key==='з'||e.key==='З'||e.key==='Escape')setPause(!game.paused);
 });
@@ -1270,7 +1285,7 @@ function start(data){
   furn=makeFurn();
   if(data&&data.best>game.best)game.best=data.best;
   layout();buildTrays();setCat(catIdx);
-  ammo={slipper:2,ball:3,towel:1,pillow:1};meds={plaster:1,plantain:0,zelenka:0,bandage:0,kit:0};updateTrays();
+  ammo={slipper:2,ball:3,towel:1,pillow:1,book:0,curtain:0};meds={plaster:1,plantain:0,zelenka:0,bandage:0,kit:0};updateTrays();
   requestAnimationFrame(loop);
 }
 try{window.claude?.hot?.snapshot?.(()=>({best:game.best}));}catch(e){}
