@@ -1315,8 +1315,8 @@ function cabinetDoor(c,id,x1,x2,inside){
   if(!f.broken){rr(c,x1+5,113,w-10,134,6);fs(c,'#7fb39a',2.5);rr(c,x1+16,124,w-32,112,5);c.lineWidth=2;c.strokeStyle='rgba(30,60,45,.35)';c.stroke();ell(c,x1+w/2,226,4,4);fs(c,'#f2c75a',2);}
   else{rr(c,x1+5,113,w-10,134,4);fs(c,'#4b3d33',2.5);c.fillStyle='#e8e2d4';c.fillRect(x1+5,178,w-10,5);inside(c,x1,w);rr(c,x1+5,113,6,30,2);fs(c,'#7fb39a',1.5);}
 }
-// dirty dishes in the sink: three stacked flat, two leaning on the stack
-const SINK_PILE=[[722,392,0,0],[724,385,.04,0],[720,378,-.05,0],[757,378,.42,1],[690,380,-.38,1]];
+// dirty dishes in the sink: one upright stack
+const SINK_PILE=[0,1,2,3,4].map(i=>[722,392-i*7,0,0]);
 // what each cabinet shows once its door is gone
 const CAB_INSIDE={
   cab1:(c,x,w)=>{c.fillStyle='rgba(0,0,0,.18)';c.fillRect(x+5,240,w-10,7);},
