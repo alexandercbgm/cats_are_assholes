@@ -1074,7 +1074,6 @@ function drawBathroom(c){
   rr(c,736,456,488,14,7);fs(c,'#fbfdfd',3);
   // towel rail with a hanging towel
   c.lineWidth=5;c.strokeStyle=OUT;c.beginPath();c.moveTo(686,326);c.lineTo(728,326);c.stroke();c.lineWidth=2.5;c.strokeStyle='#cfd8dc';c.stroke();
-  rr(c,690,326,34,74,4);fs(c,'#e98b6a',2.5);c.fillStyle='#fff';c.fillRect(690,378,34,5);c.fillRect(690,388,34,3);
   // sink on a pedestal, glass shelf above it
   rr(c,572,462,36,138,12);fs(c,'#eef3f4',3);
   c.beginPath();c.moveTo(510,432);c.bezierCurveTo(514,474,560,482,590,482);c.bezierCurveTo(620,482,666,474,670,432);c.closePath();fs(c,'#f6f9f9',3);
@@ -1114,7 +1113,13 @@ function picksL2(){return[
   mkPick('bottle',928,300,'#5fb3e8'),mkPick('bottle',962,300,'#f07fae'),mkPick('bottle',996,300,'#8fd36b'),mkPick('zelenka',1032,300),
   mkPick('paste',588,342),mkPick('brush',624,342,'#8fd36b'),mkPick('plaster',652,342),
   mkPick('duck',1186,462),mkPick('slipper',820,FLOOR),
+  Object.assign(mkPick('towel',707,400),{y:363,r:30,hang:true}),
 ];}
+// pickups: a hanging towel keeps its rail look until someone takes it
+function drawPick(c,it,t){
+  if(it.hang){rr(c,it.x-17,it.y-37,34,74,4);fs(c,'#e98b6a',2.5);c.fillStyle='#fff';c.fillRect(it.x-17,it.y+15,34,5);c.fillRect(it.x-17,it.y+25,34,3);return;}
+  drawItem(c,it.kind,it.x,it.y,1,it.rot,true,t,it.col);
+}
 function drawMarks(c){
   for(const m of marks){
     if(m.type==='dent'){ell(c,m.x,m.y,7,5);c.fillStyle='rgba(40,18,10,.45)';c.fill();c.strokeStyle='rgba(40,18,10,.7)';c.lineWidth=1.5;c.beginPath();for(let i=0;i<4;i++){const a=m.seed+i*1.7;c.moveTo(m.x+Math.cos(a)*5,m.y+Math.sin(a)*4);c.lineTo(m.x+Math.cos(a)*14,m.y+Math.sin(a)*10);}c.stroke();}
@@ -1193,7 +1198,7 @@ function paintLevel(L){
 function makeThumb(L){
   const cv2=document.createElement('canvas');cv2.width=640;cv2.height=360;const c=cv2.getContext('2d');c.scale(.5,.5);
   const keep=[furn,objs,marks,flood];furn=L.furn();objs=L.objs();marks=[];flood=0;
-  L.room(c);L.dyn(c,0,0);for(const o of objs)drawObj(c,o,0);for(const it of L.picks())drawItem(c,it.kind,it.x,it.y,1,0,true,0,it.col);L.fg(c);
+  L.room(c);L.dyn(c,0,0);for(const o of objs)drawObj(c,o,0);for(const it of L.picks())drawPick(c,it,0);L.fg(c);
   [furn,objs,marks,flood]=keep;return cv2;
 }
 
@@ -1625,7 +1630,7 @@ function render(now){
   // pickups
   for(const it of picks){
     if(it.rest){const pulse=.5+.5*Math.sin(t*4+it.x);ell(c,it.x,it.y,it.r+12+pulse*3,(it.r+12+pulse*3)*.75);c.fillStyle=`rgba(255,236,150,${.14+pulse*.12})`;c.fill();}
-    drawItem(c,it.kind,it.x,it.y,1,it.rot,true,t,it.col);
+    drawPick(c,it,t);
   }
   for(const p of projs)if(p.mode==='scene')drawItem(c,p.kind,p.x,p.y,1,p.rot,false,t,p.col);
   // cat
