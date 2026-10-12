@@ -306,6 +306,7 @@ const ITEM={
  duck:{name:'Уточка',r:12,fr:14,ammo:true,T:.36,dmg:9,obj:1,stun:.6,st:'daze',rest:.6,fric:.8,roll:2,kb:60,squeak:true},
  apple:{name:'Яблоко',r:9,fr:12,ammo:true,T:.34,dmg:9,obj:1,stun:.45,st:'daze',rest:.4,fric:.7,roll:2,kb:50},
  orange:{name:'Апельсин',r:10,fr:12,ammo:true,T:.34,dmg:10,obj:1,stun:.45,st:'daze',rest:.35,fric:.75,roll:1.5,kb:50},
+ spice:{name:'Баночка',r:8,fr:12,ammo:true,T:.36,dmg:11,obj:2,stun:.55,st:'daze',rest:.2,fric:.5,roll:6,kb:70},
  banana:{name:'Банан',r:6,fr:14,ammo:true,T:.36,dmg:7,obj:1,stun:.9,st:'daze',rest:.15,fric:.5,roll:7,kb:30},
  plaster:{name:'Пластырь',r:6,heal:10},
  plantain:{name:'Подорожник',r:6,heal:8},
@@ -315,7 +316,8 @@ const ITEM={
 };
 const BOOK_COLS=['#d9534f','#f0c040','#5fb36a','#7f6bd6'];
 let AMMO_ORDER=['slipper','ball','towel','pillow','book','curtain'];
-const ITEM_COLS={book:BOOK_COLS,bottle:['#5fb3e8','#f07fae','#8fd36b'],brush:['#5fb3e8','#f07fae','#8fd36b']};
+const SPICE_COLS=['#c8524c','#f0c040','#5fb36a','#e98b6a','#8a6bd6','#5fb3e8'];
+const ITEM_COLS={spice:SPICE_COLS,book:BOOK_COLS,bottle:['#5fb3e8','#f07fae','#8fd36b'],brush:['#5fb3e8','#f07fae','#8fd36b']};
 const MED_ORDER=['plaster','plantain','zelenka','bandage','kit'];
 
 const PLATS_L1=[
@@ -406,6 +408,9 @@ function drawItem(c,kind,x,y,sc,rot,lying,t,col){
     break;
   case 'bottle':
     rr(c,-8,-20,16,28,5);fs(c,col||'#5fb3e8',2.5);rr(c,-6,-12,12,10,2);c.fillStyle='rgba(255,255,255,.85)';c.fill();rr(c,-5,-27,10,8,2);fs(c,'#3a3346',2);
+    break;
+  case 'spice':
+    rr(c,-8,-9,16,17,3);fs(c,'#f4efe4',2);c.fillStyle='rgba(150,90,40,.55)';c.fillRect(-5,-2,10,7);rr(c,-8.5,-15,17,7,2);fs(c,col||'#c8524c',2);
     break;
   case 'paste':
     c.beginPath();c.moveTo(-16,-5);c.lineTo(10,-6);c.lineTo(10,6);c.lineTo(-16,5);c.closePath();fs(c,'#fbfbfb',2.2);
@@ -967,13 +972,14 @@ function breakFurn(id){
   if(id==='desk')dropPick('ball',1090,500);
   if(id==='cabinet'){marks=marks.filter(m=>m.id!=='cabinet');dropPick('kit',566,240);dropPick('bandage',612,240);toast('Дверца вылетела! Внутри аптечка и бинт.');}
   if(id==='fridge'){platById('fridgeIn').off=false;toast('Холодильник открыт! Кот полезет за колбасой — зато не будет мешать.',3);}
-  if(id==='cab1')dropPick('kit',376,200);
+  if(id==='cab1'){dropPick('kit',376,200);toast('Баночки со специями можно брать и кидать.',3);}
   if(id==='cab2'){dropPick('bandage',506,200);dropPick('plaster',546,200);dropPick('orange',576,200);}
   if(id==='cab3'){dropPick('zelenka',940,200);dropPick('towel',990,200);dropPick('banana',1030,200);}
-  if(/^cab\d$/.test(id))toast('Дверца вылетела — внутри что-то есть.');
+  if(/^cab[23]$/.test(id))toast('Дверца вылетела — внутри что-то есть.');
   if(['fridge','freezer','medcab','cab1','cab2','cab3'].includes(id))marks=marks.filter(m=>m.id!==id);
   if(id==='freezer'){platById('freezerIn').off=false;toast('Морозилка открыта: там мороженая рыба. Кот будет её грызть.',3);}
-  if(id==='medcab'){for(const it of picks)if(it.hiddenIn==='medcab')it.hidden=false;toast('Аптечный шкафчик открыт — лекарства на полках.',3);}
+  for(const it of picks)if(it.hiddenIn===id)it.hidden=false;
+  if(id==='medcab'){toast('Аптечный шкафчик открыт — лекарства на полках.',3);}
   if(id==='toilet'){flood=.001;toast('Унитаз потёк! Кот больше не сможет стоять на полу.',3);}
   const porc=id==='cabinet'||id==='toilet';
   burst((f.x1+f.x2)/2,Math.min(f.y2-20,f.y1+60),porc?['#f3f6f6','#cfe3ea','#ffffff']:['#a7633e','#c27d4f','#8c4f2d'],porc?18:10,porc?360:260,'shard');
@@ -1296,10 +1302,12 @@ function makeFurnL3(){return{
 function picksL3(){
   const fruit=(k,x,y)=>Object.assign(mkPick(k,x,y),{inBowl:true});
   const shut=(k,x,y)=>Object.assign(mkPick(k,x,y),{hidden:true,hiddenIn:'medcab'});
+  const jar=(x,y,i)=>Object.assign(mkPick('spice',x,y,SPICE_COLS[i%6]),{hidden:true,hiddenIn:'cab1'});
   return[
     fruit('apple',1146,454),fruit('orange',1166,452),fruit('apple',1186,454),fruit('banana',1166,442),
     mkPick('towel',925,456),mkPick('towel',995,456),mkPick('slipper',360,FLOOR),
     shut('kit',1132,206),shut('bandage',1186,206),shut('zelenka',1140,262),shut('bandage',1186,262),
+    ...[0,1,2,3].flatMap(i=>[jar(331+i*29,176,i),jar(331+i*29,245,i+2)]),
   ];
 }
 function cabinetDoor(c,id,x1,x2,inside){
@@ -1307,10 +1315,12 @@ function cabinetDoor(c,id,x1,x2,inside){
   if(!f.broken){rr(c,x1+5,113,w-10,134,6);fs(c,'#7fb39a',2.5);rr(c,x1+16,124,w-32,112,5);c.lineWidth=2;c.strokeStyle='rgba(30,60,45,.35)';c.stroke();ell(c,x1+w/2,226,4,4);fs(c,'#f2c75a',2);}
   else{rr(c,x1+5,113,w-10,134,4);fs(c,'#4b3d33',2.5);c.fillStyle='#e8e2d4';c.fillRect(x1+5,178,w-10,5);inside(c,x1,w);rr(c,x1+5,113,6,30,2);fs(c,'#7fb39a',1.5);}
 }
+// dirty dishes in the sink: three stacked flat, two leaning on the stack
+const SINK_PILE=[[722,392,0,0],[724,385,.04,0],[720,378,-.05,0],[757,378,.42,1],[690,380,-.38,1]];
 // what each cabinet shows once its door is gone
 const CAB_INSIDE={
-  cab1:(c,x,w)=>{const cols=['#c8524c','#f0c040','#5fb36a','#e98b6a','#8a6bd6','#5fb3e8'];for(let r=0;r<2;r++)for(let i=0;i<5;i++){const jx=x+16+i*25,jy=r?236:172;rr(c,jx,jy-24,16,24,3);fs(c,'#f4efe4',1.5);rr(c,jx,jy-30,16,7,2);fs(c,cols[(i+r*2)%6],1.5);}},
-  cab2:(c,x,w)=>{for(let i=0;i<6;i++){ell(c,x+30+i*3,172-i*3,22,4);fs(c,'#fffdf8',1.5);}for(let i=0;i<3;i++){rr(c,x+76+i*22,152,16,22,4);fs(c,['#e98b6a','#5fb3e8','#f0c040'][i],1.5);c.beginPath();c.arc(x+93+i*22,163,5,-1.4,1.4);c.lineWidth=2;c.strokeStyle=OUT;c.stroke();}
+  cab1:(c,x,w)=>{c.fillStyle='rgba(0,0,0,.18)';c.fillRect(x+5,240,w-10,7);},
+  cab2:(c,x,w)=>{for(let i=0;i<7;i++){ell(c,x+36,174-i*4,22,4);fs(c,'#fffdf8',1.5);}for(let i=0;i<3;i++){rr(c,x+76+i*22,152,16,22,4);fs(c,['#e98b6a','#5fb3e8','#f0c040'][i],1.5);c.beginPath();c.arc(x+93+i*22,163,5,-1.4,1.4);c.lineWidth=2;c.strokeStyle=OUT;c.stroke();}
     for(let i=0;i<4;i++){rr(c,x+16+i*30,210,20,30,3);c.fillStyle='rgba(205,236,250,.7)';c.fill();c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();}},
   cab3:(c,x,w)=>{rr(c,x+16,140,46,34,6);fs(c,'#8d989e',1.8);rr(c,x+70,128,36,46,3);fs(c,'#f0c040',1.5);rr(c,x+112,132,36,42,3);fs(c,'#c8524c',1.5);
     ell(c,x+40,236,26,8);fs(c,'#3a3a42',1.8);rr(c,x+72,206,30,30,4);fs(c,'#e8d4b0',1.5);rr(c,x+112,198,40,38,4);fs(c,'#cfe3ea',1.5);},
@@ -1352,7 +1362,9 @@ function drawKitchenDyn(c,t,dt){
       for(let i=0;i<7;i++){const a=i/7*Math.PI,fx2=x-22+i*7.3,h=10+Math.sin(t*20+i*1.7)*4;poly(c,[fx2-4,404,fx2,404-h,fx2+4,404]);c.fillStyle=i%2?'#5fb3ff':'#ffb347';c.fill();}}
     ell(c,1046,428,4,4);fs(c,'#ff5a3a',1.5);}
   // sink: dishes waiting to be washed
-  for(let i=0;i<kitch.plates;i++){c.save();c.translate(688+i*22,394);c.rotate(-.55+i*.26);ell(c,0,-6,6,17);fs(c,i%2?'#fffdf8':'#e8f1f7',2);ell(c,0,-6,2.5,10);c.lineWidth=1.4;c.strokeStyle='rgba(90,140,180,.5)';c.stroke();c.restore();}
+  for(let i=0;i<kitch.plates;i++){const[px,py,rot,up]=SINK_PILE[i];c.save();c.translate(px,py);c.rotate(rot);
+    if(up){ell(c,0,0,6,18);fs(c,i%2?'#fffdf8':'#e8f1f7',2);ell(c,0,0,2.5,11);c.lineWidth=1.4;c.strokeStyle='rgba(90,140,180,.5)';c.stroke();}
+    else{ell(c,0,0,25,6);fs(c,i%2?'#fffdf8':'#e8f1f7',2);ell(c,0,-1,14,3);c.lineWidth=1.4;c.strokeStyle='rgba(90,140,180,.5)';c.stroke();}c.restore();}
   if(kitch.plates>0){rr(c,790,370,14,26,3);c.fillStyle='rgba(205,236,250,.7)';c.fill();c.lineWidth=1.8;c.strokeStyle=OUT;c.stroke();}
   for(let i=0;i<9;i++){ell(c,684+i*14,399-((i*7)%4),6,3.5);c.fillStyle='#ffffff';c.fill();}
   // cutting board with the fish the cat wants
@@ -1383,7 +1395,7 @@ function stoveHazard(k){
 }
 LEVELS.push({n:3,name:'Кухня',sub:'Холодильник, рыба и мусорное ведро',plats:PLATS_L3,glass:GLASS_L3,exit:EXIT_L3,
   front:['cab1','cab2','cab3','medcab','hood','freezer','fridge'],back:['stove'],
-  ammo:['slipper','towel','apple','orange','banana'],ammo0:{slipper:2,apple:1},meds0:{plaster:1},
+  ammo:['slipper','towel','apple','orange','banana','spice'],ammo0:{slipper:2,apple:1},meds0:{plaster:1},
   room:drawKitchen,fg:drawKitchenFG,objs:makeObjsL3,furn:makeFurnL3,dyn:drawKitchenDyn,picks:picksL3,
   catX:760,outTo:'В окно',lostLabel:'Улетело в окно',lostWhere:'улетело в окно',glassLabel:'Окно',
   win:'Колбасу докупите утром.',hello:'Не подпускайте кота к рыбе! Сбейте его со столешницы — лучше прямо в ведро.',
@@ -1555,7 +1567,7 @@ function updateCat(dt){
     break;}
   case 'dunk':
     k.dunkT-=dt;if(k.dunkType!=='sink'&&Math.random()<dt*3)sBlub();
-    if(k.dunkT<=0&&k.dunkType==='ksink'&&kitch.plates>0){for(let i=0;i<kitch.plates;i++)objs.push({type:'plate',x:688+i*22,y:392,plat:'ksink',state:'fall',from:'ksink',vx:rnd(-300,300),vy:rnd(-620,-420),vr:rnd(-10,10),rot:0,w:34,h:10,fragile:true,knockable:false,cost:250,label:'Тарелка'});kitch.plates=0;}
+    if(k.dunkT<=0&&k.dunkType==='ksink'&&kitch.plates>0){for(let i=0;i<kitch.plates;i++)objs.push({type:'plate',x:SINK_PILE[i][0],y:SINK_PILE[i][1],plat:'ksink',state:'fall',from:'ksink',vx:rnd(-300,300),vy:rnd(-620,-420),vr:rnd(-10,10),rot:0,w:34,h:10,fragile:true,knockable:false,cost:250,label:'Тарелка'});kitch.plates=0;}
     if(k.dunkT<=0){const pl=platById(k.dunkPlat);k.state='climb';k.timer=.5;k.y=pl.y;k.x=clamp(k.x,pl.x1+25,pl.x2-25);
       if(['tub','toilet','ksink'].includes(k.dunkType)){k.wet=14;burst(k.x,pl.y-30,['#bfe6ff','#ffffff'],10,200,'drop');}k.bubble=k.dunkType==='sink'?'Хм.':'Брр!';k.bubbleT=1;}
     break;
