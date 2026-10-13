@@ -1011,7 +1011,7 @@ function meowBuf(kind){
 }
 function sMeow(b){const c=AU.ctx;if(!c||!AU.on)return;
   const t=c.currentTime;AU.mq=(AU.mq||[]).filter(e=>e>t);if(AU.mq.length>=3)return;
-  const r=Math.random(),kind=r<.45?'meow':r<.75?'mrr':'ask',buf=meowBuf(kind),rate=b.pitch*rnd(.93,1.07);
+  const kind=Math.random()<.6?'meow':'mrr',buf=meowBuf(kind),rate=b.pitch*rnd(.93,1.07);
   const src=c.createBufferSource(),g=c.createGain();src.buffer=buf;src.playbackRate.value=rate;g.gain.value=.62*Math.min(1.3,b.loud);
   src.connect(g);g.connect(AU.master);src.start(t);AU.mq.push(t+buf.duration/rate);
 }
@@ -2208,7 +2208,7 @@ function drawGarage(c){
   rr(c,1110,426,48,24,3);fs(c,'#5c6670',2.5);rr(c,1100,432,10,12,2);fs(c,'#4a535c',2);
   // floor: concrete with an oil stain
   c.fillStyle='#7c858c';c.fillRect(0,560,W,160);c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=2;for(const x of[200,520,840,1160]){c.beginPath();c.moveTo(x,560);c.lineTo(x+(x-640)*.4,720);c.stroke();}
-  ell(c,640,640,160,22);c.fillStyle='rgba(20,20,30,.35)';c.fill();ell(c,600,636,70,10);c.fillStyle='rgba(120,90,170,.18)';c.fill();
+  
   c.fillStyle='#e8c35a';c.fillRect(0,548,W,14);c.fillStyle='#2b2b33';for(let x=0;x<W;x+=40)poly(c,[x,548,x+20,548,x+6,562,x-14,562]),c.fill();
   c.strokeStyle=OUT;c.lineWidth=3;c.beginPath();c.moveTo(0,548);c.lineTo(W,548);c.moveTo(0,562);c.lineTo(W,562);c.stroke();
   // bucket of nuts in front of the bench (heap is a pickup)
@@ -2724,8 +2724,7 @@ function musStart(){const c=AU.ctx;if(!c||MUS.on||c.state!=='running')return;
   MUS.on=true;MUS.step=0;MUS.next=c.currentTime+.1;musSchedule();MUS.tmr=setInterval(musSchedule,100);}
 function musStop(){if(!MUS.on)return;MUS.on=false;clearInterval(MUS.tmr);const c=AU.ctx,b=MUS.bus;if(c&&b){b.gain.cancelScheduledValues(c.currentTime);b.gain.setValueAtTime(b.gain.value,c.currentTime);b.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.4);setTimeout(()=>b.disconnect(),600);}}
 function musTick(){const want=!$('startOv').hidden&&AU.on&&AU.ctx&&AU.ctx.state==='running';if(want&&!MUS.on)musStart();else if(!want&&MUS.on)musStop();}
-document.addEventListener('pointerdown',()=>{if(!$('startOv').hidden)au();});
-document.addEventListener('keydown',()=>{if(!$('startOv').hidden)au();});
+for(const ev of['pointerdown','touchstart','mousedown','keydown'])document.addEventListener(ev,()=>{if(!$('startOv').hidden)au();},{passive:true});
 
 /* ---------------- physics ---------------- */
 function surf(e,prevY,r,rest,fric,roll,dt,ignore){
@@ -3321,6 +3320,7 @@ function start(data){
   if(data&&data.best>game.best)game.best=data.best;
   ammo=Object.fromEntries(Object.keys(ITEM).filter(k=>ITEM[k].ammo).map(k=>[k,0]));Object.assign(ammo,LV.ammo0);meds={plaster:1,plantain:0,zelenka:0,bandage:0,kit:0};
   layout();buildTrays();setCat(catIdx);drawTipIcons();renderLvl();updateTrays();
+  au();
   requestAnimationFrame(loop);
 }
 try{window.claude?.hot?.snapshot?.(()=>({best:game.best}));}catch(e){}
