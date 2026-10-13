@@ -377,7 +377,7 @@ const EN={
  'Оба кота уснули':'Both cats are asleep','Коты победили':'The cats won','Кот победил':'The cat won','Снаряды кончились':'Out of ammo','07:00. Будильник':'7:00. The alarm',
  'восстановление на паузе':'regen paused','Сам он, кстати, уже спит. :)':"He's already asleep, by the way. :)",'Сами они, кстати, уже спят. :)':"They're already asleep, by the way. :)",
  // breeds
- 'Люцифер':'Lucifer','Чёрный кот':'Black cat','Чёрный бесоёб':'Black hellion','В три ночи гоняет невидимых демонов. Глаза по пять копеек.':'Chases invisible demons at 3 a.m. Eyes like saucers.',
+ 'Люцифер':'Lucifer','Чёрный кот':'Black cat','Чёрный бес':'Black hellion','В три ночи гоняет невидимых демонов. Глаза по пять копеек.':'Chases invisible demons at 3 a.m. Eyes like saucers.',
  'Поджарый':'Lean','Кислотные':'Acid green','Чёрный':'Black',
  'Барон Булкин':'Baron Bunsworth','Британец':'British Shorthair','Кот-батон':'Loaf cat','Медленный, но непробиваемый. Требует завтрак с достоинством.':'Slow but impenetrable. Demands breakfast with dignity.',
  'Толстый':'Chonky','Медные':'Copper','Голубой':'Blue',
@@ -543,7 +543,7 @@ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- data ---------------- */
 const BREEDS=[
- {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бесоёб',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Кислотные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true},
+ {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бес',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Кислотные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true},
  {id:'brit',name:'Барон Булкин',breed:'Британец',type:'Кот-батон',tag:'Медленный, но непробиваемый. Требует завтрак с достоинством.',build:'Толстый',size:1.05,fat:1.28,fur:'#8f9cb2',belly:'#aab6c8',paw:'#9eabc0',tail:'#8f9cb2',lid:'#8f9cb2',pattern:'solid',eye:'#e3892b',eyeName:'Медные',color:'Голубой',nose:'#6f7b93',whisk:'rgba(255,255,255,.75)',hp:220,speed:85,regen:4.5,aggr:.55,loud:.9,dmgMul:1,pitch:.8},
  {id:'siam',name:'Сирена',breed:'Сиамская',type:'Сиамская истеричка',tag:'Орёт громче будильника и прекрасно об этом знает.',build:'Стройная',size:.95,fat:.86,fur:'#efe1c6',belly:'#f8f0df',paw:'#4a3328',tail:'#4a3328',point:'#4a3328',lid:'#4a3328',pattern:'points',eye:'#3f9ce9',eyeName:'Голубые',color:'Сил-пойнт',nose:'#3a2820',whisk:'rgba(60,40,40,.6)',hp:130,speed:175,regen:3,aggr:.85,loud:1.7,dmgMul:.9,pitch:1.25},
  {id:'mcoon',name:'Бигфут',breed:'Мейн-кун',type:'Рысь-переросток',tag:'Огромный, пушистый и тяжёлый. Царапает больнее всех.',build:'Громадный',size:1.28,fat:1.1,fur:'#8b5b33',belly:'#d7b48c',paw:'#d7b48c',tail:'#7a4e2a',stripe:'#3d2513',lid:'#8b5b33',pattern:'tabby',eye:'#86c541',eyeName:'Зелёные',color:'Табби',nose:'#e98a94',whisk:'rgba(255,255,255,.75)',hp:280,speed:110,regen:5,aggr:.7,loud:1,dmgMul:1.4,pitch:.72,tufts:true},
