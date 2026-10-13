@@ -51,6 +51,8 @@ android {
     androidResources {
         // keep the game's fonts and page uncompressed so the WebView reads them straight from the APK
         noCompress += listOf("woff2", "html")
+        // the game speaks English and Russian; drop other languages that libraries bring along
+        localeFilters += listOf("en", "ru")
     }
 }
 
