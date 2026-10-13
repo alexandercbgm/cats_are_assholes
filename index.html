@@ -87,6 +87,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .two .toast{top:8.6em}
 .catp.many{width:23em}.catp.many>:not(#catsMini){display:none!important}
 #catsMini{display:grid;grid-template-columns:1fr 1fr;gap:.3em .9em}
+#catp.pair{width:28em}#catp.pair .mc{grid-template-columns:.7em minmax(0,8.6em) 1fr}
 #catsMini .mc:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - .45em)}
 .mc{display:grid;grid-template-columns:.7em minmax(0,4.6em) 1fr;gap:.35em;align-items:center;font-size:.74em;font-weight:800}
 .mc .d{width:.7em;height:.7em;border-radius:50%;box-shadow:0 0 0 1.5px #241b33}
@@ -1056,11 +1057,11 @@ function newGame(li){
   if(LV.second){const sb=LV.secondBreed||'brit',b2=BREEDS.find(x=>x.id===(b.id===sb?(sb==='brit'?'ginger':'brit'):sb));cats.push(Object.assign({},cat,{b:b2,name:b2.name,x:LV.second,tx:LV.second,hp:b2.hp,max:b2.hp,face:1,timer:2.6,pcd:8,anger:.1,seed:Math.random()*10}));}
   if(LV.allCats){const hm=LV.hpMul||1,xs=[180,330,500,800,980,1120,1220];cat.hp=cat.max=Math.round(b.hp*hm);
     BREEDS.filter(x=>x!==b).forEach((bb,i)=>cats.push(Object.assign({},cat,{b:bb,name:bb.name,x:xs[i],tx:xs[i],hp:Math.round(bb.hp*hm),max:Math.round(bb.hp*hm),face:xs[i]>640?-1:1,timer:1+i*.6,pcd:6+i*1.5,anger:.1,seed:Math.random()*10})));}
-  const many=cats.length>2;$('catp').classList.toggle('many',many);const mini=$('catsMini');mini.innerHTML='';mini.hidden=!many;
+  const many=cats.length>1;$('catp').classList.toggle('many',many);$('catp').classList.toggle('pair',cats.length===2);const mini=$('catsMini');mini.innerHTML='';mini.hidden=!many;
   if(many)for(const k of cats){const d=document.createElement('div');d.className='mc';d.innerHTML='<i class="d"></i><span class="mn"></span><span class="mb"><b></b></span>';d.firstChild.style.background=k.b.fur;d.children[1].textContent=k.name;mini.append(d);k.mini=d;}
   $('catName').textContent=`${game.name} · ${b.breed}`;$('catIco').style.color=b.fur;
   $('cat2Hud').hidden=$('regenRow').hidden=cats.length<2;$('regenRow').hidden=cats.length>1;
-  document.body.classList.toggle('two',cats.length>1);
+  document.body.classList.toggle('two',cats.length>2);
   if(cats[1]){$('catName2').textContent=`${cats[1].name} · ${cats[1].b.breed}`;$('catIco2').style.color=cats[1].b.fur;}
   $('startOv').hidden=true;$('endOv').hidden=true;$('pauseOv').hidden=true;$('pauseBtn').textContent='Пауза';
   buildTrays();updateTrays();
@@ -2380,6 +2381,11 @@ const SPECIES={
   magpie:{name:'Сороки',body:'#1d1d24',wing:'#2a3f6a',head:'#1d1d24',belly:'#f6f6f2',beak:'#1d1d24',size:1,tail:true,drops:['kit','zelenka','bandage']},
   sparrow:{name:'Воробьи',body:'#a8733e',wing:'#7d5130',head:'#8a6a4a',belly:'#e8d4b0',beak:'#3a3a44',size:.75,drops:['apple','plaster','nut']},
 };
+// the apple tree: crown blobs and where its apples hang (the apples are pickups)
+const YARD_CROWN=[[1060,250,52],[1110,205,62],[1175,190,66],[1235,230,52],[1255,290,40],[1205,285,56],[1135,280,60],[1075,300,42],[1150,140,50],[1210,145,44],[1100,150,40],[1035,280,34]];
+const YARD_KIT=[1104,276];
+const YARD_APPLES=(()=>{const inC=(x,y)=>YARD_CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12),A=[];
+  for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inC(x,y)&&Math.hypot(x-YARD_KIT[0],y-YARD_KIT[1])>30)A.push([x,y]);}return A;})();
 let yard={birds:[],banned:[],birdT:3,mower:{on:false,x:342,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{}};
 function drawYard(c){
   // pre-dawn sky over the neighbours' roofs
@@ -2392,13 +2398,11 @@ function drawYard(c){
   c.lineCap='round';c.strokeStyle=OUT;c.lineWidth=36;c.beginPath();c.moveTo(1150,560);c.lineTo(1146,330);c.stroke();c.strokeStyle='#7a5536';c.lineWidth=30;c.stroke();
   for(const[x1,y1,x2,y2,w]of[[1146,360,1080,262,14],[1148,340,1220,250,14],[1146,320,1150,200,12],[1100,300,1060,300,9]]){c.strokeStyle=OUT;c.lineWidth=w+5;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.strokeStyle='#7a5536';c.lineWidth=w;c.stroke();}
   c.lineCap='butt';
-  const CROWN=[[1060,250,52],[1110,205,62],[1175,190,66],[1235,230,52],[1255,290,40],[1205,285,56],[1135,280,60],[1075,300,42],[1150,140,50],[1210,145,44],[1100,150,40],[1035,280,34]];
+  const CROWN=YARD_CROWN;
   for(const[x,y,r]of CROWN){ell(c,x,y,r,r*.86);c.lineWidth=6;c.strokeStyle=OUT;c.stroke();}
   for(const[x,y,r]of CROWN){ell(c,x,y,r,r*.86);c.fillStyle='#4a8f43';c.fill();}
   for(const[x,y,r]of CROWN){ell(c,x+r*.18,y+r*.3,r*.7,r*.5);c.fillStyle='rgba(20,60,25,.35)';c.fill();ell(c,x-r*.3,y-r*.35,r*.42,r*.3);c.fillStyle='rgba(170,220,120,.32)';c.fill();}
   c.strokeStyle='rgba(20,60,25,.45)';c.lineWidth=2;for(let i=0;i<60;i++){const[x,y,r]=CROWN[i%CROWN.length],a=i*2.4,d=r*((i*37%60)/80);const px=x+Math.cos(a)*d,py=y+Math.sin(a)*d*.8;c.beginPath();c.moveTo(px,py);c.quadraticCurveTo(px+5,py-6,px+9,py-2);c.stroke();}
-  const inCrown=(x,y)=>CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12);const APPLES=[];for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inCrown(x,y))APPLES.push([x,y]);}
-  for(const[x,y]of APPLES){ell(c,x,y,7,7);fs(c,'#e2433a',1.8);ell(c,x-2,y-2,2,2);c.fillStyle='rgba(255,255,255,.6)';c.fill();}
   // picket fence
   rr(c,250,462,1040,12,3);fs(c,'#e9e4d8',2.5);rr(c,250,520,1040,12,3);fs(c,'#e9e4d8',2.5);
   for(let x=262;x<1290;x+=34){poly(c,[x,560,x,436,x+12,422,x+24,436,x+24,560]);fs(c,'#f6f2ea',2.5);}
@@ -2600,8 +2604,9 @@ function beanHit(p){
   if(!any)pop(960,500,'Пуф!','#fff',18);sThud();
 }
 function treeHit(p){
-  if(yard.apples<=0){pop(1150,180,'Яблок больше нет','#fff',16);sThud();return;}
-  for(let i=0;i<2&&yard.apples>0;i++){yard.apples--;const a=dropPick('apple',rnd(1080,1220),rnd(200,260));a.vy=0;}sThud();pop(1150,170,'Яблоки посыпались!','#fff',18);
+  const hang=picks.filter(it=>it.onTree&&it.rest);
+  if(!hang.length){pop(1150,180,'Яблок больше нет','#fff',16);sThud();return;}
+  for(let i=0;i<2&&hang.length;i++){const it=hang.splice(Math.floor(Math.random()*hang.length),1)[0];it.onTree=false;it.rest=false;it.vx=rnd(-40,40);it.vy=0;}sThud();pop(1150,170,'Яблоки посыпались!','#fff',18);
 }
 function makeObjsL8(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
@@ -2624,7 +2629,7 @@ function picksL8(){
   const fruit=(k,x,y)=>Object.assign(mkPick(k,x,y),{inBowl:true});
   return[Object.assign(crate('apple',416,12,548),{small:true,r:30}),Object.assign(crate('ball',1088,8,560),{small:true,r:30}),Object.assign(crate('apple',1206,10,560),{small:true,r:30}),
     mkPick('slipper',40,466),mkPick('apple',520,FLOOR),mkPick('apple',700,FLOOR),mkPick('nut',860,FLOOR),mkPick('ball',600,FLOOR),
-    mkPick('kit',60,466),mkPick('bandage',100,466),mkPick('plaster',220,466),mkPick('zelenka',600,470),mkPick('bandage',960,FLOOR),mkPick('kit',1180,300),
+    mkPick('kit',60,466),mkPick('bandage',100,466),mkPick('plaster',220,466),mkPick('zelenka',600,470),mkPick('bandage',960,FLOOR),Object.assign(mkPick('kit',YARD_KIT[0],YARD_KIT[1]+13),{}),...YARD_APPLES.map(([x,y])=>Object.assign(mkPick('apple',x,y+9),{onTree:true})),
     mkPick('cushion',496,505,'#3f7fd8'),mkPick('cushion',824,505,'#3f7fd8'),fruit('apple',680,456),fruit('apple',698,456),
     mkPick('ball',300,FLOOR),mkPick('slipper',330,FLOOR),mkPick('slipper',760,FLOOR),mkPick('towel',1240,FLOOR)];
 }
@@ -2652,7 +2657,7 @@ const finalBg=document.createElement('canvas');finalBg.width=1600;finalBg.height
 function renderFinal(now){
   if($('finalOv').hidden)return;
   const cv2=$('finalCv'),c=cv2.getContext('2d'),t=now/1000,dt=Math.min(.05,t-(FINAL.lt||t));FINAL.lt=t;
-  if(!finalBgDone){const b=finalBg.getContext('2d');b.save();b.scale(1.25,1.25);drawYard(b);drawYardFG(b);b.restore();finalBgDone=true;}
+  if(!finalBgDone){const b=finalBg.getContext('2d');b.save();b.scale(1.25,1.25);drawYard(b);for(const[x,y]of YARD_APPLES)drawItem(b,'apple',x,y,1,0,true,0);drawYardFG(b);b.restore();finalBgDone=true;}
   c.setTransform(1,0,0,1,0,0);c.drawImage(finalBg,0,0);
   // a soft sunrise glow
   const g=c.createRadialGradient(800,560,40,800,560,900);g.addColorStop(0,'rgba(255,214,140,.35)');g.addColorStop(1,'rgba(255,214,140,0)');c.fillStyle=g;c.fillRect(0,0,1600,900);
@@ -3180,7 +3185,7 @@ function updateHUD(){
   $('hpBar').style.width=player.hp+'%';$('hpTxt').textContent=Math.ceil(player.hp);
   $('sleepBar').style.width=player.sleep+'%';
   const mins=180+(1-player.sleep/100)*240,hh=Math.floor(mins/60),mm=Math.floor(mins%60);$('clock').textContent=`0${hh}:${String(mm).padStart(2,'0')}`;
-  if(cats.length>2){for(const k of cats){if(!k.mini)continue;k.mini.querySelector('b').style.width=(k.hp/k.max*100)+'%';k.mini.classList.toggle('zz',k.state==='asleep');k.mini.classList.toggle('st',k.state==='stunned');}}
+  if(cats.length>1){for(const k of cats){if(!k.mini)continue;k.mini.querySelector('b').style.width=(k.hp/k.max*100)+'%';k.mini.classList.toggle('zz',k.state==='asleep');k.mini.classList.toggle('st',k.state==='stunned');}}
   else for(const[k,sf]of cats.map((k,i)=>[k,i?'2':''])){
   $('catBar'+sf).style.width=(k.hp/k.max*100)+'%';$('catHpTxt'+sf).textContent=`${Math.round(k.hp)} / ${Math.round(k.max)}`;
   if(!sf)$('regenTxt').textContent=k.state==='stunned'||k.state==='asleep'||k.state==='dunk'?'восстановление на паузе':`+${k.b.regen}/с`;
