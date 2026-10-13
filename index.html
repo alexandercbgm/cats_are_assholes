@@ -981,24 +981,39 @@ function au(){
 function tone(type,f0,f1,dur,vol,delay){const c=AU.ctx;if(!c||!AU.on)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+(delay||0);o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(AU.master);o.start(t);o.stop(t+dur+.03);}
 function nz(dur,vol,type,f0,f1,q,delay){const c=AU.ctx;if(!c||!AU.on)return;if(!AU.nb){AU.nb=c.createBuffer(1,c.sampleRate,c.sampleRate);const d=AU.nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
   const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain(),t=c.currentTime+(delay||0);s.buffer=AU.nb;f.type=type;f.Q.value=q||1;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(AU.master);s.start(t);s.stop(t+dur+.03);}
+// meows are rendered once per kind by additive synthesis: up to 18 harmonics shaped by moving
+// formants (m -> ya -> u), with pitch jitter, vibrato and breath noise; played back at each cat's pitch
+const MEOW_BUFS={};
+function meowBuf(kind){
+  const c=AU.ctx;if(MEOW_BUFS[kind])return MEOW_BUFS[kind];
+  const sr=c.sampleRate,dur={meow:.78,mrr:.9,ask:.62}[kind],n=Math.floor(sr*dur),out=new Float32Array(n),sm=x=>{x=clamp(x,0,1);return x*x*(3-2*x);};
+  const ph=new Float64Array(18),base=560;let jv=0,shim=0,y1=0,y2=0,pk=0;
+  const seg=(u,pts)=>{for(let k=1;k<pts.length;k++)if(u<=pts[k][0]){const[a,va]=pts[k-1],[b,vb]=pts[k];return lerp(va,vb,sm((u-a)/(b-a)));}return pts[pts.length-1][1];};
+  const P={meow:[[0,.82],[.32,1.06],[.58,1],[1,.7]],mrr:[[0,.7],[.3,.74],[.55,1.02],[1,.68]],ask:[[0,.86],[.3,1],[.55,.96],[1,1.28]]}[kind];
+  const F1=kind==='ask'?[[0,420],[.14,440],[.45,1150],[1,980]]:[[0,420],[.14,440],[.42,1180],[.68,920],[1,480]];
+  const F2=kind==='ask'?[[0,1250],[.14,1500],[.35,2150],[1,1900]]:[[0,1250],[.14,1500],[.32,2150],[.65,1650],[1,950]];
+  for(let i=0;i<n;i++){
+    const u=i/n,t=i/sr;
+    jv+=(Math.random()*2-1)*.0025;jv*=.996;shim+=(Math.random()*2-1)*.02;shim*=.98;
+    const f0=base*seg(u,P)*(1+.011*Math.sin(2*Math.PI*5.3*t)+jv);
+    const f1=seg(u,F1),f2=seg(u,F2),f3=3100+250*Math.sin(u*3);
+    let amp=u<.1?.28*sm(u/.1):u<.36?lerp(.28,1,sm((u-.1)/.26)):u<.74?1:1-sm((u-.74)/.26);
+    if(kind==='mrr'&&u<.38)amp*=.55+.45*Math.abs(Math.sin(2*Math.PI*14*t));
+    amp*=1+shim*.3;
+    let s2=0;for(let h=1;h<=18;h++){const fh=f0*h;if(fh>sr*.45)break;ph[h-1]+=2*Math.PI*fh/sr;
+      const e=1/(1+((fh-f1)/170)**2)+.75/(1+((fh-f2)/240)**2)+.22/(1+((fh-f3)/380)**2)+.015;s2+=e*Math.pow(h,-.55)*Math.sin(ph[h-1]);}
+    // breath through a resonator riding on the second formant
+    const r=Math.exp(-Math.PI*400/sr),a1=2*r*Math.cos(2*Math.PI*f2/sr),y=(Math.random()*2-1)*(1-r)+a1*y1-r*r*y2;y2=y1;y1=y;
+    out[i]=amp*(s2+y*.22);pk=Math.max(pk,Math.abs(out[i]));
+  }
+  for(let i=0;i<n;i++)out[i]=out[i]/pk*.9;
+  const buf=c.createBuffer(1,n,sr);buf.getChannelData(0).set(out);return MEOW_BUFS[kind]=buf;
+}
 function sMeow(b){const c=AU.ctx;if(!c||!AU.on)return;
   const t=c.currentTime;AU.mq=(AU.mq||[]).filter(e=>e>t);if(AU.mq.length>=3)return;
-  const p=b.pitch*rnd(.93,1.07),d=rnd(.42,.68),v=.55*Math.min(1.3,b.loud),f0=400*p,growl=Math.random()<.5,ask=Math.random()<.45;AU.mq.push(t+d);
-  const src=c.createGain(),oscs=[];
-  for(const[type,mul,gv]of[['sawtooth',1,1],['triangle',.5,.5]]){const o=c.createOscillator(),og=c.createGain();o.type=type;og.gain.value=gv;
-    o.frequency.setValueAtTime(f0*.85*mul,t);o.frequency.linearRampToValueAtTime(f0*.78*mul,t+d*.22);o.frequency.linearRampToValueAtTime(f0*1.15*mul,t+d*.5);
-    if(ask)o.frequency.linearRampToValueAtTime(f0*1.42*mul,t+d);else o.frequency.exponentialRampToValueAtTime(f0*.82*mul,t+d);
-    o.connect(og);og.connect(src);oscs.push(o);}
-  const lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=rnd(4.5,6);lg.gain.value=f0*.015;lfo.connect(lg);for(const o of oscs)lg.connect(o.frequency);
-  // m(rr) -> a (wide open, the bossy part) -> u, or -> a? when it demands
-  const F=[[[320,0],[500,.2],[1000,.5],ask?[950,1]:[520,1]],[[1000,0],[1150,.2],[1500,.5],ask?[1700,1]:[900,1]],[[2500,0],[2600,.5],[2300,1]]];
-  const env=c.createGain();
-  F.forEach((pts,k)=>{const f=c.createBiquadFilter(),fg=c.createGain();f.type='bandpass';f.Q.value=[4,6,8][k];fg.gain.value=[1.9,1,.3][k];
-    for(const[fr,u]of pts)u?f.frequency.linearRampToValueAtTime(fr,t+d*u):f.frequency.setValueAtTime(fr,t);src.connect(f);f.connect(fg);fg.connect(env);});
-  env.gain.setValueAtTime(.0001,t);env.gain.exponentialRampToValueAtTime(v*.7,t+.05);env.gain.linearRampToValueAtTime(v,t+d*.5);env.gain.setValueAtTime(v,t+d*.8);env.gain.exponentialRampToValueAtTime(.0001,t+d);
-  let out=env;
-  if(growl){const am=c.createGain(),ao=c.createOscillator(),ag=c.createGain();am.gain.value=.55;ao.frequency.value=rnd(26,34);ag.gain.setValueAtTime(.5,t);ag.gain.linearRampToValueAtTime(0,t+d*.35);ao.connect(ag);ag.connect(am.gain);env.connect(am);out=am;ao.start(t);ao.stop(t+d+.05);}
-  out.connect(AU.master);for(const o of oscs){o.start(t);o.stop(t+d+.05);}lfo.start(t);lfo.stop(t+d+.05);
+  const r=Math.random(),kind=r<.45?'meow':r<.75?'mrr':'ask',buf=meowBuf(kind),rate=b.pitch*rnd(.93,1.07);
+  const src=c.createBufferSource(),g=c.createGain();src.buffer=buf;src.playbackRate.value=rate;g.gain.value=.62*Math.min(1.3,b.loud);
+  src.connect(g);g.connect(AU.master);src.start(t);AU.mq.push(t+buf.duration/rate);
 }
 const sWhoosh=()=>nz(.22,.22,'bandpass',600,2400,1.5);
 const sThud=()=>{tone('sine',160,50,.18,.5);nz(.08,.18,'lowpass',800,200);};
