@@ -2972,7 +2972,8 @@ function walls(e,r){if(e.x<14+r){e.x=14+r;e.vx=Math.abs(e.vx)*.5;}if(e.x>W-14-r)
 
 /* ---------------- player actions ---------------- */
 function toWorld(ev){const r=cv.getBoundingClientRect(),k=r.width/W;return{x:(ev.clientX-r.left)/k,y:(ev.clientY-r.top)/k+viewOY};}
-function pickAt(x,y){let best=null,bd=1e9;for(const it of picks){if(!it.rest||it.hidden||it.empty)continue;const d=Math.hypot(it.x-x,it.y-y);if(d<it.r+24&&d<bd){bd=d;best=it;}}return best;}
+// an awake cat in front of an item takes the click: the player is aiming at the cat, not reaching for the item behind it
+function pickAt(x,y){for(const k of cats)if(catActive(k)&&catHit(k,x,y,8))return null;let best=null,bd=1e9;for(const it of picks){if(!it.rest||it.hidden||it.empty)continue;const d=Math.hypot(it.x-x,it.y-y);if(d<it.r+24&&d<bd){bd=d;best=it;}}return best;}
 function catDanger(it){for(const k of cats){if(!catActive(k))continue;const bd=catBody(k);if(Math.hypot(bd.x-it.x,bd.y-it.y)<190*k.b.size)return k;}return null;}
 function tryCollect(it){
   const dk=catDanger(it);
