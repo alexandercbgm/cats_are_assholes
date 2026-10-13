@@ -345,7 +345,7 @@ const platById=id=>PLATS.find(p=>p.id===id);
 const WINDOW={x1:572,y1:134,x2:796,y2:372},OPEN={x1:691,y1:137,x2:794,y2:370};
 let GLASS=[WINDOW],EXIT=OPEN,LV=null,flood=0;
 
-const STATE_LABEL={chase:'Ловит мышь',claw:'Дерёт когти',fish:'Ест рыбу!',fridge:'Жрёт колбасу',freezer:'Хрустит рыбой',sucked:'Засасывает!',dunk:'Купается',climb:'Выбирается',shake:'Отряхивается',idle:'Строит планы',walk:'Шастает',jump:'Прыгает',prejump:'Примеряется',yell:'Орёт',knock:'Роняет вещи',windup:'Сейчас прыгнет!',pounce:'АТАКУЕТ!',asleep:'Спит'};
+const STATE_LABEL={ride:'Катается',chase:'Ловит мышь',claw:'Дерёт когти',fish:'Ест рыбу!',fridge:'Жрёт колбасу',freezer:'Хрустит рыбой',sucked:'Засасывает!',dunk:'Купается',climb:'Выбирается',shake:'Отряхивается',idle:'Строит планы',walk:'Шастает',jump:'Прыгает',prejump:'Примеряется',yell:'Орёт',knock:'Роняет вещи',windup:'Сейчас прыгнет!',pounce:'АТАКУЕТ!',asleep:'Спит'};
 const STUN_LABEL={daze:'Оглушён',towel:'Запутался',pillow:'Придавлен'};
 
 /* ---------------- drawing helpers ---------------- */
@@ -1688,7 +1688,7 @@ const PLATS_L5=[
  {id:'table',x1:1032,x2:1244,y:440},
 ];
 const EXIT_L5={x1:-20,y1:-20,x2:-10,y2:-10},GLASS_L5=[{x1:1052,y1:128,x2:1222,y2:316}];
-let living={tears:[],tvT:0,tvHit:false,tableT:0,dim:false};
+let living={tears:[],tvT:0,tvHit:false,tableT:0,dim:false,vac:{on:false,x:748,dir:-1,bag:[],rider:false}};
 function drawLiving(c){
   // wallpaper with soft vertical stripes
   let g=c.createLinearGradient(0,0,0,560);g.addColorStop(0,'#c98e7a');g.addColorStop(1,'#b97b68');c.fillStyle=g;c.fillRect(0,0,W,562);
@@ -1791,6 +1791,53 @@ function drawTV(c,t){
     if(u>=1){c.strokeStyle='rgba(200,230,255,.6)';c.lineWidth=1.5;c.beginPath();for(let i=0;i<6;i++){c.moveTo(860,FLOOR-11);c.lineTo(860+Math.cos(i)*90,FLOOR-11+Math.sin(i)*8);}c.stroke();}
   }
 }
+// robot vacuum: a hit toggles it; while it runs the floor is off limits for cats
+const VAC_DOCK=748;
+function vacOn(){return LV.living&&living.vac&&living.vac.on;}
+function drawVacuum(c,t){
+  const V=living.vac;
+  rr(c,VAC_DOCK-26,FLOOR-34,52,34,6);fs(c,'#3a3a44',2.5);ell(c,VAC_DOCK,FLOOR-24,4,4);c.fillStyle=V.on?'#555':'#7cf0a8';c.fill();
+  c.save();c.translate(V.x,FLOOR);
+  if(V.on){c.save();c.translate(V.dir*30,-4);c.rotate(t*18);c.strokeStyle='#cfd8dc';c.lineWidth=2;for(let i=0;i<3;i++){c.beginPath();c.moveTo(0,0);c.lineTo(Math.cos(i*2.1)*12,Math.sin(i*2.1)*4);c.stroke();}c.restore();}
+  ell(c,0,-11,42,12);fs(c,'#2f2f38',3);ell(c,0,-15,34,8);c.fillStyle='#4a4a56';c.fill();
+  ell(c,V.dir*8,-16,10,4);fs(c,'#5a5a66',1.5);ell(c,V.dir*8,-16,3,1.5);c.fillStyle=V.on?'#5fd3ff':'#888';c.fill();
+  c.strokeStyle='rgba(255,255,255,.25)';c.lineWidth=2;c.beginPath();c.ellipse(0,-11,42,12,0,Math.PI*1.1,Math.PI*1.6);c.stroke();
+  c.restore();
+}
+function vacToggle(){
+  const V=living.vac;V.on=!V.on;sClick();pop(V.x,FLOOR-60,`Пылесос: ${V.on?'вкл':'выкл'}`,'#fff',20);
+  if(V.on){toast('Пылесос поехал — коты на пол не спустятся.',2.2);V.dir=V.x>640?-1:1;}
+  else{for(const it of V.bag){const p=dropPick(it.kind,V.x+rnd(-20,20),FLOOR-20,it.col);p.vx=rnd(-160,160);}if(V.bag.length)pop(V.x,FLOOR-90,'Тьфу!','#fff',20);V.bag=[];
+    for(const k of cats)if(k.state==='ride')vacDismount(k);}
+}
+function vacHit(p){
+  const V=living.vac;if(Math.abs(p.x-V.x)<46&&p.y>FLOOR-40){vacToggle();return true;}return false;
+}
+function vacDismount(k){k.state='idle';k.timer=.2;k.y=FLOOR;k.smug=1;}
+function vacTick(dt){
+  const V=living.vac;
+  V.rider=cats.some(k=>k.state==='ride');for(const k of cats)if(k.state!=='ride'&&!k.air&&k.plat==='floor'&&k.y<FLOOR&&k.y>FLOOR-30)k.y=FLOOR;
+  if(!V.on)return;
+  V.x+=V.dir*170*dt;if(V.x<70||V.x>1210){V.dir=-V.dir;V.x=clamp(V.x,70,1210);}if(Math.random()<dt*.25)V.dir=-V.dir;
+  if(Math.random()<dt*3)nz(.25,.05,'lowpass',400,300,1);
+  for(let i=picks.length-1;i>=0;i--){const it=picks[i];if(!it.rest||it.big||it.hidden||it.crate||!ITEM[it.kind].ammo||it.y<FLOOR-30||Math.abs(it.x-V.x)>34)continue;
+    picks.splice(i,1);V.bag.push({kind:it.kind,col:it.col});pop(V.x,FLOOR-50,'Ам!','#cfe0ff',18);}
+}
+function livingCatTick(k,dt){
+  if(!vacOn())return;
+  if(k.state==='ride')return;
+  if(k.air||k.plat!=='floor'||!['idle','walk','yell','knock','prejump','windup','claw'].includes(k.state))return;
+  const V=living.vac;
+  if(!V.rider&&!(k.rideCd>game.t)&&Math.random()<.3){k.rideCd=game.t+20;V.rider=true;k.state='ride';k.timer=rnd(5,8);k.bubble='Поехали!';k.bubbleT=1.2;return;}
+  k.rideCd=Math.max(k.rideCd||0,game.t+2);
+  const opts=PLATS.filter(p=>p.id!=='floor'&&!p.off&&!p.noCat);const dest=pick(opts);
+  k.state='jump';jumpTo(k,platX(dest,k),dest.id);k.bubble=pick(['Шшш!','Фу, пылесос!','Не трогай!']);k.bubbleT=1;
+}
+function vacRide(k,dt){
+  const V=living.vac;k.timer-=dt;
+  if(!V.on||k.timer<=0){V.rider=false;vacDismount(k);return;}
+  k.x=V.x;k.y=FLOOR-20;k.face=V.dir;k.plat='floor';
+}
 // dining table: two legs; knocking one out tips the top towards it
 function drawTable(c){
   const side=living.tableDown,u=side?clamp(living.tableT/.4,0,1):0,ang=side==='L'?-.72*u*u:side==='R'?.72*u*u:0;
@@ -1804,7 +1851,7 @@ function drawTable(c){
   if(side){const x=side==='L'?1000:1240;rr(c,x-70,FLOOR-14,150,14,3);fs(c,'#8a5a36',2.5);}
 }
 function drawLivingDyn(c,t,dt){
-  drawTV(c,t);drawTable(c);
+  drawTV(c,t);drawTable(c);drawVacuum(c,t);
   for(const m of living.tears){c.strokeStyle='rgba(40,20,20,.55)';c.lineWidth=2.5;c.beginPath();for(let i=0;i<3;i++){c.moveTo(m.x-8+i*7,m.y-8);c.lineTo(m.x-4+i*7+Math.sin(m.seed+i)*2,m.y+8);}c.stroke();
     c.strokeStyle='rgba(255,240,220,.6)';c.lineWidth=1;c.beginPath();for(let i=0;i<3;i++){c.moveTo(m.x-7+i*7,m.y-6);c.lineTo(m.x-5+i*7,m.y+4);}c.stroke();}
 }
@@ -1815,6 +1862,7 @@ function livingPost(c,t){
     if(!furn.tv.broken){const g=c.createRadialGradient(860,370,20,860,420,360);g.addColorStop(0,'rgba(120,190,255,.22)');g.addColorStop(1,'rgba(120,190,255,0)');c.fillStyle=g;c.fillRect(500,60,720,660);}}
 }
 function livingTick(dt){
+  vacTick(dt);
   const F=furn.tv;
   if(F.broken&&!living.tvHit){living.tvT+=dt;
     if(living.tvT>=.45){living.tvHit=true;sCrash();shake=Math.max(shake,.3);burst(860,FLOOR-20,['#cfe3ea','#1d1d24','#5fb3e8'],20,380,'shard');
@@ -1842,10 +1890,10 @@ function drawChandelier(c,t,stand){
 LEVELS.push({n:5,name:'Гостиная',sub:'Два кота: ваш и Барон Булкин',plats:PLATS_L5,glass:GLASS_L5,exit:EXIT_L5,
   front:[],back:['tv','legL','legR'],
   ammo:['cushion','block','ball','apple','orange','banana','slipper'],ammo0:{slipper:2,ball:1},meds0:{plaster:1},
-  room:drawLiving,fg:drawLivingFG,objs:makeObjsL5,furn:makeFurnL5,dyn:drawLivingDyn,picks:picksL5,post:livingPost,tick:livingTick,onBreak:livingBreak,
+  room:drawLiving,fg:drawLivingFG,objs:makeObjsL5,furn:makeFurnL5,dyn:drawLivingDyn,picks:picksL5,post:livingPost,tick:livingTick,onBreak:livingBreak,hitX:vacHit,catTick:livingCatTick,
   catX:600,second:1000,living:true,outTo:'Потеряно',lostLabel:'Потеряно',lostWhere:'разлетелось по углам',glassLabel:'Окно',
   win:'Диван зашьёте утром.',hello:'Котов двое! Подушки с дивана и кресла можно брать и кидать.',
-  init:()=>{living={tears:[],tvT:0,tvHit:false,tableT:0,tableDown:null};}});
+  init:()=>{living={tears:[],tvT:0,tvHit:false,tableT:0,tableDown:null,vac:{on:false,x:VAC_DOCK,dir:-1,bag:[],rider:false}};}});
 
 /* ---------------- level 6: kids' room with a bunk bed ---------------- */
 const PLATS_L6=[
@@ -1900,9 +1948,9 @@ function drawKids(c){
   c.beginPath();c.moveTo(120,278);c.lineTo(318,278);c.lineTo(318,312);c.quadraticCurveTo(220,324,120,312);c.closePath();fs(c,'#3f7fd8',2.5);c.fillStyle='rgba(255,255,255,.5)';for(let x=140;x<310;x+=28){ell(c,x,296,4,4);c.fill();}
   c.beginPath();c.moveTo(120,464);c.lineTo(318,464);c.lineTo(318,500);c.quadraticCurveTo(220,512,120,500);c.closePath();fs(c,'#f07fae',2.5);c.fillStyle='rgba(255,255,255,.6)';for(let x=140;x<310;x+=28){poly(c,[x,476,x+5,482,x,488,x-5,482]);c.fill();}
   // toy chest and lego bin (heaps are pickups)
-  rr(c,420,520,140,80,6);fs(c,'#e2433a',3);c.fillStyle='#f0c040';c.font=`900 13px ${UIF}`;c.textAlign='center';c.fillText('ИГРУШКИ',490,574);
+  rr(c,420,520,140,80,6);fs(c,'#e2433a',3);c.save();c.translate(490,562);c.beginPath();for(let j=0;j<10;j++){const a=j*Math.PI/5-Math.PI/2,r=j%2?8:18;c.lineTo(Math.cos(a)*r,Math.sin(a)*r);}c.closePath();fs(c,'#f0c040',2);c.restore();
   poly(c,[420,520,560,520,570,486,430,486]);fs(c,'#c8352e',3);
-  rr(c,584,520,92,80,8);fs(c,'#3f7fd8',3);c.fillStyle='#fff';c.fillText('ЛЕГО',630,574);
+  rr(c,584,520,92,80,8);fs(c,'#3f7fd8',3);for(const[dx,dy]of[[-16,-8],[16,-8],[-16,14],[16,14]]){ell(c,630+dx,560+dy,7,7);fs(c,'#5fa0f0',2);}
   // desk, shelf, chair
   rr(c,760,430,240,14,3);fs(c,'#f0c040',3);rr(c,770,444,14,156,3);fs(c,'#e2b030',2.5);rr(c,896,444,96,156,4);fs(c,'#f6d34a',2.5);
   for(const y of[460,512]){rr(c,906,y,76,40,4);fs(c,'#f0c040',2);ell(c,944,y+20,4,4);fs(c,'#3f7fd8',1.5);}
@@ -2134,7 +2182,7 @@ function think(){
   if(k.pcd<=0&&Math.random()<.16*b.aggr+k.anger*.35){k.state='windup';k.timer=.95;k.face=k.x>640?-1:1;sGrowl();return;}
   if(Math.random()<.32*b.loud+.08){k.state='yell';k.timer=rnd(1.6,3);k.yellTick=0;return;}
   if(Math.random()<.5){walkTo(k,platX(pl,k));return;}
-  const opts=PLATS.filter(p=>p.id!==k.plat&&!p.off&&!p.noCat&&!(flood>.25&&p.id==='floor'));const weights=opts.map(p=>p.id==='floor'?2:(p.dunk?3:1)+objs.filter(o=>o.state==='stand'&&o.knockable&&o.plat===p.id).length*2);
+  const opts=PLATS.filter(p=>p.id!==k.plat&&!p.off&&!p.noCat&&!((flood>.25||vacOn())&&p.id==='floor'));const weights=opts.map(p=>p.id==='floor'?2:(p.dunk?3:1)+objs.filter(o=>o.state==='stand'&&o.knockable&&o.plat===p.id).length*2);
   let r=Math.random()*weights.reduce((a,b)=>a+b,0),dest=opts[0];for(let i=0;i<opts.length;i++){r-=weights[i];if(r<=0){dest=opts[i];break;}}
   k.state='prejump';k.timer=.3;k.jumpDest=dest;
 }
@@ -2162,6 +2210,7 @@ function updateCat(dt){
   case 'windup':k.timer-=dt;if(k.timer<=0){k.state='pounce';k.pt=0;k.px=k.x;k.py=k.y;k.air=null;nz(.3,.3,'bandpass',800,3000,1);}break;
   case 'pounce':k.pt+=dt;if(k.pt>=.42){scratch(rnd(14,22)*b.dmgMul,`${k.name} прыгнул в лицо!`);k.x=k.px<640?rnd(820,1180):rnd(100,460);k.y=FLOOR;k.plat='floor';k.face=k.x>640?-1:1;k.state='idle';k.timer=1;k.smug=1.6;k.pcd=rnd(6,9);k.anger*=.5;k.bubble='Хе-хе.';k.bubbleT=1.2;}break;
   case 'chase':kidsChase(k,dt);break;
+  case 'ride':vacRide(k,dt);break;
   case 'claw':
     k.timer-=dt;k.clawTick-=dt;
     if(k.clawTick<=0){k.clawTick=1.4;scratch(rnd(2.5,4)*b.dmgMul,`${k.name} дерёт ${k.clawOn==='sofa'?'диван':'ковёр'}!`);game.damage+=200;pop(k.x,k.y-150,'−200 ₽','#ffcf5a',20);
@@ -2198,7 +2247,7 @@ function updateCat(dt){
     break;
   case 'climb':
     k.timer-=dt;
-    if(k.timer<=0){const opts=flood>.25?PLATS.filter(q=>q.id!=='floor'&&!q.off&&!q.noCat&&q.id!==k.plat):[platById('floor')];const dest=pick(opts);
+    if(k.timer<=0){const opts=flood>.25||vacOn()?PLATS.filter(q=>q.id!=='floor'&&!q.off&&!q.noCat&&q.id!==k.plat):[platById('floor')];const dest=pick(opts);
       k.state='jump';k.shakeOnLand=k.dunkType!=='sink';jumpTo(k,dest.id==='floor'?clamp(k.x+(k.x<640?110:-110),60,1220):platX(dest,k),dest.id);}
     break;
   case 'shake':
@@ -2306,6 +2355,7 @@ function renderCat(k,t){
     if(s==='dunk'&&k.dunkType==='bin'){o.walk=true;o.phase=k.anim*22;}
     else if(s==='dunk'){o.eyes=k.dunkType==='sink'?'spiral':'wide';o.mouth=k.dunkType==='sink'?0:.45+.4*Math.abs(Math.sin(k.anim*8));o.headTilt=Math.sin(k.anim*6)*.22;o.tailFlick=1;}
     if(s==='climb'){o.crouch=6;o.eyes='angry';}
+    if(s==='ride'){o.eyes='closed';o.tailFlick=1;}
     if(s==='chase'){o.walk=true;o.eyes='wide';o.tailFlick=1;}
     if(s==='claw'){o.paw=Math.sin(k.anim*18)>0?1:0;o.eyes='smug';o.crouch=4;}
     if(s==='sucked'){o.eyes='spiral';o.mouth=.8;o.stretch=1;cb.translate(0,-40);cb.rotate(k.anim*14);cb.translate(0,40);}
@@ -2465,7 +2515,7 @@ function updateHUD(){
   if(k.state==='stunned'){lbl=`${STUN_LABEL[k.stunType]||'Оглушён'} · ${k.stunT.toFixed(1)} с`;cls='good';}
   else if(k.state==='dunk'){lbl=`${{tub:'В ванне',toilet:'В унитазе',sink:'Застрял в раковине',ksink:'В мойке',bin:'В мусорке'}[k.dunkType]} · ${k.dunkT.toFixed(1)} с`;cls='good';}
   else if(k.state==='asleep')cls='good';else if(k.state==='yell'||k.state==='fish')cls='warn';else if(k.state==='fridge'||k.state==='freezer'||k.state==='sucked')cls='good';else if(k.state==='windup'||k.state==='pounce')cls='danger';
-  if(k.state==='claw')cls='danger';if(k.state==='chase')cls='good';
+  if(k.state==='claw')cls='danger';if(k.state==='chase'||k.state==='ride')cls='good';
   chip.textContent=lbl;chip.className='chip '+cls;}
   $('scoreTxt').textContent=fmt(game.score);$('comboTxt').textContent='×'+game.combo;$('dmgTxt').textContent=fmt(game.damage)+' ₽';
 }
