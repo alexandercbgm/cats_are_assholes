@@ -30,7 +30,9 @@
 
 ## Android
 
-Готовый APK: [`dist/ugomoni-kota.apk`](dist/ugomoni-kota.apk) (Android 7.0+, альбомная ориентация, работает без интернета). Установка: скачать файл на телефон и открыть, разрешив установку из этого источника.
+**Google Play:** проект Android Studio в [`android-play/`](android-play/) (AAB, Play Billing). В нём уровни 1–2 бесплатные, а разовая покупка `unlock_full` открывает остальные. Пошаговая инструкция: [`android-play/PUBLISHING.md`](android-play/PUBLISHING.md). Без Android-обёртки (в браузере) игра открыта полностью.
+
+Тестовый APK (старая сборка без покупок): [`dist/ugomoni-kota.apk`](dist/ugomoni-kota.apk) (Android 7.0+, альбомная ориентация, работает без интернета). Установка: скачать файл на телефон и открыть, разрешив установку из этого источника.
 
 Сборка: `./android/build.sh`. Скрипт берёт `index.html`, кладёт шрифты внутрь, оборачивает игру в полноэкранный WebView и подписывает APK. Нужны Java 17+, Python 3 и curl; Gradle и Android SDK не нужны. Ключ подписи берётся из `KEYSTORE` / `KEYSTORE_PASS` / `KEY_ALIAS`, иначе создаётся `android/release.p12`. Обновления ставятся поверх только с тем же ключом, поэтому храните его отдельно от репозитория.
 

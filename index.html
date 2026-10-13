@@ -104,6 +104,11 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .card{background:var(--card);color:var(--ink);border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.45);box-sizing:border-box}
 .card.start{width:800px;height:450px;padding:18px 20px;display:grid;grid-template-columns:1fr 352px;gap:18px}
 .card.narrow{width:470px;padding:20px 22px;display:grid;gap:14px}
+.payshots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0 2px}
+.payshots figure{margin:0;display:grid;gap:3px;font-size:10.5px;font-weight:800;color:var(--muted);text-align:center}
+.payshots canvas{width:100%;aspect-ratio:16/9;border-radius:7px;display:block;background:#2a2340}
+.paynote{margin:6px 0 0;font-size:11px;color:var(--muted)}.paynote:empty{display:none}
+#payOv .actions{flex-wrap:wrap}#payOv .linkbtn{margin-right:auto;background:none;border:0;padding:0;font:inherit;font-size:11.5px;font-weight:800;color:var(--muted);text-decoration:underline;cursor:pointer}
 .card.pause{width:340px}
 .col{display:flex;flex-direction:column;min-width:0;min-height:0}
 .eyebrow{margin:0 0 2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--muted)}
@@ -302,6 +307,24 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
  </div>
 </div>
 
+<div class="overlay" id="payOv" hidden>
+ <div class="screen">
+  <div class="card narrow">
+    <div>
+      <p class="eyebrow">Полная версия</p>
+      <h2>Ещё шесть уровней</h2>
+      <p class="endmsg">Кухня, чердак, гостиная, детская, гараж и двор со всеми котами. Одна покупка навсегда, без рекламы и подписок.</p>
+      <div class="payshots" id="payShots"></div>
+      <p class="paynote" id="payNote"></p>
+    </div>
+    <div class="actions">
+      <button class="linkbtn" id="payRestore" type="button">Восстановить покупку</button>
+      <button class="btn" id="payLater" type="button">Не сейчас</button>
+      <button class="btn primary" id="payBuy" type="button">Открыть</button>
+    </div>
+  </div>
+ </div>
+</div>
 <div class="overlay" id="pauseOv" hidden>
  <div class="screen">
   <div class="card narrow pause">
@@ -335,6 +358,12 @@ const EN={
  'Лечись':'Heal up','Пластыри и аптечки лежат в комнате.':'Plasters and med kits lie around the room.',
  'Окно и дверь':'Window and door','Что туда улетело, то пропало.':'Whatever flies out is gone.',
  'Ломай с пользой':'Break things wisely','За дверцами прячутся аптечки и снаряды.':'Doors hide med kits and ammo.',
+ 'Полная версия':'Full version','Ещё шесть уровней':'Six more levels',
+ 'Кухня, чердак, гостиная, детская, гараж и двор со всеми котами. Одна покупка навсегда, без рекламы и подписок.':'Kitchen, attic, living room, kids\' room, garage and the yard with every cat. Buy once, keep forever. No ads, no subscriptions.',
+ 'Восстановить покупку':'Restore purchase','Не сейчас':'Not now','Открыть':'Unlock','Полная версия: все 8 уровней':'Full version: all 8 levels',
+ 'Спасибо! Все уровни открыты.':'Thank you! All levels are unlocked.','Проверяем покупки…':'Checking purchases…','Покупка не найдена.':'No purchase found.',
+ 'Платёж обрабатывается. Уровни откроются, как только он пройдёт.':'Payment is pending. The levels unlock as soon as it goes through.',
+ 'Магазин сейчас недоступен. Попробуйте позже.':'The store is unavailable right now. Please try later.','Не получилось. Попробуйте ещё раз.':'Something went wrong. Please try again.',
  'снаряд':'ammo','лечиться':'heal','пауза':'pause','Начать':'Start','Продолжить':'Continue','Закрыт':'Locked','Дальше':'Resume',
  'Игра пройдена':'Game complete','Все коты угомонились!':'All the cats have calmed down!',
  'Коты всё осознали, помирились и обещают больше не орать по ночам.':'The cats have seen the error of their ways, made peace and promise to stop yelling at night.',
@@ -439,6 +468,7 @@ const PAT=[
  [/^([\d.]+) с$/,m=>m[1]+' s'],
  [/^\+([\d.]+)\/с$/,m=>'+'+m[1]+'/s'],
  [/^Уровень (\d+) →$/,m=>`Level ${m[1]} →`],[/^Уровень (\d+) из (\d+)$/,m=>`Level ${m[1]} of ${m[2]}`],[/^Уровень (\d+)$/,m=>`Level ${m[1]}`],
+ [/^Открыть за (.+)$/,m=>`Unlock for ${m[1]}`],
  [/^Откроется после уровня (\d+)$/,m=>`Unlocks after level ${m[1]}`],
  [/^(\d+) из (\d+) \((\d+)%\)$/,m=>`${m[1]} of ${m[2]} (${m[3]}%)`],
  [/^Ремонт съел (.+) очков\.$/,m=>`Repairs ate ${m[1]} points.`],
@@ -3417,14 +3447,36 @@ function endGame(win,reason){
 function setPause(p){if(!game.running)return;game.paused=p;$('pauseOv').hidden=!p;$('pauseBtn').textContent=p?'Дальше':'Пауза';}
 let unlocked=1;try{unlocked=clamp(+localStorage.getItem('ugomoni-unlocked')||1,1,LEVELS.length);}catch(e){}
 let selLvl=unlocked;
+/* Google Play build: levels 1-2 are free, the rest open with the one-time purchase "unlock_full".
+   The Android wrapper exposes window.UgomoniStore (buy/restore/price) and reports back through
+   window.ugomoniStore.*; without it (the web version) everything stays open. */
+const STORE=window.UgomoniStore||null,FREE_LEVELS=2;
+let FULL=!STORE,payPrice='';try{if(STORE&&localStorage.getItem('ugomoni-full')==='1')FULL=true;}catch(e){}
+const payLocked=n=>!FULL&&n>FREE_LEVELS;
+function setFull(v){FULL=!!v||!STORE;try{localStorage.setItem('ugomoni-full',FULL?'1':'0');}catch(e){}renderLvl();}
+function payBtnText(){return payPrice?`Открыть за ${payPrice}`:'Открыть';}
+function showPay(){
+  const box=$('payShots');box.innerHTML='';
+  for(const L of LEVELS.slice(FREE_LEVELS)){const f=document.createElement('figure'),cv=document.createElement('canvas');cv.width=176;cv.height=99;if(L.thumb)cv.getContext('2d').drawImage(L.thumb,0,0,176,99);const t=document.createElement('span');t.textContent=L.name;f.append(cv,t);box.append(f);}
+  $('payNote').textContent='';$('payBuy').disabled=false;$('payBuy').textContent=payBtnText();
+  $('payOv').hidden=false;$('payBuy').focus();
+  try{STORE.refresh&&STORE.refresh();}catch(e){}
+}
+function hidePay(){$('payOv').hidden=true;}
+window.ugomoniStore={
+  onPrice(p){payPrice=String(p||'');if(!$('payOv').hidden)$('payBuy').textContent=payBtnText();renderLvl();},
+  onOwned(v){const was=FULL;setFull(v);if(FULL&&!$('payOv').hidden){hidePay();if(!$('startOv').hidden)$('startBtn').focus();}if(FULL&&!was)toast('Спасибо! Все уровни открыты.',3);},
+  onPending(){$('payNote').textContent='Платёж обрабатывается. Уровни откроются, как только он пройдёт.';$('payBuy').disabled=false;},
+  onError(m){$('payNote').textContent=m==='cancel'?'':m==='unavailable'?'Магазин сейчас недоступен. Попробуйте позже.':m==='none'?'Покупка не найдена.':'Не получилось. Попробуйте ещё раз.';$('payBuy').disabled=false;}
+};
 function renderLvl(){
-  const L=LEVELS[selLvl-1],locked=selLvl>unlocked;
-  $('lvlNum').textContent=`Уровень ${L.n} из ${LEVELS.length}`;$('lvlName').textContent=L.name;$('lvlSub').textContent=locked?`Откроется после уровня ${L.n-1}`:L.sub;
+  const L=LEVELS[selLvl-1],paid=payLocked(L.n),locked=selLvl>unlocked||paid;
+  $('lvlNum').textContent=`Уровень ${L.n} из ${LEVELS.length}`;$('lvlName').textContent=L.name;$('lvlSub').textContent=paid?'Полная версия: все 8 уровней':locked?`Откроется после уровня ${L.n-1}`:L.sub;
   $('lvlBox').classList.toggle('locked',locked);$('prevLvl').disabled=selLvl<=1;$('nextLvl').disabled=selLvl>=LEVELS.length;
   const c=$('lvlThumb').getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,352,198);
   if(L.thumb){c.filter=locked?'grayscale(1) brightness(.8)':'none';c.drawImage(L.thumb,0,0,352,198);c.filter='none';}
   if(locked){c.fillStyle='rgba(30,26,44,.4)';c.fillRect(0,0,352,198);c.save();c.translate(176,99);c.scale(1.3,1.3);c.lineWidth=5;c.strokeStyle='#fff';c.beginPath();c.arc(0,-6,11,Math.PI,0);c.stroke();rr(c,-17,-6,34,26,5);c.fillStyle='#fff';c.fill();ell(c,0,5,3.5,3.5);c.fillStyle='#5a5166';c.fill();c.restore();}
-  const b=$('startBtn');b.disabled=locked;b.textContent=locked?'Закрыт':(selLvl===unlocked&&unlocked>1?'Продолжить':'Начать');
+  const b=$('startBtn');b.disabled=locked&&!paid;b.textContent=paid?payBtnText():locked?'Закрыт':(selLvl===unlocked&&unlocked>1?'Продолжить':'Начать');
 }
 function setLvl(i){selLvl=clamp(i,1,LEVELS.length);renderLvl();}
 function showMenu(){game.running=false;game.over=false;setLogo(game.breed);renderLvl();$('endOv').hidden=true;$('pauseOv').hidden=true;$('startOv').hidden=false;$('startBtn').focus();}
@@ -3484,12 +3536,16 @@ addEventListener('keydown',e=>{
   if(!$('startOv').hidden&&(e.key==='ArrowUp'||e.key==='ArrowDown')){setLvl(selLvl+(e.key==='ArrowUp'?-1:1));return;}
   if(e.key>='1'&&e.key<='9'&&game.running&&AMMO_ORDER[+e.key-1]){selectKind(AMMO_ORDER[+e.key-1]);}
   else if((e.key==='h'||e.key==='H'||e.key==='р'||e.key==='Р')&&game.running&&!game.paused)useBestMed();
+  else if(e.key==='Escape'&&!$('payOv').hidden)$('payLater').click();
   else if(e.key==='p'||e.key==='P'||e.key==='з'||e.key==='З'||e.key==='Escape')setPause(!game.paused);
 });
-$('startBtn').addEventListener('click',()=>{if(selLvl>unlocked)return;au();newGame(selLvl-1);});
+$('startBtn').addEventListener('click',()=>{if(payLocked(selLvl)){showPay();return;}if(selLvl>unlocked)return;au();newGame(selLvl-1);});
+$('payBuy').addEventListener('click',()=>{if(!STORE)return;$('payNote').textContent='';$('payBuy').disabled=true;try{STORE.buy();}catch(e){window.ugomoniStore.onError('fail');}});
+$('payRestore').addEventListener('click',()=>{if(!STORE)return;$('payNote').textContent='Проверяем покупки…';try{STORE.restore();}catch(e){window.ugomoniStore.onError('fail');}});
+$('payLater').addEventListener('click',()=>{hidePay();if(!$('endOv').hidden)$('againBtn').focus();else $('startBtn').focus();});
 $('prevLvl').addEventListener('click',()=>setLvl(selLvl-1));
 $('nextLvl').addEventListener('click',()=>setLvl(selLvl+1));
-$('nextLvlBtn').addEventListener('click',()=>{au();newGame(LV.n);});
+$('nextLvlBtn').addEventListener('click',()=>{if(payLocked(LV.n+1)){showPay();return;}au();newGame(LV.n);});
 $('prevCat').addEventListener('click',()=>setCat(catIdx-1));
 $('nextCat').addEventListener('click',()=>setCat(catIdx+1));
 $('againBtn').addEventListener('click',()=>{au();newGame();});
@@ -3504,6 +3560,8 @@ try{if(localStorage.getItem('ugomoni-sound')==='0')setSound(false);}catch(e){}
 $('muteBtn').addEventListener('click',()=>setSound(!AU.on));
 $('menuMute').addEventListener('click',()=>{setSound(!AU.on);if(AU.on)au();});
 $('langBtn').addEventListener('click',()=>setLang(LANG==='en'?'ru':'en'));
+// Android back button: close whatever is on top; false means we are on the main menu and the app may close
+window.ugomoniBack=()=>{if(!$('payOv').hidden){$('payLater').click();return true;}if(!$('finalOv').hidden){$('finalMenuBtn').click();return true;}if(game.running){setPause(!game.paused);return true;}if(!$('endOv').hidden){showMenu();return true;}return false;};
 // browsers may drop canvas contents while the tab is in the background: repaint every static layer
 function repaintAll(){if(!LV)return;paintLevel(LV);for(const L of LEVELS)L.thumb=makeThumb(L);renderLvl();buildTrays();updateTrays();drawTipIcons();finalBgDone=false;}
 let repaintT=0;const askRepaint=()=>{clearTimeout(repaintT);repaintT=setTimeout(repaintAll,60);};
