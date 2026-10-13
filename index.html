@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -134,6 +134,7 @@ h2{font-family:var(--f-display);font-weight:900;font-size:20px;line-height:1.15;
 .lvlinfo .btn{margin-top:auto;align-self:flex-end}
 .lvl.locked b{color:var(--muted)}
 .btn:disabled,.btn.primary:disabled{background:rgba(36,27,51,.12);color:var(--muted);box-shadow:none;cursor:default}
+.langbtn{margin-left:4px!important;display:inline-flex;align-items:center;gap:4px}
 .sndbtn{margin-left:auto;font:inherit;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:8px;border:0;cursor:pointer;color:var(--ink);background:rgba(36,27,51,.07)}.sndbtn:hover{background:rgba(36,27,51,.13)}.sndbtn:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
 .keys{margin:6px 0 6px;font-size:10.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
 kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;border-radius:5px;background:#fff;color:var(--ink);box-shadow:0 1.5px 0 rgba(36,27,51,.18),0 0 0 1px var(--line);text-align:center}
@@ -243,7 +244,7 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
         <div class="tip t5"><canvas data-ico="window" width="88" height="88"></canvas><div><b>Окно и дверь</b><span>Что туда улетело, то пропало.</span></div></div>
         <div class="tip t6"><canvas data-ico="book" width="88" height="88"></canvas><div><b>Ломай с пользой</b><span>За дверцами прячутся аптечки и снаряды.</span></div></div>
       </div>
-      <p class="keys"><kbd>1</kbd>–<kbd>7</kbd> снаряд <kbd>H</kbd> лечиться <kbd>P</kbd> пауза<button class="sndbtn" id="menuMute" type="button">Звук: вкл</button></p>
+      <p class="keys"><kbd>1</kbd>–<kbd>7</kbd> снаряд <kbd>H</kbd> лечиться <kbd>P</kbd> пауза<button class="sndbtn" id="menuMute" type="button">Звук: вкл</button><button class="sndbtn langbtn" id="langBtn" type="button"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 2.8c3 3.2 3 15.2 0 18.4M12 2.8c-3 3.2-3 15.2 0 18.4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg><b>EN</b></button></p>
       <div class="lvl" id="lvlBox">
         <div class="lvlthumb">
           <canvas id="lvlThumb" width="352" height="198"></canvas>
@@ -317,7 +318,197 @@ const UIF="'Nunito','Trebuchet MS',system-ui,sans-serif";
 const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-const fmt=n=>Math.round(n).toLocaleString('ru-RU');
+const fmt=n=>Math.round(n).toLocaleString(LANG==='en'?'en-US':'ru-RU');
+/* ---------------- language: English by default, Russian on request ----------------
+   The game is written with Russian strings; in English mode every piece of text that reaches
+   the screen (DOM nodes, pops, toasts, bubbles, canvas labels) goes through tr(). */
+let LANG='en';try{const l=localStorage.getItem('ugomoni-lang');if(l==='ru'||l==='en')LANG=l;}catch(e){}
+const EN={
+ // menu, HUD, overlays
+ 'Угомони кота':'Hush the Cat','Кот':'Cat','Строит планы':'Plotting','Наглость':'Sass','Комбо':'Combo','Ущерб':'Damage','Пауза':'Pause',
+ 'Звук: вкл':'Sound: on','Звук: выкл':'Sound: off','вкл':'on','выкл':'off',
+ 'Поверните телефон горизонтально — так комнату видно целиком.':'Turn your phone sideways to see the whole room.',
+ 'Три часа ночи. Вам утром на работу, а коту приспичило поорать. Уложите его спать раньше, чем зазвонит будильник.':"It's 3 a.m. You have work in the morning, and the cat feels like yelling. Get it to sleep before the alarm goes off.",
+ 'Кидай с запасом':'Throw plenty','Клик по комнате. Снаряды летят дугой.':'Click the room. Things fly in an arc.',
+ 'Оглуши и собирай':'Stun, then collect','Бодрый кот вещи не отдаст и цапнет.':"An alert cat won't hand things over — it bites.",
+ 'Виляет задом?':'Wiggling its butt?','Сейчас прыгнет. Попади, и прыжок сорвётся.':"It's about to pounce. Hit it to cancel the jump.",
+ 'Лечись':'Heal up','Пластыри и аптечки лежат в комнате.':'Plasters and med kits lie around the room.',
+ 'Окно и дверь':'Window and door','Что туда улетело, то пропало.':'Whatever flies out is gone.',
+ 'Ломай с пользой':'Break things wisely','За дверцами прячутся аптечки и снаряды.':'Doors hide med kits and ammo.',
+ 'снаряд':'ammo','лечиться':'heal','пауза':'pause','Начать':'Start','Продолжить':'Continue','Закрыт':'Locked','Дальше':'Resume',
+ 'Игра пройдена':'Game complete','Все коты угомонились!':'All the cats have calmed down!',
+ 'Коты всё осознали, помирились и обещают больше не орать по ночам.':'The cats have seen the error of their ways, made peace and promise to stop yelling at night.',
+ 'Ну, почти. Поздравляем — вы выспались!':'Well, almost. Congratulations — you got some sleep!',
+ 'Итог за всю игру':'Whole-game total','В меню':'Menu','Двор ещё раз':'Yard again','Кот уснул':'The cat fell asleep','Другой кот':'Other cat','Ещё раз':'Again',
+ 'Кот ждёт. Нетерпеливо.':'The cat is waiting. Impatiently.','Игровое поле: спальня с котом':'Game field: a bedroom with a cat',
+ 'Здоровье':'Health','Сон до будильника':'Sleep left before the alarm','Наглость кота':"Cat's sass",'Наглость второго кота':"Second cat's sass",
+ 'Предыдущий уровень':'Previous level','Следующий уровень':'Next level','Предыдущий кот':'Previous cat','Следующий кот':'Next cat',
+ 'Типаж':'Type','Порода':'Breed','Комплекция':'Build','Окрас':'Coat','Глаза':'Eyes','Скорость':'Speed','Регенерация':'Regen','Агрессия':'Aggression','Громкость':'Loudness',
+ 'Очки':'Score','Попаданий':'Hits','Рекорд':'Best','рекорд':'best','Итоговый счёт':'Final score','пройден':'cleared','провален':'failed',
+ 'Оба кота уснули':'Both cats are asleep','Коты победили':'The cats won','Кот победил':'The cat won','Снаряды кончились':'Out of ammo','07:00. Будильник':'7:00. The alarm',
+ 'восстановление на паузе':'regen paused','Сам он, кстати, уже спит. :)':"He's already asleep, by the way. :)",'Сами они, кстати, уже спят. :)':"They're already asleep, by the way. :)",
+ // breeds
+ 'Люцифер':'Lucifer','Чёрный кот':'Black cat','Чёрный бесоёб':'Black hellion','В три ночи гоняет невидимых демонов. Глаза по пять копеек.':'Chases invisible demons at 3 a.m. Eyes like saucers.',
+ 'Поджарый':'Lean','Кислотные':'Acid green','Чёрный':'Black',
+ 'Барон Булкин':'Baron Bunsworth','Британец':'British Shorthair','Кот-батон':'Loaf cat','Медленный, но непробиваемый. Требует завтрак с достоинством.':'Slow but impenetrable. Demands breakfast with dignity.',
+ 'Толстый':'Chonky','Медные':'Copper','Голубой':'Blue',
+ 'Сирена':'Siren','Сиамская':'Siamese','Сиамская истеричка':'Siamese drama queen','Орёт громче будильника и прекрасно об этом знает.':'Louder than the alarm clock, and she knows it.',
+ 'Стройная':'Slender','Голубые':'Blue','Сил-пойнт':'Seal point',
+ 'Бигфут':'Bigfoot','Мейн-кун':'Maine Coon','Рысь-переросток':'Oversized lynx','Огромный, пушистый и тяжёлый. Царапает больнее всех.':'Huge, fluffy and heavy. Scratches hardest of all.',
+ 'Громадный':'Massive','Зелёные':'Green','Табби':'Tabby',
+ 'Доби':'Dobby','Сфинкс':'Sphynx','Лысый домовой':'Bald house-elf','Тёплый, морщинистый и очень мстительный.':'Warm, wrinkly and very vengeful.','Морщинистый':'Wrinkly','Лимонные':'Lemon','Розовый':'Pink',
+ 'Турбо':'Turbo','Бенгальская':'Bengal','Мини-леопард':'Mini leopard','Работает на батарейках, которые никогда не садятся.':'Runs on batteries that never die.','Атлетичный':'Athletic','Оливковые':'Olive','Леопардовый':'Leopard',
+ 'Апельсин':'Orange','Рыжий дворовый':'Ginger alley cat','Одна извилина':'One brain cell','Делит одну извилину со всеми рыжими котами мира. Сегодня не его очередь.':"Shares one brain cell with every orange cat in the world. Today isn't his turn.",
+ 'Жилистый':'Wiry','Жёлтые, косые':'Yellow, cross-eyed','Рыжий':'Ginger',
+ // what cats yell
+ 'МЯЯЯУ!':'MEOOOW!','МРРРАУ!':'MRRRAW!','КОРМИ!':'FEED ME!','АААУУУ!':'AAAOOOW!','МЯУ-МЯУ!':'MEOW-MEOW!','ОТКРОЙ ДВЕРЬ!':'OPEN THE DOOR!','МИСКА ПУСТАЯ!':'BOWL IS EMPTY!','ВСТАВАЙ!':'GET UP!','МЯ!':'MEW!',
+ 'МОЁ!':'MINE!','Упс.':'Oops.','Хе-хе.':'Heh-heh.','ШКРЯБ!':'SCRITCH!','Ням!':'Yum!','РЫБА!':'FISH!','Мрр-ням':'Mrr-yum','Ом-ном':'Om-nom','Колбаска!':'Sausage!','Ням':'Yum',
+ 'Хрум!':'Crunch!','Брр, вкусно':'Brr, tasty','Ледяная!':'Icy!','Хм.':'Hm.','БУЛЬ!':'GLUG!','ФУУУ!':'EWWW!','Застрял!':'Stuck!','ФУ-ФУ!':'EW-EW!','Фу!':'Ew!','Мокро!':'Wet!','Брр!':'Brr!',
+ 'ААА!':'AAAH!','АЙ! ГОРЯЧО!':'OW! HOT!','ФШШ!':'HSSS!','Тьфу!':'Ptooey!','Ам!':'Om!','Поехали!':'Wheee!','Шшш!':'Hsss!','Фу, пылесос!':'Ew, vacuum!','Не трогай!':"Don't touch!",
+ 'Ага!':'Aha!','Мой!':'Mine!','Хвать!':'Gotcha!','Упустил!':'Missed it!','Ррр!':'Grrr!','Фррр!':'Frrr!','Кар-р!':'Caw!','Пуф!':'Poof!',
+ // items
+ 'Тапок':'Slipper','Мяч':'Ball','Штора':'Curtain','Книга':'Book','Полотенце':'Towel','Подушка':'Pillow','Бумага':'Paper','Флакон':'Bottle','Паста':'Toothpaste','Щётка':'Brush','Уточка':'Duck',
+ 'Яблоко':'Apple','Баночка':'Jar','Банан':'Banana','Картошка':'Potato','Морковка':'Carrot','Чеснок':'Garlic','Луковица':'Onion','Кубик':'Block','Лего':'Brick','Мишка':'Teddy',
+ 'Ключ':'Wrench','Молоток':'Hammer','Гайка':'Nut','Ветошь':'Rag','Пластырь':'Plaster','Подорожник':'Plantain','Зелёнка':'Antiseptic','Бинт':'Bandage','Аптечка':'Med kit',
+ // cat states
+ 'Катается':'Riding','Ловит мышь':'Mouse hunting','Дерёт когти':'Clawing','Ест рыбу!':'Eating fish!','Жрёт колбасу':'Eating sausage','Хрустит рыбой':'Crunching fish','Засасывает!':'Sucked in!',
+ 'Купается':'Bathing','Выбирается':'Climbing out','Отряхивается':'Shaking off','Шастает':'Prowling','Прыгает':'Jumping','Примеряется':'Taking aim','Орёт':'Yelling','Роняет вещи':'Knocking things',
+ 'Сейчас прыгнет!':'About to pounce!','АТАКУЕТ!':'ATTACKING!','Спит':'Asleep','Оглушён':'Stunned','Запутался':'Tangled','Придавлен':'Squashed',
+ 'В ванне':'In the tub','В унитазе':'In the toilet','Застрял в раковине':'Stuck in the sink','В мойке':'In the sink','В мусорке':'In the bin',
+ // objects and furniture (damage labels)
+ 'Бабушкина ваза':"Granny's vase",'Книги':'Books','Стакан воды':'Glass of water','Рабочий ноутбук':'Work laptop','Лампа':'Lamp','Настенные часы':'Wall clock','Портрет кота':'Cat portrait','Фикус':'Ficus',
+ 'Гардина':'Curtain rod','Полка':'Shelf','Шкаф':'Wardrobe','Тумбочка':'Nightstand','Стол':'Desk',
+ 'Гардина рухнула':'Curtain rod down','Полка рухнула':'Shelf down','Штора сорвана':'Curtain torn','Шкаф сломан':'Wardrobe broken','Тумбочка сломана':'Nightstand broken','Стол сломан':'Desk broken',
+ 'Зеркало разбито':'Mirror smashed','Унитаз разбит':'Toilet smashed','Холодильник вскрыт':'Fridge forced open','Морозилка вскрыта':'Freezer forced open','Аптечный шкафчик вскрыт':'Medicine cabinet open',
+ 'Дверца выбита':'Door knocked out','Лыжи рухнули':'Skis fell','Санки рухнули':'Sled fell','Телевизор разбит':'TV smashed','Стол рухнул':'Table collapsed','Рюкзак упал':'Backpack fell',
+ 'Свеча':'Candle','Духи':'Perfume','Стакан со щётками':'Toothbrush cup','Шкафчик':'Cabinet','Дверь':'Door','Унитаз':'Toilet','Банка с печеньем':'Cookie jar','Сковорода':'Frying pan',
+ 'Ваза для фруктов':'Fruit bowl','Морозилка':'Freezer','Холодильник':'Fridge','Аптечный шкафчик':'Medicine cabinet','Вытяжка':'Hood','Плита':'Stove','Фонарь':'Lantern',
+ 'Старые книги':'Old books','Банка варенья':'Jam jar','Лыжи':'Skis','Санки':'Sled','Люстра':'Chandelier','Тарелка':'Plate','Бокал':'Wine glass','Чайник':'Teapot','Ваза с фруктами':'Fruit bowl',
+ 'Телевизор':'TV','Ножка стола':'Table leg','Глобус':'Globe','Копилка':'Piggy bank','Настольная лампа':'Desk lamp','Книжки со сказками':'Storybooks','Банка краски':'Paint can','Канистра':'Jerrycan',
+ 'Ящик с инструментами':'Toolbox','Фара разбита':'Headlight smashed','Стекло треснуло':'Glass cracked','Вмятина':'Dent','Стакан лимонада':'Glass of lemonade','Миска с яблоками':'Bowl of apples',
+ // pops, toasts
+ 'Штору можно подобрать и бросить в кота.':'You can pick up the curtain and throw it at the cat.','Дверца вылетела! Внутри аптечка и бинт.':'The door flew off! A med kit and a bandage inside.',
+ 'Холодильник открыт! Кот полезет за колбасой — зато не будет мешать.':"The fridge is open! The cat will go for the sausage — at least it won't bother you.",
+ 'Баночки со специями можно брать и кидать.':'Spice jars can be picked up and thrown.','Дверца вылетела — внутри что-то есть.':"The door flew off — there's something inside.",
+ 'Морозилка открыта: там мороженая рыба. Кот будет её грызть.':"The freezer is open: there's frozen fish. The cat will gnaw on it.",'Аптечный шкафчик открыт — лекарства на полках.':'The medicine cabinet is open — meds on the shelves.',
+ 'Унитаз потёк! Кот больше не сможет стоять на полу.':"The toilet is leaking! The cat can't stand on the floor anymore.",
+ 'В ванну!':'Into the tub!','В унитаз!':'Into the toilet!','В раковину!':'Into the sink!','В мойку!':'Into the sink!','В мусорку!':'Into the bin!','Подгорел!':'Scorched!',
+ 'Чесноком по башке!':'Garlic to the head!','Луком по башке!':'Onions to the head!','Фонарём!':'Lantern hit!','Лампочка разбита — на чердаке темно, светит только луна.':'The bulb is smashed — the attic is dark, only the moon shines.',
+ 'Летучая мышь!':'Bat!','Мышь проснулась!':'The bat woke up!','Мышь улетела в окно':'The bat flew out the window','Лыжами!':'Skis!','Санками!':'Sled!','Люстрой!':'Chandelier!',
+ 'Пылесос поехал — коты на пол не спустятся.':"The vacuum is on — the cats won't come down to the floor.",'Пылесос':'Vacuum','Телевизором!':'TV hit!','Телевизор падает!':'The TV is falling!',
+ 'Стол рухнул! Фрукты раскатились по полу.':'The table collapsed! Fruit rolled all over the floor.','Звёздами по башке!':'Stars to the head!',
+ 'Заводная мышь бегает — коты охотятся, а не орут!':'The wind-up mouse is running — the cats hunt instead of yelling!','Завод кончился':'Wound down','Мышь заведена!':'Mouse wound up!','Мышь упала!':'The mouse fell!',
+ 'Наступил на лего!':'Stepped on a brick!','Из рюкзака выпали аптечка, бинт и зелёнка.':'A med kit, a bandage and antiseptic fell out of the backpack.','С верхнего яруса!':'Off the top bunk!',
+ 'УИУ-УИУ!':'WEE-OOO!','Сигнализация! Сон уходит быстрее. Выключите её брелоком на стене.':'Car alarm! Sleep drains faster. Turn it off with the key fob on the wall.',
+ 'Покрышка покатилась!':'A tire rolls!','Лампа разбита':'The lamp is smashed','Свет включён':'Lights on','Пробки выбило!':'Fuses blown!','Из норки выбежала мышь — коты бросились ловить!':'A mouse ran out of its hole — the cats are after it!',
+ 'Пик-пик. Тишина.':'Beep-beep. Silence.','Пик!':'Beep!','Покрышкой!':'Tire hit!','Лампой!':'Lamp hit!','Молотком!':'Hammer hit!','Ключом!':'Wrench hit!','С крыши минивэна!':'Off the minivan roof!','С капота!':'Off the hood!',
+ 'Голуби':'Pigeons','Вороны':'Crows','Сороки':'Magpies','Воробьи':'Sparrows','Под косилку!':'Under the mower!','Батарейка села':'Battery dead','Щиток сгорел':'Fuse box burnt out','Заряжается…':'Charging…','Током!':'Zapped!',
+ 'Щиток сгорел, фонарь на столбе погас.':'The fuse box burnt out and the street lamp went dark.','Машинка поехала — коты гоняются за ней!':'The RC car is off — the cats chase it!',
+ 'Косилка завелась — коты разбегаются. Кто попадёт под неё, получит серьёзно.':'The mower started — the cats scatter. Whoever gets under it is in serious trouble.','Косилка':'Mower',
+ 'Стул сложился!':'The chair folded!','Подбросило!':'Launched!','Яблок больше нет':'No apples left','Яблоки посыпались!':'Apples are falling!','Мокрым бельём!':'Wet laundry!',
+ 'Прости.':'Sorry.','Мы больше не будем.':"We won't do it again.",'Мур.':'Purr.','Спокойной ночи!':'Good night!','Это был не я.':"It wasn't me.",'Ладно, спим.':"Fine, let's sleep.",'Завтрак в восемь?':'Breakfast at eight?',
+ 'Снаряды кончились. Подберите их в комнате.':'Out of ammo. Pick some up in the room.','Вы и так целы.':"You're fine already.",'Аптечки нет. Ищите в комнате.':'No meds. Look around the room.',
+ 'Комбо сброшено':'Combo lost','В голову!':'Headshot!','Перехват!':'Intercepted!','Вон из холодильника!':'Out of the fridge!','Оба уснули!':'Both asleep!','Уснул!':'Asleep!','Один спит. Остался второй!':'One is asleep. One to go!',
+ 'Засосало!':'Sucked in!','По башке!':'Bonk!','Кот рядом — поцарапает':"Cat nearby — it'll scratch",'Трёхочковый!':'Three-pointer!','Со столешницы!':'Off the counter!',
+ // levels
+ 'Спальня':'Bedroom','Окно приоткрыто, на полках хрупкое':'The window is ajar, fragile stuff on the shelves','В окно':'Out the window','Улетело в окно':'Out the window','улетело в окно':'flew out the window','Окно':'Window',
+ 'Осколки уберёте утром.':"You'll sweep up the shards in the morning.",'Кот орёт — уходит сон. Сбейте ему наглость до нуля.':"The cat is yelling and you're losing sleep. Knock its sass down to zero.",
+ 'Ванная':'Bathroom','Полная ванна, раковина и унитаз':'A full tub, a sink and a toilet','За дверь':'Out the door','Улетело за дверь':'Out the door','улетело за дверь':'flew out the door','Окошко':'Small window',
+ 'Лужи вытрете утром.':"You'll mop the puddles in the morning.",'Сбивайте кота с бортика: в ванну, раковину или унитаз.':'Knock the cat off the rim: into the tub, the sink or the toilet.',
+ 'Кухня':'Kitchen','Холодильник, рыба и мусорное ведро':'Fridge, fish and a trash bin','Колбасу докупите утром.':"You'll buy more sausage in the morning.",
+ 'Не подпускайте кота к рыбе! Сбейте его со столешницы — лучше прямо в ведро.':'Keep the cat away from the fish! Knock it off the counter — ideally right into the bin.',
+ 'Чердак':'Attic','Ночь, связки лука и летучая мышь':'Night, onion braids and a bat','Чеснок развесите утром.':"You'll hang the garlic back in the morning.",
+ 'Сбивайте связки лука и фонарь прямо на кота. Овощи берите из ящиков.':'Drop the onion braids and the lantern right on the cat. Take veggies from the crates.',
+ 'КАРТОФЕЛЬ':'POTATOES','МОРКОВЬ':'CARROTS',
+ 'Гостиная':'Living room','Два кота: ваш и Барон Булкин':'Two cats: yours and Baron Bunsworth','Потеряно':'Lost','разлетелось по углам':'scattered into the corners',
+ 'Диван зашьёте утром.':"You'll stitch the sofa in the morning.",'Котов двое! Подушки с дивана и кресла можно брать и кидать.':'Two cats! Sofa and armchair cushions can be picked up and thrown.',
+ 'Детская':"Kids' room",'Двухъярусная кровать, лего и заводная мышь':'Bunk bed, bricks and a wind-up mouse','закатилось под кровать':'rolled under the bed',
+ 'Лего соберёте утром. Босиком не ходите.':"You'll pick up the bricks in the morning. Don't walk barefoot.",
+ 'Лего на полу — ловушка для кота. Сбивайте заводную мышь с полки: коты бросятся её ловить.':'Bricks on the floor are a cat trap. Knock the wind-up mouse off the shelf: the cats will chase it.',
+ 'Гараж':'Garage','Машина с сигнализацией и два кота':'A car with an alarm and two cats','закатилось под машину':'rolled under the car','Вмятины выправите утром.':"You'll fix the dents in the morning.",
+ 'Котов двое. Не задевайте машину: от сигнализации уходит сон. Брелок висит на стене.':"Two cats. Don't hit the car: the alarm drains your sleep. The key fob hangs on the wall.",
+ 'Двор':'Yard','Все семь котов, птицы и газонокосилка':'All seven cats, birds and a lawn mower','улетело в кусты':'flew into the bushes','Все коты спят. Птицы поют. Можно и вам.':'All the cats are asleep. Birds are singing. You can sleep too.',
+ 'Финал! Во дворе все семь котов. Птицы сбрасывают снаряды и бинты — не стреляйте в них и отгоняйте котов.':"The finale! All seven cats are in the yard. Birds drop ammo and bandages — don't shoot them, and keep the cats away.",
+ 'диван':'sofa','ковёр':'rug','обиделись':'got offended','испугались':'got scared',
+};
+const ruNum=s=>+String(s).replace(/[^\d.-]/g,'');
+const money=s=>{const r=ruNum(s);return '$'+(r<=0?0:Math.max(1,Math.round(r/80))).toLocaleString('en-US');};
+const PAT=[
+ [/^−([\d\s  ,]+) ₽$/,m=>'−'+money(m[1])],
+ [/^([\d\s  ,]+) ₽$/,m=>money(m[1])],
+ [/^([\d.]+) с$/,m=>m[1]+' s'],
+ [/^\+([\d.]+)\/с$/,m=>'+'+m[1]+'/s'],
+ [/^Уровень (\d+) →$/,m=>`Level ${m[1]} →`],[/^Уровень (\d+) из (\d+)$/,m=>`Level ${m[1]} of ${m[2]}`],[/^Уровень (\d+)$/,m=>`Level ${m[1]}`],
+ [/^Откроется после уровня (\d+)$/,m=>`Unlocks after level ${m[1]}`],
+ [/^(\d+) из (\d+) \((\d+)%\)$/,m=>`${m[1]} of ${m[2]} (${m[3]}%)`],
+ [/^Ремонт съел (.+) очков\.$/,m=>`Repairs ate ${m[1]} points.`],
+ [/^На часах (.+), до будильника ещё можно поспать\.$/,m=>`It's ${m[1]} — there's still time to sleep before the alarm.`],
+ [/^Открыт уровень (\d+): (.+)\.$/,m=>`Level ${m[1]} unlocked: ${tr(m[2])}.`],
+ [/^Всё, чем можно было кидаться, (.+)\.$/,m=>`Everything you could throw ${tr(m[1])}.`],
+ [/^(.+) победно орёт до утра\.$/,m=>`${tr(m[1])} yells in triumph till morning.`],[/^(.+) победно орут до утра\.$/,m=>`${trNames(m[1])} yell in triumph till morning.`],
+ [/^(.+) исцарапал вас до вызова скорой\.$/,m=>`${tr(m[1])} scratched you up so badly you need an ambulance.`],[/^(.+) исцарапали вас до вызова скорой\.$/,m=>`${trNames(m[1])} scratched you up so badly you need an ambulance.`],
+ [/^(.+) проорал всю ночь\. Он выспится днём, а вы пойдёте на работу\.$/,m=>`${tr(m[1])} yelled all night. He'll sleep all day, and you're off to work.`],
+ [/^(.+) проорали всю ночь\. Они выспятся днём, а вы пойдёте на работу\.$/,m=>`${trNames(m[1])} yelled all night. They'll sleep all day, and you're off to work.`],
+ [/^(.+) уснул!$/,m=>`${tr(m[1])} fell asleep!`],[/^(.+) уснул$/,m=>`${tr(m[1])} fell asleep`],
+ [/^(.+) прыгнул в лицо!$/,m=>`${tr(m[1])} jumped at your face!`],
+ [/^(.+) дерёт (диван|ковёр)!$/,m=>`${tr(m[1])} is clawing the ${tr(m[2])}!`],
+ [/^(.+) напал!$/,m=>`${tr(m[1])} pounced!`],
+ [/^(.+) не отдаёт$/,m=>`${tr(m[1])} won't give up the`],
+ [/^(.+) (обиделись|испугались) — больше не прилетят\.$/,m=>`${tr(m[1])} ${tr(m[2])} — they won't come back.`],
+ [/^(.+) не отдаёт: (.+)$/,m=>`${tr(m[1])} won't give up the ${tr(m[2])}`],
+ [/^Взять: (.+) \((\d+)\)$/,m=>`Take: ${tr(m[1])} (${m[2]})`],[/^Подобрать: (.+)$/,m=>`Pick up: ${tr(m[1])}`],
+ [/^(.+) \(\+(\d+) здоровья\)$/,m=>`${tr(m[1])} (+${m[2]} health)`],
+ [/^\+1 (.+)$/,m=>'+1 '+tr(m[1])],[/^\+(\d+) (.+)$/,m=>`+${m[1]} ${tr(m[2])}`],
+ [/^В голову! Перехват! (\+.+)$/,m=>`Headshot! Intercepted! ${m[1]}`],
+ [/^(.+?) (\+[\d\s  ,]+)$/,m=>tr(m[1])+' '+m[2]],
+ [/^(.+) (\d+)$/,m=>tr(m[1])+' '+m[2]],
+ [/^(.+) (\+[\d.]+\/с)$/,m=>tr(m[1])+' '+tr(m[2])],
+ [/^(.+) · (.+) · (.+)$/,m=>`${tr(m[1])} · ${tr(m[2])} · ${tr(m[3])}`],
+ [/^(.+) · (.+)$/,m=>`${tr(m[1])} · ${tr(m[2])}`],
+ [/^(.+): (.+)$/,m=>`${tr(m[1])}: ${tr(m[2])}`],
+];
+function trNames(s){return s.split(' и ').map(tr).join(' and ');}
+function trCore(s){
+  if(EN[s]!=null)return EN[s];
+  const low=s.toLowerCase(),cap=s[0].toUpperCase()+s.slice(1);
+  if(s===low&&EN[cap]!=null)return EN[cap].toLowerCase();
+  if(s.includes('\n'))return s.split('\n').map(tr).join('\n');
+  for(const[re,fn]of PAT){const m=s.match(re);if(m)return fn(m);}
+  return s;
+}
+const TRC=new Map();
+function tr(s){
+  if(LANG!=='en'||s==null)return s;s=String(s);if(!/[А-Яа-яЁё₽]/.test(s))return s;
+  let r=TRC.get(s);if(r!==undefined)return r;
+  const lead=s.match(/^\s*/)[0],trail=s.match(/\s*$/)[0],core=s.trim();
+  r=lead+trCore(core)+trail;if(TRC.size>4000)TRC.clear();TRC.set(s,r);return r;
+}
+// DOM: translate text nodes and a few attributes, remembering the Russian original
+const I18N_TXT=new WeakMap(),I18N_ATTR=new WeakMap(),I18N_ATTRS=['title','aria-label'];
+function trText(n){const v=n.nodeValue;if(!v||!/[А-Яа-яЁё₽]/.test(v))return;const t=tr(v);if(t!==v){I18N_TXT.set(n,[v,t]);n.nodeValue=t;}}
+function trAttrs(el){for(const a of I18N_ATTRS){const v=el.getAttribute&&el.getAttribute(a);if(v&&/[А-Яа-яЁё]/.test(v)){const t=tr(v);if(t!==v){let m=I18N_ATTR.get(el);if(!m)I18N_ATTR.set(el,m={});m[a]=[v,t];el.setAttribute(a,t);}}}}
+function walkDom(root,fn){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT);let n=w.currentNode;while(n){fn(n);n=w.nextNode();}}
+function trDom(root){if(LANG!=='en')return;walkDom(root,n=>{if(n.nodeType===3)trText(n);else trAttrs(n);});}
+function unTrDom(root){walkDom(root,n=>{if(n.nodeType===3){const p=I18N_TXT.get(n);if(p&&n.nodeValue===p[1])n.nodeValue=p[0];}else{const m=I18N_ATTR.get(n);if(m)for(const a in m)if(n.getAttribute(a)===m[a][1])n.setAttribute(a,m[a][0]);}});}
+let i18nObs=null;
+function i18nStart(){
+  i18nObs=new MutationObserver(ms=>{if(LANG!=='en')return;for(const m of ms){
+    if(m.type==='characterData')trText(m.target);
+    else if(m.type==='attributes')trAttrs(m.target);
+    else for(const n of m.addedNodes){if(n.nodeType===3)trText(n);else if(n.nodeType===1)trDom(n);}}});
+  i18nObs.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:I18N_ATTRS});
+}
+function applyLang(){
+  document.documentElement.lang=LANG;document.title=LANG==='en'?'Hush the Cat':'Угомони кота';
+  if(LANG==='en')trDom(document.body);else unTrDom(document.body);
+  const b=$('langBtn');if(b){b.querySelector('b').textContent=LANG==='en'?'EN':'RU';b.title=LANG==='en'?'Язык: русский':'Language: English';}
+}
+function setLang(l){
+  LANG=l;try{localStorage.setItem('ugomoni-lang',l);}catch(e){}TRC.clear();applyLang();
+  // canvases with baked-in text and the menu texts built by code
+  if(typeof repaintAll==='function')repaintAll();if(game.breed)renderPreviewInfo();renderLvl();
+}
+
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- data ---------------- */
@@ -486,7 +677,7 @@ function drawItem(c,kind,x,y,sc,rot,lying,t,col){
     rr(c,-22,-14,44,28,10);fs(c,col||'#3f8f8a',2.5);rr(c,-17,-10,34,20,7);c.lineWidth=1.3;c.setLineDash([4,3]);c.strokeStyle='rgba(255,255,255,.45)';c.stroke();c.setLineDash([]);ell(c,0,0,2.5,2.5);fs(c,'rgba(0,0,0,.25)',0);
     break;
   case 'block':
-    rr(c,-9,-9,18,18,3);fs(c,col||'#e2433a',2.2);c.fillStyle='rgba(255,255,255,.85)';c.font=`900 12px ${UIF}`;c.textAlign='center';c.textBaseline='middle';c.fillText('КОТАБ'[((col||'#e2433a').charCodeAt(1)+(col||'#e2433a').charCodeAt(3))%5],0,1);
+    rr(c,-9,-9,18,18,3);fs(c,col||'#e2433a',2.2);c.fillStyle='rgba(255,255,255,.85)';c.font=`900 12px ${UIF}`;c.textAlign='center';c.textBaseline='middle';c.fillText((LANG==='en'?'ABCDE':'КОТАБ')[((col||'#e2433a').charCodeAt(1)+(col||'#e2433a').charCodeAt(3))%5],0,1);
     break;
   case 'potato':
     ell(c,0,0,12,9,.15);fs(c,'#c49a5c',2.5);c.fillStyle='rgba(90,55,25,.6)';for(const[x,y]of[[-5,-2],[4,2],[6,-4],[-2,4]]){ell(c,x,y,1.3,1.1);c.fill();}ell(c,-4,-4,3,1.6,.2);c.fillStyle='rgba(255,240,200,.35)';c.fill();
@@ -1082,7 +1273,7 @@ function catHit(k,x,y,r){
 function catActive(k){return!['stunned','asleep','pounce','dunk','fridge','freezer','sucked'].includes((k||cat).state);}
 
 /* ---------------- effects ---------------- */
-function pop(x,y,text,color,size){x=clamp(x,110,W-110);pops.push({x,y,text,color:color||'#fff',size:size||26,life:1.2,max:1.2});}
+function pop(x,y,text,color,size){x=clamp(x,110,W-110);pops.push({x,y,text:tr(text),color:color||'#fff',size:size||26,life:1.2,max:1.2});}
 let toastTimer=0;function toast(msg,sec){const el=$('toast');el.textContent=msg;el.classList.add('on');toastTimer=sec||2.2;}
 function burst(x,y,colors,n,speed,type){for(let i=0;i<n;i++){const a=rnd(0,Math.PI*2),v=rnd(.3,1)*speed;parts.push({type:type||'shard',x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-speed*.4,rot:rnd(0,6),vr:rnd(-10,10),size:rnd(4,10),color:pick(colors),life:rnd(1.6,2.6),max:2.6,floor:FLOOR+rnd(0,40)});}}
 function fur(k,n){const bd=catBody(k);for(let i=0;i<n;i++)parts.push({type:'fur',x:bd.x+rnd(-20,20),y:bd.y+rnd(-15,15),vx:rnd(-80,80),vy:rnd(-140,-40),rot:rnd(0,6),vr:rnd(-3,3),size:rnd(5,9),color:pick([k.b.fur,k.b.belly]),life:rnd(1,1.6),max:1.6});}
@@ -1647,7 +1838,7 @@ function drawAttic(c){
   // vegetable crates (left), heaps are pickups
   for(const[x,lab]of[[40,'КАРТОФЕЛЬ'],[146,'МОРКОВЬ']]){rr(c,x,520,100,80,3);fs(c,'#b88a52',3);
     c.strokeStyle='rgba(60,30,10,.45)';c.lineWidth=2;for(const y of[542,566]){c.beginPath();c.moveTo(x+4,y);c.lineTo(x+96,y);c.stroke();}
-    c.fillStyle='rgba(60,30,10,.55)';c.font=`800 10px ${UIF}`;c.textAlign='center';c.fillText(lab,x+50,588);}
+    c.fillStyle='rgba(60,30,10,.55)';c.font=`800 10px ${UIF}`;c.textAlign='center';c.fillText(tr(lab),x+50,588);}
   // old dresser
   rr(c,390,452,170,148,4);fs(c,'#7b5236',3);rr(c,384,444,182,12,3);fs(c,'#8f6242',3);
   for(const y of[468,512,556]){rr(c,402,y,146,36,4);fs(c,'#8a5d3e',2.5);ell(c,475,y+18,5,4);fs(c,'#d9b45a',1.5);}
@@ -2526,7 +2717,7 @@ function birdsTick(dt){
   yard.birdT-=dt;if(yard.birdT<=0){yard.birdT=rnd(3.5,6.5);birdSpawn();}
   for(const b of yard.birds){b.t+=dt;
     if(b.s==='fly'){b.x+=b.vx*dt;b.y+=Math.sin(b.t*3)*20*dt;
-      if(!b.dropped&&Math.abs(b.x-b.dropX)<8){b.dropped=true;const k=pick(SPECIES[b.sp].drops);const p=dropPick(k,b.x,b.y+10);p.vy=0;pop(b.x,b.y+30,`${SPECIES[b.sp].name.slice(0,-1)}: ${ITEM[k].name.toLowerCase()}`,'#cfe0ff',16);}
+      if(!b.dropped&&Math.abs(b.x-b.dropX)<8){b.dropped=true;const k=pick(SPECIES[b.sp].drops);const p=dropPick(k,b.x,b.y+10);p.vy=0;pop(b.x,b.y+30,`${SPECIES[b.sp].name}: ${ITEM[k].name.toLowerCase()}`,'#cfe0ff',16);}
       if(b.land&&b.dropped&&b.t>1.5){b.land=false;b.perch=perchSpot();b.s='toPerch';}
       if(b.x<-60||b.x>1340)b.s='gone';}
     else if(b.s==='toPerch'){const dx=b.perch.x-b.x,dy=b.perch.y-b.y,d=Math.hypot(dx,dy),sp=260*dt;b.vx=dx||b.vx;if(d<sp+2){b.x=b.perch.x;b.y=b.perch.y;b.s='perch';b.pt=rnd(7,11);}else{b.x+=dx/d*sp;b.y+=dy/d*sp;}}
@@ -2662,7 +2853,7 @@ function renderFinal(now){
   // a soft sunrise glow
   const g=c.createRadialGradient(800,560,40,800,560,900);g.addColorStop(0,'rgba(255,214,140,.35)');g.addColorStop(1,'rgba(255,214,140,0)');c.fillStyle=g;c.fillRect(0,0,1600,900);
   // balloon letters along the fence
-  const word='ПОБЕДА!',cols=['#e2433a','#f0c040','#5fb36a','#3f7fd8','#f07fae','#8a6bd6','#f39a2b'];
+  const word=LANG==='en'?'VICTORY':'ПОБЕДА!',cols=['#e2433a','#f0c040','#5fb36a','#3f7fd8','#f07fae','#8a6bd6','#f39a2b'];
   for(let i=0;i<word.length;i++){const x=470+i*110,y=548+Math.sin(t*2+i)*8;c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=2;c.beginPath();c.moveTo(x,y+48);c.quadraticCurveTo(x+Math.sin(t+i)*10,y+90,x,y+130);c.stroke();
     ell(c,x,y,44,50);fs(c,cols[i],4);poly(c,[x-6,y+48,x+6,y+48,x,y+58]);fs(c,cols[i],3);ell(c,x-14,y-18,9,14,-.4);c.fillStyle='rgba(255,255,255,.45)';c.fill();
     c.font=`900 50px ${UIF}`;c.textAlign='center';c.textBaseline='middle';c.lineWidth=7;c.strokeStyle=OUT;c.strokeText(word[i],x,y+3);c.fillStyle='#fff';c.fillText(word[i],x,y+3);}
@@ -2671,8 +2862,8 @@ function renderFinal(now){
     const o={walk:false,phase:0,eyes:Math.sin(t*1.3+i)>-.6?'closed':'smug',mouth:.12,headTilt:Math.sin(t*1.5+i)*.12,seed:i*3.1,tailFlick:1};drawCatPose(c,b,o,t);c.restore();
     const hp=((t*.7+i*.37)%2.2);if(hp<1){c.globalAlpha=1-hp;c.font=`900 30px ${UIF}`;c.textAlign='center';c.fillStyle='#ff6b8a';c.fillText('♥',x+((i*13)%20)-10,y-170-hp*60);c.globalAlpha=1;}});
   FINAL.bubbleT-=dt;if(FINAL.bubbleT<=0){FINAL.bubbleT=1.9;FINAL.who=(FINAL.who+1+Math.floor(Math.random()*3))%BREEDS.length;FINAL.said=pick(FINAL_SAY);}
-  {const x=170+FINAL.who*210,y=690;c.font=`800 28px ${UIF}`;const w=c.measureText(FINAL.said).width+34,bx=clamp(x,w/2+10,1590-w/2);rr(c,bx-w/2,y-48,w,48,16);fs(c,'#fff',3);poly(c,[x-10,y-1,x+10,y-1,x,y+16]);fs(c,'#fff',0);c.beginPath();c.moveTo(x-10,y);c.lineTo(x,y+16);c.lineTo(x+10,y);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();
-    c.fillStyle=OUT;c.textAlign='center';c.textBaseline='middle';c.fillText(FINAL.said,bx,y-24);}
+  {const x=170+FINAL.who*210,y=690;c.font=`800 28px ${UIF}`;const said=tr(FINAL.said),w=c.measureText(said).width+34,bx=clamp(x,w/2+10,1590-w/2);rr(c,bx-w/2,y-48,w,48,16);fs(c,'#fff',3);poly(c,[x-10,y-1,x+10,y-1,x,y+16]);fs(c,'#fff',0);c.beginPath();c.moveTo(x-10,y);c.lineTo(x,y+16);c.lineTo(x+10,y);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();
+    c.fillStyle=OUT;c.textAlign='center';c.textBaseline='middle';c.fillText(said,bx,y-24);}
   // square confetti
   for(const q of FINAL.confetti){q.y+=q.vy*dt;q.x+=q.vx*dt+Math.sin(t*2+q.r)*20*dt;q.r+=q.vr*dt;if(q.y>920){q.y=-20;q.x=rnd(0,1600);}
     c.save();c.translate(q.x,q.y);c.rotate(q.r);c.scale(1,Math.abs(Math.cos(t*3+q.r)));c.fillStyle=q.c;c.fillRect(-q.s/2,-q.s/2,q.s,q.s);c.restore();}
@@ -3073,6 +3264,7 @@ function drawBinCat(c,b,t,cx,rim,flash){
   c.restore();
 }
 function bubble(c,x,y,text,color){
+  text=tr(text);
   c.font=`800 22px ${UIF}`;const w=c.measureText(text).width+26;x=clamp(x,w/2+10,W-w/2-10);
   rr(c,x-w/2,y-42,w,38,14);fs(c,color||'#fff',3);poly(c,[x-8,y-5,x+8,y-5,x-2,y+10]);fs(c,color||'#fff',0);
   c.beginPath();c.moveTo(x-8,y-4);c.lineTo(x-2,y+10);c.lineTo(x+8,y-4);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();
@@ -3155,7 +3347,7 @@ function render(now){
   if(mouse.in&&game.running&&!game.paused){
     const mx=mouse.x,my=mouse.y;
     if(hover){const dang=catDanger(hover),col=dang?'#ff5a5a':'#7cf0a8';c.lineWidth=4;c.strokeStyle=col;c.beginPath();c.arc(hover.x,hover.y,hover.r+16,0,Math.PI*2);c.stroke();
-      c.font=`800 18px ${UIF}`;c.textAlign='center';c.lineWidth=5;c.strokeStyle=OUT;const lb=dang?'Кот рядом — поцарапает':(hover.crate?`Взять: ${ITEM[hover.kind].name} (${hover.supply})`:`Подобрать: ${ITEM[hover.kind].name}`);c.strokeText(lb,hover.x,hover.y-hover.r-30);c.fillStyle=col;c.fillText(lb,hover.x,hover.y-hover.r-30);}
+      c.font=`800 18px ${UIF}`;c.textAlign='center';c.lineWidth=5;c.strokeStyle=OUT;const lb=dang?'Кот рядом — поцарапает':(hover.crate?`Взять: ${ITEM[hover.kind].name} (${hover.supply})`:`Подобрать: ${ITEM[hover.kind].name}`);c.strokeText(tr(lb),hover.x,hover.y-hover.r-30);c.fillStyle=col;c.fillText(tr(lb),hover.x,hover.y-hover.r-30);}
     else{c.lineWidth=5;c.strokeStyle=OUT;c.beginPath();c.arc(mx,my,15,0,Math.PI*2);c.stroke();c.lineWidth=2.5;c.strokeStyle='#fff';c.stroke();
       c.beginPath();for(const[a,b]of[[[-24,0],[-9,0]],[[24,0],[9,0]],[[0,-24],[0,-9]],[[0,24],[0,9]]]){c.moveTo(mx+a[0],my+a[1]);c.lineTo(mx+b[0],my+b[1]);}c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.5;c.strokeStyle='#fff';c.stroke();
       if(ammo&&ammo[game.kind]>0)drawItem(c,game.kind,mx+30,my+28,.6,0,true,t);}
@@ -3311,6 +3503,7 @@ function setSound(on){AU.on=on;for(const id of['muteBtn','menuMute'])$(id).textC
 try{if(localStorage.getItem('ugomoni-sound')==='0')setSound(false);}catch(e){}
 $('muteBtn').addEventListener('click',()=>setSound(!AU.on));
 $('menuMute').addEventListener('click',()=>{setSound(!AU.on);if(AU.on)au();});
+$('langBtn').addEventListener('click',()=>setLang(LANG==='en'?'ru':'en'));
 // browsers may drop canvas contents while the tab is in the background: repaint every static layer
 function repaintAll(){if(!LV)return;paintLevel(LV);for(const L of LEVELS)L.thumb=makeThumb(L);renderLvl();buildTrays();updateTrays();drawTipIcons();finalBgDone=false;}
 let repaintT=0;const askRepaint=()=>{clearTimeout(repaintT);repaintT=setTimeout(repaintAll,60);};
@@ -3331,6 +3524,7 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 function start(data){
+  i18nStart();applyLang();
   LV=LEVELS[0];PLATS=LV.plats;furn=LV.furn();
   for(const L of LEVELS)L.thumb=makeThumb(L);
   if(data&&data.best>game.best)game.best=data.best;
