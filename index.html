@@ -980,12 +980,25 @@ function au(){
 function tone(type,f0,f1,dur,vol,delay){const c=AU.ctx;if(!c||!AU.on)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+(delay||0);o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(AU.master);o.start(t);o.stop(t+dur+.03);}
 function nz(dur,vol,type,f0,f1,q,delay){const c=AU.ctx;if(!c||!AU.on)return;if(!AU.nb){AU.nb=c.createBuffer(1,c.sampleRate,c.sampleRate);const d=AU.nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
   const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain(),t=c.currentTime+(delay||0);s.buffer=AU.nb;f.type=type;f.Q.value=q||1;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(AU.master);s.start(t);s.stop(t+dur+.03);}
-function sMeow(b){const c=AU.ctx;if(!c||!AU.on)return;const t=c.currentTime,p=b.pitch*rnd(.9,1.1),d=rnd(.45,.7),v=.5*Math.min(1.3,b.loud);
-  const o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain();o.type='sawtooth';
-  o.frequency.setValueAtTime(380*p,t);o.frequency.linearRampToValueAtTime(720*p,t+d*.3);o.frequency.linearRampToValueAtTime(430*p,t+d);
-  f.type='bandpass';f.Q.value=4;f.frequency.setValueAtTime(700,t);f.frequency.linearRampToValueAtTime(1700,t+d*.35);f.frequency.linearRampToValueAtTime(800,t+d);
-  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.05);g.gain.setValueAtTime(v,t+d*.7);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(f);f.connect(g);g.connect(AU.master);o.start(t);o.stop(t+d+.05);}
+function sMeow(b){const c=AU.ctx;if(!c||!AU.on)return;
+  const t=c.currentTime;AU.mq=(AU.mq||[]).filter(e=>e>t);if(AU.mq.length>=3)return;
+  const p=b.pitch*rnd(.92,1.08),d=rnd(.6,1)*(b.loud>1.4?1.2:1),v=.5*Math.min(1.35,b.loud),f0=520*p,growl=Math.random()<.3;AU.mq.push(t+d);
+  const src=c.createGain();src.gain.value=1;const oscs=[];
+  for(const[type,mul,gv]of[['sawtooth',1,1],['square',1.004,.35]]){const o=c.createOscillator(),og=c.createGain();o.type=type;og.gain.value=gv;
+    o.frequency.setValueAtTime(f0*.74*mul,t);o.frequency.linearRampToValueAtTime(f0*1.2*mul,t+d*.28);o.frequency.linearRampToValueAtTime(f0*1.12*mul,t+d*.55);o.frequency.exponentialRampToValueAtTime(f0*.6*mul,t+d);
+    o.connect(og);og.connect(src);oscs.push(o);}
+  const lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=rnd(5,7);lg.gain.value=f0*.03;lfo.connect(lg);for(const o of oscs)lg.connect(o.frequency);
+  // vowel path: m (closed) -> i -> a -> o -> u
+  const F=[[[300,0],[950,.1],[1150,.35],[800,.65],[420,1]],[[900,0],[2100,.1],[1650,.35],[1050,.65],[800,1]],[[2700,0],[3000,.3],[2500,1]]];
+  const env=c.createGain();
+  F.forEach((pts,k)=>{const f=c.createBiquadFilter(),fg=c.createGain();f.type='bandpass';f.Q.value=[5,8,10][k];fg.gain.value=[1.6,1.1,.45][k];
+    for(const[fr,u]of pts)u?f.frequency.linearRampToValueAtTime(fr,t+d*u):f.frequency.setValueAtTime(fr,t);src.connect(f);f.connect(fg);fg.connect(env);});
+  env.gain.setValueAtTime(.0001,t);env.gain.exponentialRampToValueAtTime(v,t+.07);env.gain.linearRampToValueAtTime(v*.85,t+d*.45);env.gain.setValueAtTime(v*.85,t+d*.72);env.gain.exponentialRampToValueAtTime(.0001,t+d);
+  let out=env;
+  if(growl){const am=c.createGain(),ao=c.createOscillator(),ag=c.createGain();am.gain.value=.6;ao.frequency.value=rnd(24,32);ag.gain.setValueAtTime(.45,t);ag.gain.linearRampToValueAtTime(0,t+d*.5);ao.connect(ag);ag.connect(am.gain);env.connect(am);out=am;ao.start(t);ao.stop(t+d+.05);}
+  out.connect(AU.master);for(const o of oscs){o.start(t);o.stop(t+d+.05);}lfo.start(t);lfo.stop(t+d+.05);
+  nz(d*.6,.03*v,'bandpass',2500,1800,1.5);
+}
 const sWhoosh=()=>nz(.22,.22,'bandpass',600,2400,1.5);
 const sThud=()=>{tone('sine',160,50,.18,.5);nz(.08,.18,'lowpass',800,200);};
 const sBoing=()=>tone('sine',500,900,.12,.22);
@@ -2365,7 +2378,8 @@ function drawYard(c){
   for(const[x,y,r]of CROWN){ell(c,x,y,r,r*.86);c.fillStyle='#4a8f43';c.fill();}
   for(const[x,y,r]of CROWN){ell(c,x+r*.18,y+r*.3,r*.7,r*.5);c.fillStyle='rgba(20,60,25,.35)';c.fill();ell(c,x-r*.3,y-r*.35,r*.42,r*.3);c.fillStyle='rgba(170,220,120,.32)';c.fill();}
   c.strokeStyle='rgba(20,60,25,.45)';c.lineWidth=2;for(let i=0;i<60;i++){const[x,y,r]=CROWN[i%CROWN.length],a=i*2.4,d=r*((i*37%60)/80);const px=x+Math.cos(a)*d,py=y+Math.sin(a)*d*.8;c.beginPath();c.moveTo(px,py);c.quadraticCurveTo(px+5,py-6,px+9,py-2);c.stroke();}
-  for(const[x,y]of[[1070,240],[1120,300],[1190,220],[1240,280],[1160,170],[1100,190],[1215,300]]){ell(c,x,y,7,7);fs(c,'#e2433a',1.8);ell(c,x-2,y-2,2,2);c.fillStyle='rgba(255,255,255,.6)';c.fill();}
+  const inCrown=(x,y)=>CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12);const APPLES=[];for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inCrown(x,y))APPLES.push([x,y]);}
+  for(const[x,y]of APPLES){ell(c,x,y,7,7);fs(c,'#e2433a',1.8);ell(c,x-2,y-2,2,2);c.fillStyle='rgba(255,255,255,.6)';c.fill();}
   // picket fence
   rr(c,250,462,1040,12,3);fs(c,'#e9e4d8',2.5);rr(c,250,520,1040,12,3);fs(c,'#e9e4d8',2.5);
   for(let x=262;x<1290;x+=34){poly(c,[x,560,x,436,x+12,422,x+24,436,x+24,560]);fs(c,'#f6f2ea',2.5);}
@@ -2387,10 +2401,7 @@ function drawYard(c){
   c.strokeStyle=OUT;c.lineWidth=3;c.strokeRect(-10,480,256,120);
   rr(c,-4,384,10,84,2);fs(c,'#f6f2ea',2);rr(c,126,384,10,84,2);fs(c,'#f6f2ea',2);rr(c,-10,380,152,8,2);fs(c,'#f6f2ea',2);
   for(let x=14;x<126;x+=14){c.fillStyle='#f6f2ea';c.fillRect(x,388,5,78);c.strokeStyle=OUT;c.lineWidth=1.2;c.strokeRect(x,388,5,78);}
-  for(const[y,x2]of[[480,288],[520,280],[560,272]]){rr(c,246,y,x2-246,12,2);fs(c,'#b57a46',2.5);rr(c,246,y+12,x2-250,28,0);fs(c,'#9a6740',2);}
-  // apple crate: slatted wooden box (the heap on top is a pickup)
-  rr(c,382,552,68,48,3);fs(c,'#d9a465',2.5);c.fillStyle='rgba(60,30,10,.55)';c.fillRect(386,566,60,3);c.fillRect(386,582,60,3);
-  rr(c,382,552,8,48,2);fs(c,'#c98a52',1.5);rr(c,442,552,8,48,2);fs(c,'#c98a52',1.5);ell(c,416,590,6,6);fs(c,'#e2433a',1.5);c.strokeStyle='#4a8f43';c.lineWidth=2;c.beginPath();c.moveTo(416,584);c.lineTo(420,579);c.stroke();
+  for(const[y,x2]of[[480,268],[520,290],[560,312]]){rr(c,246,y+10,x2-250,600-y-10,0);fs(c,'#9a6740',2);rr(c,246,y,x2-246,12,2);fs(c,'#b57a46',2.5);}
 }
 function drawYardFG(c){
   const g=c.createLinearGradient(0,682,0,720);g.addColorStop(0,'#3f8f3a');g.addColorStop(1,'#2a6a28');
@@ -2446,13 +2457,20 @@ function drawYardDyn(c,t,dt){
   drawPole(c,t);
   // clothesline posts and line
   for(const x of[408,892]){rr(c,x-4,226,8,374,2);fs(c,'#9aa3b5',2);}c.strokeStyle='#f6f2ea';c.lineWidth=2;c.beginPath();c.moveTo(408,232);c.quadraticCurveTo(650,252,892,232);c.stroke();
+  // apple crate: slatted wooden box (the heap on top is a pickup)
+  rr(c,382,552,68,48,3);fs(c,'#d9a465',2.5);c.fillStyle='rgba(60,30,10,.55)';c.fillRect(386,566,60,3);c.fillRect(386,582,60,3);
+  rr(c,382,552,8,48,2);fs(c,'#c98a52',1.5);rr(c,442,552,8,48,2);fs(c,'#c98a52',1.5);ell(c,416,590,6,6);fs(c,'#e2433a',1.5);c.strokeStyle='#4a8f43';c.lineWidth=2;c.beginPath();c.moveTo(416,584);c.lineTo(420,579);c.stroke();
+  // wicker basket of balls by the bean bag, basket of apples under the tree
+  for(const[x,col]of[[1088,'#c98a52'],[1206,'#b57a46']]){c.beginPath();c.moveTo(x-30,566);c.lineTo(x+30,566);c.lineTo(x+24,600);c.lineTo(x-24,600);c.closePath();fs(c,col,2.5);
+    c.strokeStyle='rgba(60,30,10,.5)';c.lineWidth=1.5;for(let y=574;y<600;y+=8){c.beginPath();c.moveTo(x-28,y);c.lineTo(x+28,y);c.stroke();}for(let dx=-20;dx<=20;dx+=10){c.beginPath();c.moveTo(x+dx,566);c.lineTo(x+dx*.85,600);c.stroke();}
+    c.beginPath();c.arc(x,566,26,Math.PI,0);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();}
   // folding table and chairs, bean bag
   c.strokeStyle='#9aa3b5';c.lineWidth=5;c.beginPath();c.moveTo(580,FLOOR);c.lineTo(740,478);c.moveTo(740,FLOOR);c.lineTo(580,478);c.stroke();
   rr(c,552,466,216,12,4);fs(c,'#f6f2ea',2.5);c.fillStyle='rgba(226,67,58,.5)';for(let x=556;x<764;x+=24)c.fillRect(x,468,12,8);
   drawChair8(c,'chairL',496);drawChair8(c,'chairR',824);
   {const bb=yard.beanT>0?Math.sin(yard.beanT*30)*4:0;ell(c,962,FLOOR-2,70,8);c.fillStyle='rgba(20,30,10,.3)';c.fill();
   c.beginPath();c.moveTo(896,FLOOR-4);c.bezierCurveTo(882,566,900,512+bb,936,500-bb);c.bezierCurveTo(958,490,986,500,996,522+bb);c.bezierCurveTo(1030,540,1036,586,1024,FLOOR-4);c.quadraticCurveTo(962,FLOOR+6,896,FLOOR-4);c.closePath();fs(c,'#7a5cc4',3);
-  c.save();c.clip();ell(c,972,546,40,16,-.15);c.fillStyle='rgba(40,20,80,.35)';c.fill();ell(c,924,520,16,26,-.3);c.fillStyle='rgba(255,255,255,.16)';c.fill();
+  c.save();c.clip();ell(c,924,520,16,26,-.3);c.fillStyle='rgba(255,255,255,.16)';c.fill();
   c.strokeStyle='rgba(40,20,80,.45)';c.lineWidth=2;c.beginPath();c.moveTo(934,502);c.quadraticCurveTo(948,550,940,598);c.moveTo(990,516);c.quadraticCurveTo(1004,560,996,598);c.moveTo(950,560);c.quadraticCurveTo(972,572,1000,562);c.stroke();c.restore();
   ell(c,945,497,8,4,-.3);fs(c,'#6a4cb4',1.5);}
   // remote on the table
@@ -2583,10 +2601,11 @@ function makeFurnL8(){return{
 function picksL8(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
   const fruit=(k,x,y)=>Object.assign(mkPick(k,x,y),{inBowl:true});
-  return[Object.assign(crate('apple',416,12,548),{small:true,r:30}),
+  return[Object.assign(crate('apple',416,12,548),{small:true,r:30}),Object.assign(crate('ball',1088,8,560),{small:true,r:30}),Object.assign(crate('apple',1206,10,560),{small:true,r:30}),
+    mkPick('slipper',40,466),mkPick('apple',520,FLOOR),mkPick('apple',700,FLOOR),mkPick('nut',860,FLOOR),mkPick('ball',600,FLOOR),
     mkPick('kit',60,466),mkPick('bandage',100,466),mkPick('plaster',220,466),mkPick('zelenka',600,470),mkPick('bandage',960,FLOOR),mkPick('kit',1180,300),
     mkPick('cushion',496,505,'#3f7fd8'),mkPick('cushion',824,505,'#3f7fd8'),fruit('apple',680,456),fruit('apple',698,456),
-    mkPick('ball',300,FLOOR),mkPick('ball',1100,FLOOR),mkPick('slipper',330,FLOOR),mkPick('slipper',760,FLOOR),mkPick('towel',1240,FLOOR)];
+    mkPick('ball',300,FLOOR),mkPick('slipper',330,FLOOR),mkPick('slipper',760,FLOOR),mkPick('towel',1240,FLOOR)];
 }
 LEVELS.push({n:8,name:'Двор',sub:'Все семь котов, птицы и газонокосилка',plats:PLATS_L8,glass:GLASS_L8,exit:EXIT_L8,
   front:[],back:['ebox','chairL','chairR','bean','tree'],
