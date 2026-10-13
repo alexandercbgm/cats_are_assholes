@@ -2341,7 +2341,7 @@ LEVELS.push({n:7,name:'Гараж',sub:'Машина с сигнализацие
 /* ---------------- level 8: the yard, all seven cats ---------------- */
 const PLATS_L8=[
  {id:'floor',x1:24,x2:1256,y:FLOOR},
- {id:'porch',x1:10,x2:240,y:466},
+ {id:'porch',x1:10,x2:262,y:466},
  {id:'fence',x1:262,x2:1256,y:432},
  {id:'table8',x1:560,x2:760,y:470},
  {id:'chairL',x1:462,x2:530,y:505},
@@ -2361,7 +2361,7 @@ const SPECIES={
   magpie:{name:'Сороки',body:'#1d1d24',wing:'#2a3f6a',head:'#1d1d24',belly:'#f6f6f2',beak:'#1d1d24',size:1,tail:true,drops:['kit','zelenka','bandage']},
   sparrow:{name:'Воробьи',body:'#a8733e',wing:'#7d5130',head:'#8a6a4a',belly:'#e8d4b0',beak:'#3a3a44',size:.75,drops:['apple','plaster','nut']},
 };
-let yard={birds:[],banned:[],birdT:3,mower:{on:false,x:240,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{}};
+let yard={birds:[],banned:[],birdT:3,mower:{on:false,x:342,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{}};
 function drawYard(c){
   // pre-dawn sky over the neighbours' roofs
   let g=c.createLinearGradient(0,0,0,440);g.addColorStop(0,'#232a63');g.addColorStop(.55,'#6a5a9a');g.addColorStop(1,'#f2a37a');c.fillStyle=g;c.fillRect(0,0,W,560);
@@ -2395,13 +2395,14 @@ function drawYard(c){
   rr(c,150,322,72,148,4);fs(c,'#7a4a2e',3);rr(c,160,334,52,58,3);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.25)';c.stroke();rr(c,160,402,52,58,3);c.stroke();ell(c,206,404,4,4);fs(c,'#e8c35a',1.5);
   ell(c,232,300,9,9);fs(c,'#fff3b0',2);
   // porch: plank deck, railing, lattice skirt and steps
-  rr(c,-10,466,262,14,3);fs(c,'#b57a46',3);
-  c.save();c.beginPath();c.rect(-10,480,256,120);c.clip();c.fillStyle='#9a6740';c.fillRect(-10,480,256,120);c.strokeStyle='rgba(60,30,10,.55)';c.lineWidth=3;
+  rr(c,-10,466,280,14,3);fs(c,'#b57a46',3);
+  c.save();c.beginPath();c.rect(-10,480,274,120);c.clip();c.fillStyle='#9a6740';c.fillRect(-10,480,274,120);c.strokeStyle='rgba(60,30,10,.55)';c.lineWidth=3;
   for(let x=-130;x<260;x+=22){c.beginPath();c.moveTo(x,480);c.lineTo(x+120,600);c.moveTo(x+120,480);c.lineTo(x,600);c.stroke();}c.restore();
-  c.strokeStyle=OUT;c.lineWidth=3;c.strokeRect(-10,480,256,120);
+  c.strokeStyle=OUT;c.lineWidth=3;c.strokeRect(-10,480,274,120);
+  // front steps under the door
+  for(const[y,w]of[[480,84],[520,104],[560,124]]){const x=186-w/2;rr(c,x,y+10,w,600-y-10,0);fs(c,'#9a6740',2.5);poly(c,[x+6,y,x+w-6,y,x+w,y+12,x,y+12]);fs(c,'#c98a52',2);}
   rr(c,-4,384,10,84,2);fs(c,'#f6f2ea',2);rr(c,126,384,10,84,2);fs(c,'#f6f2ea',2);rr(c,-10,380,152,8,2);fs(c,'#f6f2ea',2);
   for(let x=14;x<126;x+=14){c.fillStyle='#f6f2ea';c.fillRect(x,388,5,78);c.strokeStyle=OUT;c.lineWidth=1.2;c.strokeRect(x,388,5,78);}
-  for(const[y,x2]of[[480,268],[520,290],[560,312]]){rr(c,246,y+10,x2-250,600-y-10,0);fs(c,'#9a6740',2);rr(c,246,y,x2-246,12,2);fs(c,'#b57a46',2.5);}
 }
 function drawYardFG(c){
   const g=c.createLinearGradient(0,682,0,720);g.addColorStop(0,'#3f8f3a');g.addColorStop(1,'#2a6a28');
@@ -2614,7 +2615,7 @@ LEVELS.push({n:8,name:'Двор',sub:'Все семь котов, птицы и 
   catX:640,allCats:true,hpMul:.5,regenMul:.6,yellMul:.2,sleepMul:.7,dmgMul:.6,aggrMul:.45,final:true,
   outTo:'Потеряно',lostLabel:'Потеряно',lostWhere:'улетело в кусты',glassLabel:'Окно',
   win:'Все коты спят. Птицы поют. Можно и вам.',hello:'Финал! Во дворе все семь котов. Птицы сбрасывают снаряды и бинты — не стреляйте в них и отгоняйте котов.',
-  init:()=>{yard={birds:[],banned:[],birdT:2,mower:{on:false,x:240,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{},beanT:0};kids={mouse:{s:'park',x:660,y:FLOOR,vx:0,t:0}};}});
+  init:()=>{yard={birds:[],banned:[],birdT:2,mower:{on:false,x:342,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{},beanT:0};kids={mouse:{s:'park',x:660,y:FLOOR,vx:0,t:0}};}});
 
 /* ---------------- final scene ---------------- */
 let levelScores={};try{levelScores=JSON.parse(localStorage.getItem('ugomoni-scores')||'{}')||{};}catch(e){}
