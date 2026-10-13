@@ -133,6 +133,7 @@ h2{font-family:var(--f-display);font-weight:900;font-size:20px;line-height:1.15;
 .lvlinfo .btn{margin-top:auto;align-self:flex-end}
 .lvl.locked b{color:var(--muted)}
 .btn:disabled,.btn.primary:disabled{background:rgba(36,27,51,.12);color:var(--muted);box-shadow:none;cursor:default}
+.sndbtn{margin-left:auto;font:inherit;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:8px;border:0;cursor:pointer;color:var(--ink);background:rgba(36,27,51,.07)}.sndbtn:hover{background:rgba(36,27,51,.13)}.sndbtn:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
 .keys{margin:6px 0 6px;font-size:10.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
 kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;border-radius:5px;background:#fff;color:var(--ink);box-shadow:0 1.5px 0 rgba(36,27,51,.18),0 0 0 1px var(--line);text-align:center}
 .catcard{background:linear-gradient(180deg,#2e3462,#262b52);color:var(--paper);border-radius:14px;padding:6px 14px 14px;min-width:0;display:flex;flex-direction:column}
@@ -241,7 +242,7 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
         <div class="tip t5"><canvas data-ico="window" width="88" height="88"></canvas><div><b>Окно и дверь</b><span>Что туда улетело, то пропало.</span></div></div>
         <div class="tip t6"><canvas data-ico="book" width="88" height="88"></canvas><div><b>Ломай с пользой</b><span>За дверцами прячутся аптечки и снаряды.</span></div></div>
       </div>
-      <p class="keys"><kbd>1</kbd>–<kbd>7</kbd> снаряд <kbd>H</kbd> лечиться <kbd>P</kbd> пауза</p>
+      <p class="keys"><kbd>1</kbd>–<kbd>7</kbd> снаряд <kbd>H</kbd> лечиться <kbd>P</kbd> пауза<button class="sndbtn" id="menuMute" type="button">Звук: вкл</button></p>
       <div class="lvl" id="lvlBox">
         <div class="lvlthumb">
           <canvas id="lvlThumb" width="352" height="198"></canvas>
@@ -1061,7 +1062,7 @@ function newGame(li){
   $('cat2Hud').hidden=$('regenRow').hidden=cats.length<2;$('regenRow').hidden=cats.length>1;
   document.body.classList.toggle('two',cats.length>1);
   if(cats[1]){$('catName2').textContent=`${cats[1].name} · ${cats[1].b.breed}`;$('catIco2').style.color=cats[1].b.fur;}
-  $('startOv').hidden=true;$('endOv').hidden=true;$('pauseOv').hidden=true;
+  $('startOv').hidden=true;$('endOv').hidden=true;$('pauseOv').hidden=true;$('pauseBtn').textContent='Пауза';
   buildTrays();updateTrays();
   toast(LV.hello,3.2);
 }
@@ -3301,7 +3302,15 @@ $('newCatBtn').addEventListener('click',()=>{setCat(catIdx+1);showMenu();});
 $('resumeBtn').addEventListener('click',()=>setPause(false));
 $('quitBtn').addEventListener('click',()=>{game.paused=false;showMenu();});
 $('pauseBtn').addEventListener('click',()=>setPause(!game.paused));
-$('muteBtn').addEventListener('click',()=>{AU.on=!AU.on;$('muteBtn').textContent=AU.on?'Звук: вкл':'Звук: выкл';});
+function setSound(on){AU.on=on;for(const id of['muteBtn','menuMute'])$(id).textContent=on?'Звук: вкл':'Звук: выкл';try{localStorage.setItem('ugomoni-sound',on?'1':'0');}catch(e){}}
+try{if(localStorage.getItem('ugomoni-sound')==='0')setSound(false);}catch(e){}
+$('muteBtn').addEventListener('click',()=>setSound(!AU.on));
+$('menuMute').addEventListener('click',()=>{setSound(!AU.on);if(AU.on)au();});
+// browsers may drop canvas contents while the tab is in the background: repaint every static layer
+function repaintAll(){if(!LV)return;paintLevel(LV);for(const L of LEVELS)L.thumb=makeThumb(L);renderLvl();buildTrays();updateTrays();drawTipIcons();finalBgDone=false;}
+let repaintT=0;const askRepaint=()=>{clearTimeout(repaintT);repaintT=setTimeout(repaintAll,60);};
+for(const c2 of[bg,fg,cv,catBuf])c2.addEventListener('contextrestored',askRepaint);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)askRepaint();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&game.running&&!game.paused)setPause(true);});
 
 /* ---------------- boot ---------------- */
