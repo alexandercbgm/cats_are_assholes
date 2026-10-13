@@ -1831,7 +1831,7 @@ const PLATS_L4=[
  {id:'trunk',x1:840,x2:1010,y:510},
 ];
 const EXIT_L4={x1:654,y1:182,x2:738,y2:340},GLASS_L4=[{x1:562,y1:182,x2:646,y2:340}];
-let attic={dark:false,bat:{s:'hang',x:820,y:150,t:0,sc:1}};
+let attic={dark:false,bat:{s:'hang',x:863,y:150,t:0,sc:1}};
 function drawAttic(c){
   // back gable wall: dark boards
   let g=c.createLinearGradient(0,0,0,560);g.addColorStop(0,'#5a3f31');g.addColorStop(1,'#7a5640');c.fillStyle=g;c.fillRect(0,0,W,562);
@@ -2017,7 +2017,7 @@ LEVELS.push({n:4,name:'Чердак',sub:'Ночь, связки лука и л�
   room:drawAttic,fg:drawAtticFG,objs:makeObjsL4,furn:makeFurnL4,dyn:drawAtticDyn,picks:picksL4,post:atticPost,tick:atticTick,hitX:atticHit,
   catX:700,outTo:'В окно',lostLabel:'Улетело в окно',lostWhere:'улетело в окно',glassLabel:'Окно',
   win:'Чеснок развесите утром.',hello:'Сбивайте связки лука и фонарь прямо на кота. Овощи берите из ящиков.',
-  init:()=>{attic={dark:false,bat:{s:'hang',x:820,y:150,t:0,sc:1}};}});
+  init:()=>{attic={dark:false,bat:{s:'hang',x:863,y:150,t:0,sc:1}};}});
 
 /* ---------------- level 5: living room, two cats ---------------- */
 const PLATS_L5=[
