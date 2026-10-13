@@ -2026,6 +2026,7 @@ const PLATS_L5=[
  {id:'sofaBack',x1:314,x2:666,y:386},
  {id:'tvstand',x1:728,x2:992,y:470},
  {id:'table',x1:1032,x2:1244,y:440},
+ {id:'bookshelf',x1:820,x2:930,y:230},
 ];
 const EXIT_L5={x1:-20,y1:-20,x2:-10,y2:-10},GLASS_L5=[{x1:1052,y1:128,x2:1222,y2:316}];
 let living={tears:[],tvT:0,tvHit:false,tableT:0,dim:false,vac:{on:false,x:1128,dir:-1,bag:[],rider:false}};
@@ -2050,7 +2051,7 @@ function drawLiving(c){
   ell(c,-10,0,4.5,5);c.fillStyle='#e3892b';c.fill();ell(c,10,0,4.5,5);c.fill();poly(c,[-3,8,3,8,0,12]);c.fillStyle='#6f7b93';c.fill();
   rr(c,-18,-46,36,12,3);fs(c,'#f0c040',2);poly(c,[-18,-46,-12,-58,-4,-46]);fs(c,'#f0c040',2);poly(c,[-4,-46,4,-60,10,-46]);fs(c,'#f0c040',2);poly(c,[10,-46,16,-58,18,-46]);fs(c,'#f0c040',2);c.restore();
   // shelf with books between the picture and the TV
-  rr(c,820,230,110,10,3);fs(c,'#8f6242',2.5);for(const[x,h,col]of[[828,38,'#d9534f'],[844,44,'#5fb36a'],[860,34,'#f0c040'],[876,42,'#7f6bd6']]){rr(c,x,230-h,14,h,2);fs(c,col,2);}
+  rr(c,820,230,110,10,3);fs(c,'#8f6242',2.5);
   // parquet floor
   c.fillStyle='#b57d4c';c.fillRect(0,560,W,160);
   c.strokeStyle='rgba(80,40,15,.35)';c.lineWidth=2;for(const y of[574,594,622,662]){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();}
@@ -2080,6 +2081,7 @@ function makeObjsL5(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   return[
     O('chandelier',330,214,null,{skip:['sofaBack','chairBack'],w:150,h:84,fragile:true,knockable:false,cost:9000,label:'Люстра',hang:true,hurts:28,hurtLabel:'Люстрой!'}),
+    O('books',875,230,'bookshelf',{w:62,h:52,fragile:false,knockable:true,cost:300,label:'Книги'}),
     O('plate',1060,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
     O('glass',1094,440,'table',{w:22,h:32,fragile:true,knockable:true,cost:400,label:'Бокал'}),
     O('plate',1124,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
