@@ -87,6 +87,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .two .toast{top:8.6em}
 .catp.many{width:23em}.catp.many>:not(#catsMini){display:none!important}
 #catsMini{display:grid;grid-template-columns:1fr 1fr;gap:.3em .9em}
+#catsMini .mc:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - .45em)}
 .mc{display:grid;grid-template-columns:.7em minmax(0,4.6em) 1fr;gap:.35em;align-items:center;font-size:.74em;font-weight:800}
 .mc .d{width:.7em;height:.7em;border-radius:50%;box-shadow:0 0 0 1.5px #241b33}
 .mc .mn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2400,7 +2401,8 @@ function drawYard(c){
   for(let x=-130;x<260;x+=22){c.beginPath();c.moveTo(x,480);c.lineTo(x+120,600);c.moveTo(x+120,480);c.lineTo(x,600);c.stroke();}c.restore();
   c.strokeStyle=OUT;c.lineWidth=3;c.strokeRect(-10,480,274,120);
   // front steps under the door
-  for(const[y,w]of[[480,84],[520,104],[560,124]]){const x=186-w/2;rr(c,x,y+10,w,600-y-10,0);fs(c,'#9a6740',2.5);poly(c,[x+6,y,x+w-6,y,x+w,y+12,x,y+12]);fs(c,'#c98a52',2);}
+  for(const[y,h]of[[480,40],[520,40],[560,40]]){const x=138,w=96;rr(c,x,y,w,h,2);fs(c,'#a8703e',2.5);rr(c,x-2,y,w+4,9,2);fs(c,'#c98a52',2);}
+  rr(c,132,480,7,120,2);fs(c,'#8a5a36',2);rr(c,233,480,7,120,2);fs(c,'#8a5a36',2);
   rr(c,-4,384,10,84,2);fs(c,'#f6f2ea',2);rr(c,126,384,10,84,2);fs(c,'#f6f2ea',2);rr(c,-10,380,152,8,2);fs(c,'#f6f2ea',2);
   for(let x=14;x<126;x+=14){c.fillStyle='#f6f2ea';c.fillRect(x,388,5,78);c.strokeStyle=OUT;c.lineWidth=1.2;c.strokeRect(x,388,5,78);}
 }
