@@ -964,7 +964,8 @@ function layout(){
   const wide=r.width/r.height>W/H+.02,aw=wide?r.width:Math.max(200,r.width-32),ah=wide?r.height:Math.max(120,r.height-16);
   let fw,fh;
   if(wide){fw=Math.floor(aw);fh=Math.floor(Math.max(ah,aw/2.4));scale=fw/W;}else{scale=Math.min(aw/W,ah/H);fw=Math.floor(W*scale);fh=Math.floor(H*scale);}
-  viewOY=Math.max(0,(H-fh/scale)/2);
+  // trim the ceiling first so the floor (and what lies on it) stays clear of the bottom tray
+  {const cut=Math.max(0,H-fh/scale);viewOY=Math.min(cut,110)+Math.max(0,cut-110)/2;}
   const fr=$('frame');fr.classList.toggle('wide',wide);st.classList.toggle('wide',wide);fr.style.width=fw+'px';fr.style.height=fh+'px';fr.style.setProperty('--u',scale);
   dpr=Math.min(2,window.devicePixelRatio||1);cv.width=Math.round(fw*dpr);cv.height=Math.round(fh*dpr);
   const vw=window.innerWidth,vh=window.innerHeight;document.documentElement.style.setProperty('--mu',String(Math.min((vw-24)/800,(vh-16)/450,1.35)));
