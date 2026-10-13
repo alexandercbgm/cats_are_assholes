@@ -983,22 +983,22 @@ function nz(dur,vol,type,f0,f1,q,delay){const c=AU.ctx;if(!c||!AU.on)return;if(!
   const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain(),t=c.currentTime+(delay||0);s.buffer=AU.nb;f.type=type;f.Q.value=q||1;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(AU.master);s.start(t);s.stop(t+dur+.03);}
 function sMeow(b){const c=AU.ctx;if(!c||!AU.on)return;
   const t=c.currentTime;AU.mq=(AU.mq||[]).filter(e=>e>t);if(AU.mq.length>=3)return;
-  const p=b.pitch*rnd(.92,1.08),d=rnd(.6,1)*(b.loud>1.4?1.2:1),v=.5*Math.min(1.35,b.loud),f0=520*p,growl=Math.random()<.3;AU.mq.push(t+d);
-  const src=c.createGain();src.gain.value=1;const oscs=[];
-  for(const[type,mul,gv]of[['sawtooth',1,1],['square',1.004,.35]]){const o=c.createOscillator(),og=c.createGain();o.type=type;og.gain.value=gv;
-    o.frequency.setValueAtTime(f0*.74*mul,t);o.frequency.linearRampToValueAtTime(f0*1.2*mul,t+d*.28);o.frequency.linearRampToValueAtTime(f0*1.12*mul,t+d*.55);o.frequency.exponentialRampToValueAtTime(f0*.6*mul,t+d);
+  const p=b.pitch*rnd(.93,1.07),d=rnd(.42,.68),v=.55*Math.min(1.3,b.loud),f0=400*p,growl=Math.random()<.5,ask=Math.random()<.45;AU.mq.push(t+d);
+  const src=c.createGain(),oscs=[];
+  for(const[type,mul,gv]of[['sawtooth',1,1],['triangle',.5,.5]]){const o=c.createOscillator(),og=c.createGain();o.type=type;og.gain.value=gv;
+    o.frequency.setValueAtTime(f0*.85*mul,t);o.frequency.linearRampToValueAtTime(f0*.78*mul,t+d*.22);o.frequency.linearRampToValueAtTime(f0*1.15*mul,t+d*.5);
+    if(ask)o.frequency.linearRampToValueAtTime(f0*1.42*mul,t+d);else o.frequency.exponentialRampToValueAtTime(f0*.82*mul,t+d);
     o.connect(og);og.connect(src);oscs.push(o);}
-  const lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=rnd(5,7);lg.gain.value=f0*.03;lfo.connect(lg);for(const o of oscs)lg.connect(o.frequency);
-  // vowel path: m (closed) -> i -> a -> o -> u
-  const F=[[[300,0],[950,.1],[1150,.35],[800,.65],[420,1]],[[900,0],[2100,.1],[1650,.35],[1050,.65],[800,1]],[[2700,0],[3000,.3],[2500,1]]];
+  const lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=rnd(4.5,6);lg.gain.value=f0*.015;lfo.connect(lg);for(const o of oscs)lg.connect(o.frequency);
+  // m(rr) -> a (wide open, the bossy part) -> u, or -> a? when it demands
+  const F=[[[320,0],[500,.2],[1000,.5],ask?[950,1]:[520,1]],[[1000,0],[1150,.2],[1500,.5],ask?[1700,1]:[900,1]],[[2500,0],[2600,.5],[2300,1]]];
   const env=c.createGain();
-  F.forEach((pts,k)=>{const f=c.createBiquadFilter(),fg=c.createGain();f.type='bandpass';f.Q.value=[5,8,10][k];fg.gain.value=[1.6,1.1,.45][k];
+  F.forEach((pts,k)=>{const f=c.createBiquadFilter(),fg=c.createGain();f.type='bandpass';f.Q.value=[4,6,8][k];fg.gain.value=[1.9,1,.3][k];
     for(const[fr,u]of pts)u?f.frequency.linearRampToValueAtTime(fr,t+d*u):f.frequency.setValueAtTime(fr,t);src.connect(f);f.connect(fg);fg.connect(env);});
-  env.gain.setValueAtTime(.0001,t);env.gain.exponentialRampToValueAtTime(v,t+.07);env.gain.linearRampToValueAtTime(v*.85,t+d*.45);env.gain.setValueAtTime(v*.85,t+d*.72);env.gain.exponentialRampToValueAtTime(.0001,t+d);
+  env.gain.setValueAtTime(.0001,t);env.gain.exponentialRampToValueAtTime(v*.7,t+.05);env.gain.linearRampToValueAtTime(v,t+d*.5);env.gain.setValueAtTime(v,t+d*.8);env.gain.exponentialRampToValueAtTime(.0001,t+d);
   let out=env;
-  if(growl){const am=c.createGain(),ao=c.createOscillator(),ag=c.createGain();am.gain.value=.6;ao.frequency.value=rnd(24,32);ag.gain.setValueAtTime(.45,t);ag.gain.linearRampToValueAtTime(0,t+d*.5);ao.connect(ag);ag.connect(am.gain);env.connect(am);out=am;ao.start(t);ao.stop(t+d+.05);}
+  if(growl){const am=c.createGain(),ao=c.createOscillator(),ag=c.createGain();am.gain.value=.55;ao.frequency.value=rnd(26,34);ag.gain.setValueAtTime(.5,t);ag.gain.linearRampToValueAtTime(0,t+d*.35);ao.connect(ag);ag.connect(am.gain);env.connect(am);out=am;ao.start(t);ao.stop(t+d+.05);}
   out.connect(AU.master);for(const o of oscs){o.start(t);o.stop(t+d+.05);}lfo.start(t);lfo.stop(t+d+.05);
-  nz(d*.6,.03*v,'bandpass',2500,1800,1.5);
 }
 const sWhoosh=()=>nz(.22,.22,'bandpass',600,2400,1.5);
 const sThud=()=>{tone('sine',160,50,.18,.5);nz(.08,.18,'lowpass',800,200);};
@@ -2656,12 +2656,14 @@ function renderFinal(now){
 }
 
 /* ---------------- menu music: a lazy walking double bass, finger snaps and a few vibraphone notes ---------------- */
-const MUS={on:false,next:0,step:0,bus:null,tmr:null,bpm:96};
+const MUS={on:false,next:0,step:0,bus:null,tmr:null,bpm:150};
 const midiHz=m=>440*Math.pow(2,(m-69)/12);
-// 8 bars, a walking quarter-note line over Dm7 G7 Cmaj7 A7 Dm7 G7 C6 C6
-const BASS=[38,41,45,44, 43,47,50,49, 48,43,40,44, 45,49,52,39, 38,40,41,42, 43,47,41,37, 36,40,43,45, 48,45,43,39];
-const VIBES=[[0,0,69,1.5],[0,2,65,.5],[0,2.5,69,1.5],[1,0,71,1],[1,1,74,1],[1,2,77,2],[2,0,76,2],[2,2,72,2],[3,0,73,1],[3,1,76,1],[3,2,79,2],
-  [4,0,77,1.5],[4,1.5,74,.5],[4,2,69,2],[5,0,71,1],[5,1,74,1],[5,2,71,1],[5,3,67,1],[6,0,72,3]];
+// one cycle = four chords x four swung eighths: Am G F E
+const PROG=[{r:45,ch:[57,60,64]},{r:43,ch:[55,59,62]},{r:41,ch:[53,57,60]},{r:40,ch:[52,56,59]}];
+const MEL={A:[[0,69,1,'c'],[1,72,1,'c'],[2,76,2,'c'],[5,74,2,'c'],[8,72,1,'r'],[9,69,1,'r'],[10,71,2,'r'],[12,68,3,'r']],
+  B:[[0,76,1,'c'],[1,79,1,'c'],[2,76,1,'c'],[3,74,2,'c'],[6,72,1,'c'],[8,72,1,'r'],[9,71,1,'r'],[10,69,2,'r'],[12,64,3,'r']],
+  C:[[0,81,1,'c'],[2,79,1,'c'],[3,76,1,'c'],[4,74,2,'c'],[8,77,1,'r'],[9,76,1,'r'],[10,74,1,'r'],[11,71,1,'r'],[12,68,3,'r']]};
+const FORM=[null,'A','B','A','C',null,'B','C'];
 function musBass(t,m,dur){const c=AU.ctx,f=midiHz(m);
   const o=c.createOscillator(),o2=c.createOscillator(),lp=c.createBiquadFilter(),g=c.createGain();o.type='triangle';o2.type='sine';
   o.frequency.setValueAtTime(f*1.03,t);o.frequency.exponentialRampToValueAtTime(f,t+.04);o2.frequency.setValueAtTime(f*2,t);
@@ -2676,15 +2678,31 @@ function musVibe(t,m,dur){const c=AU.ctx,f=midiHz(m);
   for(const[mul,v]of[[1,.16],[4,.025]]){const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f*mul;
     g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+Math.max(.4,dur*1.3));
     o.connect(g);g.connect(MUS.bus);o.start(t);o.stop(t+dur*1.3+.1);}}
+function musStab(t,notes,dur){const c=AU.ctx;for(const m of notes){const o=c.createOscillator(),o2=c.createOscillator(),lp=c.createBiquadFilter(),g=c.createGain();
+  o.type='triangle';o2.type='square';o.frequency.value=midiHz(m);o2.frequency.value=midiHz(m)*1.002;const g2=c.createGain();g2.gain.value=.25;
+  lp.type='lowpass';lp.frequency.setValueAtTime(2600,t);lp.frequency.exponentialRampToValueAtTime(900,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.09,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(lp);o2.connect(g2);g2.connect(lp);lp.connect(g);g.connect(MUS.bus);o.start(t);o2.start(t);o.stop(t+dur+.05);o2.stop(t+dur+.05);}}
+function musLead(t,m,dur,voice){const c=AU.ctx,f=midiHz(m);
+  if(voice==='c'){const o=c.createOscillator(),lp=c.createBiquadFilter(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(f*.97,t);o.frequency.linearRampToValueAtTime(f,t+.04);
+    lp.type='lowpass';lp.frequency.setValueAtTime(900,t);lp.frequency.linearRampToValueAtTime(2400,t+.05);lp.frequency.exponentialRampToValueAtTime(1100,t+dur);lp.Q.value=2;
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.13,t+.03);g.gain.setValueAtTime(.12,t+dur*.7);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(lp);lp.connect(g);g.connect(MUS.bus);o.start(t);o.stop(t+dur+.05);}
+  else{for(const det of[-4,4]){const o=c.createOscillator(),g=c.createGain(),bp=c.createBiquadFilter();o.type='triangle';o.frequency.value=f;o.detune.value=det;bp.type='bandpass';bp.frequency.value=900;bp.Q.value=.8;
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.09,t+.06);g.gain.setValueAtTime(.08,t+dur*.8);g.gain.exponentialRampToValueAtTime(.0001,t+dur+.1);
+    o.connect(bp);bp.connect(g);g.connect(MUS.bus);o.start(t);o.stop(t+dur+.15);}}}
+function musClap(t){for(let i=0;i<3;i++)musNoise(t+i*.012,.05,.16,'bandpass',1400);musNoise(t+.03,.12,.07,'bandpass',1100);}
 function musSchedule(){
-  const c=AU.ctx;if(!c||!MUS.on)return;const beat=60/MUS.bpm;
+  const c=AU.ctx;if(!c||!MUS.on)return;const e=60/MUS.bpm/2;
   while(MUS.next<c.currentTime+.35){
-    const s=MUS.step,bar=Math.floor(s/4)%8,b=s%4,t=MUS.next;
-    musBass(t,BASS[s%32],beat*.95);
-    if(b%2===1)musNoise(t+beat*.02,.06,.22,'highpass',2200);
-    if(b===3)musNoise(t+beat*.66,.03,.08,'highpass',3000);
-    if(Math.floor(s/32)%2===1)for(const[vb,vt,m,d]of VIBES)if(vb===bar&&Math.floor(vt)===b)musVibe(t+(vt-b)*beat,m,d*beat);
-    MUS.step++;MUS.next+=beat;}
+    const s=MUS.step,i=s%16,ch=PROG[Math.floor(i/4)],cyc=Math.floor(s/16)%FORM.length,sw=(s%2)?e*.32:0,t=MUS.next+sw;
+    // bass: root, octave pop on the "and" of two, a pickup into the next chord
+    if(i%4===0)musBass(t,ch.r,e*1.7);else if(i%4===2)musBass(t,ch.r+12,e*.8);else if(i%4===3)musBass(t,PROG[(Math.floor(i/4)+1)%4].r+(i===15?2:1),e*.7);
+    if(i%4===1||i%4===3)musStab(t,ch.ch,e*.7);
+    if(i%4===2)musClap(t);
+    musNoise(t,.03,i%2?.035:.06,'highpass',7000);
+    const f=FORM[cyc];if(f)for(const[at,m,d,v]of MEL[f])if(at===i)musLead(t,m,d*e*.95,v);
+    MUS.step++;MUS.next+=e;}
 }
 function musStart(){const c=AU.ctx;if(!c||MUS.on||c.state!=='running')return;
   MUS.bus=c.createGain();MUS.bus.gain.setValueAtTime(.0001,c.currentTime);MUS.bus.gain.exponentialRampToValueAtTime(.55,c.currentTime+.6);MUS.bus.connect(AU.master);
