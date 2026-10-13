@@ -2383,7 +2383,7 @@ const SPECIES={
 };
 // the apple tree: crown blobs and where its apples hang (the apples are pickups)
 const YARD_CROWN=[[1060,250,52],[1110,205,62],[1175,190,66],[1235,230,52],[1255,290,40],[1205,285,56],[1135,280,60],[1075,300,42],[1150,140,50],[1210,145,44],[1100,150,40],[1035,280,34]];
-const YARD_KIT=[1104,276];
+const YARD_KIT=[1114,226];
 const YARD_APPLES=(()=>{const inC=(x,y)=>YARD_CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12),A=[];
   for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inC(x,y)&&Math.hypot(x-YARD_KIT[0],y-YARD_KIT[1])>30)A.push([x,y]);}return A;})();
 let yard={birds:[],banned:[],birdT:3,mower:{on:false,x:342,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{}};
