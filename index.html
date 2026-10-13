@@ -1688,7 +1688,7 @@ const PLATS_L5=[
  {id:'table',x1:1032,x2:1244,y:440},
 ];
 const EXIT_L5={x1:-20,y1:-20,x2:-10,y2:-10},GLASS_L5=[{x1:1052,y1:128,x2:1222,y2:316}];
-let living={tears:[],tvT:0,tvHit:false,tableT:0,dim:false,vac:{on:false,x:748,dir:-1,bag:[],rider:false}};
+let living={tears:[],tvT:0,tvHit:false,tableT:0,dim:false,vac:{on:false,x:1128,dir:-1,bag:[],rider:false}};
 function drawLiving(c){
   // wallpaper with soft vertical stripes
   let g=c.createLinearGradient(0,0,0,560);g.addColorStop(0,'#c98e7a');g.addColorStop(1,'#b97b68');c.fillStyle=g;c.fillRect(0,0,W,562);
@@ -1792,7 +1792,7 @@ function drawTV(c,t){
   }
 }
 // robot vacuum: a hit toggles it; while it runs the floor is off limits for cats
-const VAC_DOCK=748;
+const VAC_DOCK=1128;
 function vacOn(){return LV.living&&living.vac&&living.vac.on;}
 function drawVacuum(c,t){
   const V=living.vac;
