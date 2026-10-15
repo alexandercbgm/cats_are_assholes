@@ -141,9 +141,10 @@ h2{font-family:var(--f-display);font-weight:900;font-size:20px;line-height:1.15;
 .lvlinfo .btn{margin-top:auto;align-self:flex-end}
 .lvl.locked b{color:var(--muted)}
 .btn:disabled,.btn.primary:disabled{background:rgba(36,27,51,.12);color:var(--muted);box-shadow:none;cursor:default}
-.langbtn{margin-left:4px!important;display:inline-flex;align-items:center;gap:4px}
-.sndbtn{margin-left:auto;font:inherit;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:8px;border:0;cursor:pointer;color:var(--ink);background:rgba(36,27,51,.07)}.sndbtn:hover{background:rgba(36,27,51,.13)}.sndbtn:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
-.keys{margin:6px 0 6px;font-size:10.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.langbtn{margin-left:0!important;display:inline-flex;align-items:center;gap:5px}
+.langbtn svg{width:15px;height:15px}
+.sndbtn{margin-left:auto;font:inherit;font-size:12.5px;font-weight:800;height:25px;padding:0 13px;border-radius:9px;border:0;cursor:pointer;color:var(--ink);background:rgba(36,27,51,.07)}.sndbtn:hover{background:rgba(36,27,51,.13)}.sndbtn:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.keys{margin:0;flex:1 1 auto;min-height:0;font-size:12.5px;color:var(--muted);display:flex;align-items:center;justify-content:flex-end;gap:5px}
 kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;border-radius:5px;background:#fff;color:var(--ink);box-shadow:0 1.5px 0 rgba(36,27,51,.18),0 0 0 1px var(--line);text-align:center}
 .catcard{background:linear-gradient(180deg,#2e3462,#262b52);color:var(--paper);border-radius:14px;padding:6px 14px 14px;min-width:0;display:flex;flex-direction:column}
 .picker{position:relative}
@@ -252,7 +253,7 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
         <div class="tip t5"><canvas data-ico="window" width="88" height="88"></canvas><div><b>Окно и дверь</b><span>Что туда улетело, то пропало.</span></div></div>
         <div class="tip t6"><canvas data-ico="book" width="88" height="88"></canvas><div><b>Ломай с пользой</b><span>За дверцами прячутся аптечки и снаряды.</span></div></div>
       </div>
-      <p class="keys"><kbd>1</kbd>–<kbd>7</kbd> снаряд <kbd>H</kbd> лечиться <kbd>P</kbd> пауза<button class="sndbtn" id="menuMute" type="button">Звук: вкл</button><button class="sndbtn langbtn" id="langBtn" type="button"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 2.8c3 3.2 3 15.2 0 18.4M12 2.8c-3 3.2-3 15.2 0 18.4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg><b>EN</b></button></p>
+      <p class="keys"><button class="sndbtn" id="menuMute" type="button">Звук: вкл</button><button class="sndbtn langbtn" id="langBtn" type="button"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 2.8c3 3.2 3 15.2 0 18.4M12 2.8c-3 3.2-3 15.2 0 18.4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg><b>EN</b></button></p>
       <div class="lvl" id="lvlBox">
         <div class="lvlthumb">
           <canvas id="lvlThumb" width="352" height="198"></canvas>
@@ -2641,7 +2642,7 @@ const YARD_KIT=[1094,248];
 const YARD_APPLES_ALL=(()=>{const inC=(x,y)=>YARD_CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12),A=[];
   for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inC(x,y)&&Math.hypot(x-1104,y-276)>30)A.push([x,y]);}A.push([1119,281]);return A;})();
 // apples under the right-hand slot column can't be clicked: they are painted on the tree, the rest can be picked
-const YARD_APPLES=YARD_APPLES_ALL.map(([x,y])=>x>1260?[1250,y-14]:[x,y]),YARD_APPLES_DECO=[];
+const YARD_APPLES=YARD_APPLES_ALL.map(([x,y])=>x>1260?[1262,y-22]:[x,y]),YARD_APPLES_DECO=[];
 let yard={birds:[],banned:[],birdT:3,mower:{on:false,x:342,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{}};
 function drawYard(c){
   // pre-dawn sky over the neighbours' roofs
@@ -2672,10 +2673,12 @@ function drawYard(c){
   poly(c,[-20,104,272,104,190,24,-20,24]);fs(c,'#8a4a3a',3);c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=2;for(let y=40;y<104;y+=14){c.beginPath();c.moveTo(-20,y);c.lineTo(190+(y-24)*82/80,y);c.stroke();}
   rr(c,-20,100,296,10,3);fs(c,'#f6f2ea',2);
   for(const[x,y,w,h]of[[40,140,84,92],[150,140,70,92],[30,262,90,104]]){rr(c,x-6,y-6,w+12,h+12,3);fs(c,'#f6f2ea',2.5);rr(c,x,y,w,h,2);fs(c,'#3d5068',2);c.fillStyle='#ffd36b';c.globalAlpha=.55;c.fillRect(x+3,y+3,w-6,h-6);c.globalAlpha=1;c.fillStyle='#f6f2ea';c.fillRect(x+w/2-2,y,4,h);c.fillRect(x,y+h/2-2,w,4);}
-  // little shed roof over the door on two brackets
-  for(const x of[142,224]){poly(c,[x,312,x+(x<186?10:-10),312,x,328]);fs(c,'#f6f2ea',2);}
-  poly(c,[130,298,242,298,236,312,136,312]);fs(c,'#8a4a3a',2.5);c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=1.5;for(const x of[150,170,190,210,228]){c.beginPath();c.moveTo(x,299);c.lineTo(x,311);c.stroke();}
-  rr(c,134,310,104,5,2);fs(c,'#f6f2ea',2);
+  // door canopy: a shingled shed roof with a white fascia, carried by two wooden brackets on the wall beside the door
+  for(const s2 of[-1,1]){const x=186+s2*50;c.beginPath();c.moveTo(x,305);c.lineTo(x+s2*12,305);c.lineTo(x,321);c.closePath();fs(c,'#f6f2ea',2);c.beginPath();c.moveTo(x+s2*2,308);c.lineTo(x+s2*8,308);c.lineTo(x+s2*2,316);c.closePath();c.fillStyle='rgba(120,80,40,.25)';c.fill();}
+  poly(c,[136,284,236,284,244,300,128,300]);fs(c,'#8a4a3a',2.5);
+  c.save();poly(c,[136,284,236,284,244,300,128,300]);c.clip();c.strokeStyle='rgba(0,0,0,.22)';c.lineWidth=1.4;c.beginPath();c.moveTo(120,292);c.lineTo(252,292);c.stroke();
+  for(let x=142;x<244;x+=14){c.beginPath();c.moveTo(x,284);c.lineTo(x-2,292);c.moveTo(x+7,292);c.lineTo(x+5,300);c.stroke();}c.restore();
+  rr(c,126,299,120,7,2);fs(c,'#f6f2ea',2);
   rr(c,150,322,72,148,4);fs(c,'#7a4a2e',3);rr(c,160,334,52,58,3);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.25)';c.stroke();rr(c,160,402,52,58,3);c.stroke();ell(c,206,404,4,4);fs(c,'#e8c35a',1.5);
   // porch: plank deck, railing, lattice skirt and steps
   rr(c,-10,466,280,14,3);fs(c,'#b57a46',3);
