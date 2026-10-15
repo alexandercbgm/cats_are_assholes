@@ -1450,6 +1450,8 @@ function drawFurniture(c,t,dt){
 // rims with `dunk` drop a hit cat into the tub / sink / toilet; `inner` is where its head ends up
 // narrow ones take the cat head first: only the hind legs and tail stick out (the tub is wide enough to float in)
 const HEAD_FIRST={bin:1,toilet:1,sink:1,ksink:1};
+// the opening the cat sticks out of: it is cut along the water (or the bin's rim) and the near half of the water is drawn over it
+const DUNK_HOLE={toilet:{cx:331,cy:501,rx:46,ry:8,col:'#a9d6e2'},sink:{cx:590,cy:434,rx:64,ry:7,col:'#d5e3e7'},ksink:{cx:740,cy:400,rx:68,ry:6,col:'#a9d3e6'},bin:{cy:461}};
 const PLATS_L2=[
  {id:'floor',x1:24,x2:1256,y:FLOOR},
  {id:'tank',x1:290,x2:370,y:352},
@@ -3276,8 +3278,9 @@ function renderCat(k,t){
   if(k.flash>0){cb.setTransform(1,0,0,1,0,0);cb.globalCompositeOperation='source-atop';cb.fillStyle=`rgba(255,255,255,${k.flash/.15*.7})`;cb.fillRect(0,0,1280,960);cb.globalCompositeOperation='source-over';}
 }
 // head-first in the bin: only the haunches, kicking hind legs and the tail stick out
-function drawBinCat(c,b,t,cx,rim,flash){
-  const sz=b.size,fat=b.fat,w=8*Math.min(1.25,fat),wob=Math.sin(t*9)*.1;
+function drawBinCat(c,b,t,cx,rim,flash,fitRx){
+  // fitRx: the rump is shrunk to fit a narrower opening
+  const fat=b.fat,sz=fitRx?Math.min(b.size,fitRx/(40*fat)):b.size,w=8*Math.min(1.25,fat),wob=Math.sin(t*9)*.1;
   c.save();c.translate(cx,rim+4);c.scale(sz,sz);c.rotate(wob);
   const L=legCols(b);
   const leg=(side,col,pawCol)=>{
@@ -3342,9 +3345,12 @@ function render(now){
     if(k.state!=='pounce'&&k.state!=='dunk'){ell(c,k.x,gy,46*k.b.size*k.b.fat,8);c.fillStyle='rgba(10,5,20,.3)';c.fill();}
     renderCat(k,t);
     if(k.state!=='pounce'){
-      if(k.state==='dunk'&&HEAD_FIRST[k.dunkType]){const inn=platById(k.dunkPlat).inner;c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,inn.clip);c.clip();drawBinCat(c,k.wet>0?wetB(k.b):k.b,k.anim,inn.cx,inn.clip,k.flash>0);c.restore();
-        if(k.dunkType==='ksink')foamStrip(c,inn.cx-60,inn.cx+60,inn.clip-4,t);
-        else if(k.dunkType==='toilet'){c.strokeStyle='rgba(160,215,235,.95)';c.lineWidth=2;for(let i=0;i<2;i++){const a=(t*1.5+i*.5)%1;ell(c,inn.cx,inn.clip-2,22+a*22,3+a*3);c.globalAlpha=1-a;c.stroke();}c.globalAlpha=1;}}
+      if(k.state==='dunk'&&HEAD_FIRST[k.dunkType]){const inn=platById(k.dunkPlat).inner,hole=DUNK_HOLE[k.dunkType];
+        c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,hole.cy);c.clip();drawBinCat(c,k.wet>0?wetB(k.b):k.b,k.anim,inn.cx,inn.clip,k.flash>0,hole.rx&&hole.rx*.92);c.restore();
+        if(hole.rx){const front=(rx,ry)=>{c.beginPath();c.ellipse(hole.cx,hole.cy,rx,ry,0,0,Math.PI);};
+          front(hole.rx,hole.ry);c.closePath();c.fillStyle=hole.col;c.fill();front(hole.rx,hole.ry);c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();
+          if(k.dunkType==='toilet'){c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=2;for(let i=0;i<2;i++){const a=(t*1.5+i*.5)%1;c.globalAlpha=1-a;front(16+a*26,2+a*4);c.stroke();}c.globalAlpha=1;}}
+        if(k.dunkType==='ksink')foamStrip(c,inn.cx-60,inn.cx+60,inn.clip-4,t);}
       else if(k.state==='dunk'){const inn=platById(k.dunkPlat).inner;c.save();c.beginPath();c.rect(inn.x1-70,0,inn.x2-inn.x1+140,inn.clip);c.clip();c.drawImage(catBuf,k.x-320,k.y-380,640,480);c.restore();
         const hx=catHead(k).x;
         if(k.dunkType==='tub'||k.dunkType==='ksink')foamStrip(c,hx-(k.dunkType==='tub'?110:60),hx+(k.dunkType==='tub'?110:60),inn.clip-4,t);
@@ -3402,11 +3408,15 @@ const SLOT_ICONS={};
 function slotIcon(c,kind){
   let ic=SLOT_ICONS[kind];
   if(!ic){const t=document.createElement('canvas');t.width=t.height=320;const tc=t.getContext('2d');tc.translate(160,160);tc.scale(2,2);drawItem(tc,kind,0,0,1,0,true,0);
-    const d=tc.getImageData(0,0,320,320).data;let x0=320,y0=320,x1=-1,y1=-1;
-    for(let y=0;y<320;y++)for(let x=0;x<320;x++)if(d[(y*320+x)*4+3]>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
-    ic=SLOT_ICONS[kind]=x1<0?null:{t,x0,y0,w:x1-x0+1,h:y1-y0+1};}
-  if(!ic)return;const k=Math.min(104/ic.w,76/ic.h,1.4);
-  c.drawImage(ic.t,ic.x0,ic.y0,ic.w,ic.h,60-ic.w*k/2,48-ic.h*k/2,ic.w*k,ic.h*k);
+    const d=tc.getImageData(0,0,320,320).data;let x0=320,y0=320,x1=-1,y1=-1,n=0,sx=0,sy=0;
+    for(let y=0;y<320;y++)for(let x=0;x<320;x++){const a=d[(y*320+x)*4+3];if(a>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}if(a>128){n++;sx+=x;sy+=y;}}
+    ic=SLOT_ICONS[kind]=x1<0?null:{t,x0,y0,w:x1-x0+1,h:y1-y0+1,area:n,mx:sx/n,my:sy/n};}
+  if(!ic)return;
+  // same visual weight: scale by filled area (flat wide things like the leaf no longer balloon), capped by the box
+  const k=Math.min(104/ic.w,76/ic.h,1.4,1.2*Math.sqrt(2900/ic.area));
+  // optical centre: halfway between the outline's centre and the centre of mass
+  const ox=((ic.x0+ic.w/2)+ic.mx)/2-ic.x0,oy=((ic.y0+ic.h/2)+ic.my)/2-ic.y0;
+  c.drawImage(ic.t,ic.x0,ic.y0,ic.w,ic.h,60-ox*k,48-oy*k,ic.w*k,ic.h*k);
 }
 // slot captions shrink to fit the slot width (in the language shown)
 let LBL_CTX=null;
