@@ -67,10 +67,11 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .chip.good{background:#9fdcc0}
 @keyframes blink{50%{opacity:.55}}
 
-.tray{position:absolute;display:flex;flex-direction:column;justify-content:center;gap:.45em;pointer-events:none;font-size:calc(3.5em/4.5)}
+.tray{position:absolute;display:flex;overflow:visible;flex-direction:column;justify-content:center;gap:.45em;pointer-events:none;font-size:calc(3.5em/4.5)}
 .tray>*{pointer-events:auto}
-.ammo{left:.6em;top:7em;bottom:.6em}
-.meds{right:.6em;top:11.6em;bottom:.6em}
+.tray .slot{font-size:calc(var(--k,1)*1em)}
+.ammo{left:.77em;top:9.2em;bottom:.77em}
+.meds{right:.77em;top:14.9em;bottom:.77em}
 .slot{position:relative;width:4.5em;height:4.5em;padding:0;border:0;border-radius:.85em;background:rgba(255,250,242,.93);box-shadow:0 .25em .9em rgba(10,6,24,.32);cursor:pointer;font:inherit;color:var(--ink);transition:transform .12s,box-shadow .12s}
 .slot canvas{position:absolute;inset:.2em .2em 1.1em;width:calc(100% - .4em);height:calc(100% - 1.3em)}
 .slot .nm{position:absolute;left:0;right:0;bottom:.25em;font-size:.6em;font-weight:700;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden}
@@ -851,7 +852,7 @@ function makeObjs(){
     O('lamp',1108,432,'desk',{w:46,h:96,fragile:true,knockable:true,cost:2800,label:'Лампа'}),
     O('clock',400,154,null,{w:72,h:72,fragile:true,knockable:false,cost:1200,label:'Настенные часы',hang:true}),
     O('frame',1010,300,null,{w:130,h:112,fragile:true,knockable:false,cost:1500,label:'Портрет кота',hang:true}),
-    O('pot',1214,FLOOR,'floor',{w:64,h:128,fragile:true,knockable:false,cost:900,label:'Фикус',drop:'plantain'}),
+    O('pot',1176,FLOOR,'floor',{w:64,h:128,fragile:true,knockable:false,cost:900,label:'Фикус',drop:'plantain'}),
   ];
 }
 const OBJ_COLORS={laundry:['#3fa9d4','#f6f2ea','#f07fae'],bike:['#3fa9d4','#4a4a52','#b8c0c8'],tube:['#f6f9ff','#cfe3ea','#9aa3b5'],paint:['#3f7fd8','#5fb36a','#f0c040','#c9d0d4'],toolbox:['#e2433a','#9aa3b5','#6a737c'],canister:['#c8352e'],mobile:['#f0c040','#5fb3e8','#e98b6a'],globe:['#5fb3e8','#5fb36a'],piggy:['#f2a0b4','#f0c040','#f0c040'],chandelier:['#d9b45a','#d2ebff','#fff7e0'],teapot:['#f6f2ea','#3f7fd8'],lantern:['#3b3b46','#fff3b0','#cfe3ea'],braidG:['#f4efe6','#8a6a3a'],braidO:['#d48a3a','#8a6a3a'],plate:['#fffdf8','#e8f1f7','#9fc3dd'],jar:['#dff0f5','#a86b3c'],bowl:['#e8d4b0','#c75b4a'],pan:['#3a3a42'],candle:['#ffe0b0','#f3c27a'],perfume:['#f2b6d8','#e8c35a'],cup:['#cfeeff','#ffffff'],clock:['#f6efe1','#1d1428','#c9b99a'],vase:['#4f7fd1','#fff','#2f5fb0'],glass:['#cdeeff','#9fd6ff'],lamp:['#f6c75b','#3b3b4e'],frame:['#c88c4e','#e8d9b5'],pot:['#c8643c','#4a2e1c','#3e9b4f'],books:['#d9534f','#f0c040'],laptop:['#9aa3b5']};
@@ -1200,7 +1201,7 @@ function layout(){
   const vw=window.innerWidth,vh=window.innerHeight;document.documentElement.style.setProperty('--mu',String(Math.min((vw-24)/800,(vh-16)/450,1.35)));
   $('rotateHint').hidden=!(r.height>r.width&&r.width<760);
 }
-addEventListener('resize',layout);
+addEventListener('resize',()=>{layout();if(typeof fitTrays==='function')fitTrays();});
 
 /* ---------------- audio ---------------- */
 const AU={ctx:null,on:true,master:null,nb:null};
@@ -1452,7 +1453,7 @@ function drawFurniture(c,t,dt){
 // narrow ones take the cat head first: only the hind legs and tail stick out (the tub is wide enough to float in)
 const HEAD_FIRST={bin:1,toilet:1,sink:1,ksink:1};
 // the opening the cat sticks out of: it is cut along the water (or the bin's rim) and the near half of the water is drawn over it
-const DUNK_HOLE={toilet:{cx:331,cy:501,rx:46,ry:8,col:'#a9d6e2'},sink:{cx:590,cy:434,rx:64,ry:7,col:'#d5e3e7'},ksink:{cx:740,cy:400,rx:68,ry:6,col:'#a9d3e6'},bin:{cy:461}};
+const DUNK_HOLE={toilet:{cx:331,cy:501,rx:46,ry:8,col:'#a9d6e2'},sink:{cx:590,cy:434,rx:64,ry:7,dry:true},ksink:{cx:740,cy:400,rx:68,ry:6,col:'#a9d3e6'},bin:{cy:461}};
 const PLATS_L2=[
  {id:'floor',x1:24,x2:1256,y:FLOOR},
  {id:'tank',x1:290,x2:370,y:352},
@@ -1833,7 +1834,7 @@ LEVELS.push({n:3,name:'Кухня',sub:'Холодильник, рыба и му
 /* ---------------- level 4: attic at night ---------------- */
 const PLATS_L4=[
  {id:'floor',x1:24,x2:1256,y:FLOOR},
- {id:'crates',x1:40,x2:246,y:520},
+ {id:'crates',x1:80,x2:286,y:520},
  {id:'dresser',x1:390,x2:560,y:452},
  {id:'sill',x1:548,x2:752,y:356},
  {id:'trunk',x1:840,x2:1010,y:510},
@@ -1874,7 +1875,7 @@ function drawAttic(c){
   c.strokeStyle='rgba(30,14,8,.45)';c.lineWidth=2;for(let i=-14;i<=14;i++){c.beginPath();c.moveTo(640+i*60,560);c.lineTo(640+i*150,720);c.stroke();}
   c.fillStyle='#5a3b28';c.fillRect(0,548,W,14);c.strokeStyle=OUT;c.lineWidth=3;c.beginPath();c.moveTo(0,548);c.lineTo(W,548);c.moveTo(0,562);c.lineTo(W,562);c.stroke();
   // vegetable crates (left), heaps are pickups
-  for(const[x,lab]of[[40,'КАРТОФЕЛЬ'],[146,'МОРКОВЬ']]){rr(c,x,520,100,80,3);fs(c,'#b88a52',3);
+  for(const[x,lab]of[[80,'КАРТОФЕЛЬ'],[186,'МОРКОВЬ']]){rr(c,x,520,100,80,3);fs(c,'#b88a52',3);
     c.strokeStyle='rgba(60,30,10,.45)';c.lineWidth=2;for(const y of[542,566]){c.beginPath();c.moveTo(x+4,y);c.lineTo(x+96,y);c.stroke();}
     c.fillStyle='rgba(60,30,10,.55)';c.font=`800 10px ${UIF}`;c.textAlign='center';c.fillText(tr(lab),x+50,588);}
   // old dresser
@@ -1909,12 +1910,12 @@ function makeObjsL4(){
   ];
 }
 function makeFurnL4(){return{
-  skis:{x1:1120,y1:330,x2:1196,y2:600,hp:1,cost:0,brk:300,label:'Лыжи'},
-  sled:{x1:1196,y1:420,x2:1262,y2:600,hp:1,cost:0,brk:300,label:'Санки'},
+  skis:{x1:1062,y1:330,x2:1138,y2:600,hp:1,cost:0,brk:300,label:'Лыжи'},
+  sled:{x1:1120,y1:420,x2:1186,y2:600,hp:1,cost:0,brk:300,label:'Санки'},
 };}
 function picksL4(){
   const crate=(kind,x,n)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n});
-  return[crate('potato',90,8),crate('carrot',196,7),
+  return[crate('potato',130,8),crate('carrot',236,7),
     mkPick('slipper',760,FLOOR),mkPick('kit',890,510),mkPick('bandage',600,356),mkPick('plaster',300,FLOOR),mkPick('zelenka',1060,FLOOR)];
 }
 const CRATE_HEAP=[[-30,0],[-10,0],[10,0],[30,0],[-20,-9],[0,-9],[20,-9],[-10,-17],[10,-17]],CRATE_HEAP_S=[[-20,0],[0,0],[20,0],[-10,-9],[10,-9],[0,-17]];
@@ -1955,13 +1956,13 @@ function drawBat(c,x,y,t,mode,sc){
 // fallen skis and sled: rotate from leaning to lying, around their foot
 function drawJunk(c,t){
   const S=furn.skis,u1=S.broken?clamp((S.t||0)/.38,0,1):0,a1=lerp(.12,-1.52,u1*u1);
-  c.save();c.translate(1158,598);c.rotate(a1);
+  c.save();c.translate(1100,598);c.rotate(a1);
   for(const dx of[-10,10]){c.lineWidth=2.5;c.strokeStyle=OUT;c.beginPath();c.moveTo(dx+18,-8);c.lineTo(dx+22,-230);c.stroke();ell(c,dx+18,-24,7,2.5);c.stroke();}
   for(const[dx,col]of[[-12,'#d9433a'],[4,'#3f7fd8']]){rr(c,dx,-262,10,262,5);fs(c,col,2.5);c.beginPath();c.moveTo(dx+5,-262);c.quadraticCurveTo(dx+18,-276,dx+12,-286);c.lineWidth=8;c.strokeStyle=OUT;c.stroke();c.lineWidth=4;c.strokeStyle=col;c.stroke();
     rr(c,dx-1,-120,12,22,2);fs(c,'#2f2f35',1.5);}
   c.restore();
   const D=furn.sled,u2=D.broken?clamp((D.t||0)/.38,0,1):0,a2=lerp(-.06,-1.55,u2*u2);
-  c.save();c.translate(1236,598);c.rotate(a2);
+  c.save();c.translate(1160,598);c.rotate(a2);
   for(const dx of[2,40]){c.beginPath();c.moveTo(dx,0);c.lineTo(dx,-150);c.quadraticCurveTo(dx,-172,dx-14,-170);c.lineWidth=8;c.strokeStyle=OUT;c.stroke();c.lineWidth=4;c.strokeStyle='#9aa3b5';c.stroke();}
   for(let i=0;i<5;i++){rr(c,-2,-140+i*26,50,14,3);fs(c,'#c9874a',2.5);}
   c.restore();
@@ -2013,7 +2014,7 @@ function atticTick(dt){
     const tx=(EXIT.x1+EXIT.x2)/2,ty=(EXIT.y1+EXIT.y2)/2-20,dx=tx-B.x,dy=ty-B.y,d=Math.hypot(dx,dy),sp=480*dt;
     if(d<sp+4){B.s='out';B.ot=0;pop(tx,ty-60,'Мышь улетела в окно','#cfe0ff',20);}else{B.x+=dx/d*sp;B.y+=dy/d*sp+Math.sin(B.t*14)*2;}
   }else if(B.s==='out'){B.ot+=dt;B.x+=170*dt;B.y-=110*dt;B.sc=Math.max(.2,1-B.ot*.8);if(B.ot>1.2)B.s='gone';}
-  for(const[id,z1,z2,dmg,label]of[['skis',880,1172,20,'Лыжами!'],['sled',1050,1250,26,'Санками!']]){
+  for(const[id,z1,z2,dmg,label]of[['skis',822,1114,20,'Лыжами!'],['sled',974,1174,26,'Санками!']]){
     const f=furn[id];if(!f.broken||f.hitDone)continue;f.t=(f.t||0)+dt;
     if(f.t>=.38){f.hitDone=true;sThud();shake=Math.max(shake,.25);dust((z1+z2)/2,FLOOR,14);
       if(cat.state!=='asleep'&&!cat.air&&cat.plat==='floor'&&cat.x>z1&&cat.x<z2&&!hurtCat(cat,dmg,label)){cat.state='stunned';cat.stunType='daze';cat.stunT=Math.max(cat.stunT||0,1.5);}}
@@ -2035,7 +2036,7 @@ const PLATS_L5=[
  {id:'sofaSeat',x1:310,x2:670,y:466},
  {id:'sofaBack',x1:314,x2:666,y:386},
  {id:'tvstand',x1:728,x2:992,y:470},
- {id:'table',x1:1032,x2:1244,y:440},
+ {id:'table',x1:1005,x2:1189,y:440},
  {id:'bookshelf',x1:820,x2:930,y:230},
 ];
 const EXIT_L5={x1:-20,y1:-20,x2:-10,y2:-10},GLASS_L5=[{x1:1052,y1:128,x2:1222,y2:316}];
@@ -2092,18 +2093,18 @@ function makeObjsL5(){
   return[
     O('chandelier',330,214,null,{skip:['sofaBack','chairBack'],w:150,h:84,fragile:true,knockable:false,cost:9000,label:'Люстра',hang:true,hurts:28,hurtLabel:'Люстрой!'}),
     O('books',875,230,'bookshelf',{w:62,h:52,fragile:false,knockable:true,cost:300,label:'Книги'}),
-    O('plate',1060,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
-    O('glass',1094,440,'table',{w:22,h:32,fragile:true,knockable:true,cost:400,label:'Бокал'}),
-    O('plate',1124,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
-    O('teapot',1160,440,'table',{w:44,h:36,fragile:true,knockable:true,cost:1200,label:'Чайник'}),
-    O('bowl',1210,440,'table',{w:62,h:24,fragile:true,knockable:true,cost:900,label:'Ваза с фруктами'}),
-    O('candle',1236,440,'table',{w:20,h:26,fragile:true,knockable:true,cost:200,label:'Свеча'}),
+    O('plate',1029,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
+    O('glass',1059,440,'table',{w:22,h:32,fragile:true,knockable:true,cost:400,label:'Бокал'}),
+    O('plate',1085,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
+    O('teapot',1116,440,'table',{w:44,h:36,fragile:true,knockable:true,cost:1200,label:'Чайник'}),
+    O('bowl',1159,440,'table',{w:62,h:24,fragile:true,knockable:true,cost:900,label:'Ваза с фруктами'}),
+    O('candle',1182,440,'table',{w:20,h:26,fragile:true,knockable:true,cost:200,label:'Свеча'}),
   ];
 }
 function makeFurnL5(){return{
   tv:{x1:748,y1:296,x2:972,y2:444,hp:2,cost:15000,brk:30000,label:'Телевизор'},
-  legL:{x1:1030,y1:478,x2:1064,y2:600,hp:2,cost:0,brk:3000,label:'Ножка стола'},
-  legR:{x1:1206,y1:478,x2:1240,y2:600,hp:2,cost:0,brk:3000,label:'Ножка стола'},
+  legL:{x1:1003,y1:478,x2:1033,y2:600,hp:2,cost:0,brk:3000,label:'Ножка стола'},
+  legR:{x1:1156,y1:478,x2:1186,y2:600,hp:2,cost:0,brk:3000,label:'Ножка стола'},
 };}
 function picksL5(){
   const cush=(pid,x,y,w,h,col)=>({kind:'cushion',x,y,vx:0,vy:0,r:Math.min(44,w/2-8),rest:true,rot:0,on:null,big:true,w,h,col,pid});
@@ -2114,7 +2115,7 @@ function picksL5(){
     cush('cb',140,420,132,64,'#d9a43a'),cush('cs',140,488,140,32,'#e2b14a'),
     cush('sb1',366,420,116,68,'#3f8f8a'),cush('sb2',490,420,116,68,'#3f8f8a'),cush('sb3',614,420,116,68,'#3f8f8a'),
     cush('ss1',366,482,118,34,'#47a39c'),cush('ss2',490,482,118,34,'#47a39c'),cush('ss3',614,482,118,34,'#47a39c'),
-    fruit('apple',1198,428),fruit('orange',1220,426),fruit('banana',1210,418),
+    fruit('apple',1149,428),fruit('orange',1168,426),fruit('banana',1159,418),
     mkPick('block',420,612,'#e2433a'),mkPick('block',452,622,'#3f7fd8'),mkPick('block',700,616,'#f0c040'),mkPick('ball',820,620),mkPick('block',890,630,'#5fb36a'),
     mkPick('slipper',262,FLOOR),
   ];
@@ -2193,14 +2194,14 @@ function vacRide(k,dt){
 // dining table: two legs; knocking one out tips the top towards it
 function drawTable(c){
   const side=living.tableDown,u=side?clamp(living.tableT/.4,0,1):0,ang=side==='L'?-.72*u*u:side==='R'?.72*u*u:0;
-  const px=side==='L'?1223:1047,py=446;
-  for(const[id,x]of[['legL',1040],['legR',1216]])if(!side||(side==='L'?id==='legR':id==='legL')){rr(c,x,450,14,150,3);fs(c,'#8a5a36',2.5);}
+  const px=side==='L'?1171:1018,py=446;
+  for(const[id,x]of[['legL',1012],['legR',1165]])if(!side||(side==='L'?id==='legR':id==='legL')){rr(c,x,450,14,150,3);fs(c,'#8a5a36',2.5);}
   c.save();c.translate(px,py);c.rotate(ang);c.translate(-px,-py);
-  rr(c,1026,438,222,12,3);fs(c,'#9a6740',3);
-  c.beginPath();c.moveTo(1022,440);c.lineTo(1252,440);c.lineTo(1250,478);for(let x=1250;x>1022;x-=23)c.quadraticCurveTo(x-11,486,x-23,478);c.closePath();fs(c,'#f6f2ea',2.5);
-  c.strokeStyle='#d9534f';c.lineWidth=3;c.beginPath();c.moveTo(1024,470);c.lineTo(1250,470);c.stroke();
+  rr(c,999,438,194,12,3);fs(c,'#9a6740',3);
+  c.beginPath();c.moveTo(996,440);c.lineTo(1196,440);c.lineTo(1196,478);for(let x=1196;x>996;x-=20)c.quadraticCurveTo(x-10,486,x-20,478);c.closePath();fs(c,'#f6f2ea',2.5);
+  c.strokeStyle='#d9534f';c.lineWidth=3;c.beginPath();c.moveTo(998,470);c.lineTo(1194,470);c.stroke();
   c.restore();
-  if(side){const x=side==='L'?1000:1240;rr(c,x-70,FLOOR-14,150,14,3);fs(c,'#8a5a36',2.5);}
+  if(side){const x=side==='L'?977:1186;rr(c,x-70,FLOOR-14,150,14,3);fs(c,'#8a5a36',2.5);}
 }
 function drawLivingDyn(c,t,dt){
   drawTV(c,t);drawTable(c);drawVacuum(c,t);
@@ -2227,7 +2228,7 @@ function livingBreak(id){
     const side=id==='legL'?'L':'R',dir=side==='L'?-1:1;living.tableDown=side;living.tableT=0;
     furn.legL.broken=furn.legR.broken=true;platById('table').off=true;marks=marks.filter(m=>m.id!=='legL'&&m.id!=='legR');
     for(const o of objs)if(o.plat==='table'&&o.state==='stand'){fallNow(o,dir);o.vx=dir*rnd(60,220);}
-    for(const it of picks)if(it.inBowl||(it.rest&&it.y<446&&it.x>1020)){it.inBowl=false;it.rest=false;it.vx=dir*rnd(80,260);it.vy=rnd(-260,-120);}
+    for(const it of picks)if(it.inBowl||(it.rest&&it.y<446&&it.x>994)){it.inBowl=false;it.rest=false;it.vx=dir*rnd(80,260);it.vy=rnd(-260,-120);}
     toast('Стол рухнул! Фрукты раскатились по полу.',2.5);
   }
 }
@@ -2329,7 +2330,7 @@ function makeFurnL6(){return{
 function picksL6(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
   return[crate('block',490,10,512),crate('lego',630,8,516),
-    mkPick('pillow',86,290),mkPick('pillow',86,476),mkPick('plush',250,290,'#e98b6a'),mkPick('plush',230,476,'#c79a62'),
+    mkPick('pillow',112,290),mkPick('pillow',112,476),mkPick('plush',250,290,'#e98b6a'),mkPick('plush',230,476,'#c79a62'),
     mkPick('lego',716,FLOOR,'#e2433a'),mkPick('lego',792,FLOOR,'#f0c040'),mkPick('lego',350,FLOOR,'#3f7fd8'),
     mkPick('slipper',1000,FLOOR),mkPick('ball',1100,FLOOR),mkPick('plaster',840,430)];
 }
@@ -2418,7 +2419,7 @@ const PLATS_L7=[
  {id:'carRoof',x1:314,x2:800,y:298},
  {id:'carHood',x1:890,x2:940,y:410},
  {id:'bench',x1:962,x2:1178,y:450},
- {id:'tires',x1:1200,x2:1264,y:480},
+ {id:'tires',x1:1132,x2:1196,y:480},
 ];
 const EXIT_L7={x1:-20,y1:-20,x2:-10,y2:-10},GLASS_L7=[{x1:792,y1:96,x2:928,y2:176}];
 const FOB={x:1150,y:262};
@@ -2490,7 +2491,7 @@ function drawGarageDyn(c,t,dt){
   // fuse box
   rr(c,858,200,60,76,4);fs(c,'#b8c0c8',2.5);rr(c,866,208,44,60,3);fs(c,'#9aa3b5',1.5);poly(c,[892,214,880,240,890,240,884,262,900,232,890,232]);fs(c,'#f0c040',1.5);
   rr(c,904,garage.power?220:244,10,14,3);fs(c,garage.power?'#5fb36a':'#e2433a',1.5);
-  for(let i=0;i<garage.tires;i++){rr(c,1198,FLOOR-40*(i+1),68,38,16);fs(c,'#26262c',3);rr(c,1210,FLOOR-40*(i+1)+12,44,14,7);fs(c,'#3a3a42',1.5);}
+  for(let i=0;i<garage.tires;i++){rr(c,1130,FLOOR-40*(i+1),68,38,16);fs(c,'#26262c',3);rr(c,1142,FLOOR-40*(i+1)+12,44,14,7);fs(c,'#3a3a42',1.5);}
   for(const x of garage.lying){ell(c,x,FLOOR-8,36,10);fs(c,'#26262c',2.5);ell(c,x,FLOOR-10,16,4);c.fillStyle='#5c6670';c.fill();}
   if(garage.roll)drawTireAt(c,garage.roll.x,FLOOR-34,garage.roll.rot);
   // key fob on its hook
@@ -2514,7 +2515,7 @@ function carHit(p,id){
 }
 function tiresHit(p){
   if(garage.tires<=0||garage.roll){sThud();return;}
-  garage.tires--;garage.roll={x:1232,vx:-460,rot:0,hit:[]};sThud();pop(1232,FLOOR-160,'Покрышка покатилась!','#fff',18);
+  garage.tires--;garage.roll={x:1164,vx:-460,rot:0,hit:[]};sThud();pop(1164,FLOOR-160,'Покрышка покатилась!','#fff',18);
   const pl=platById('tires');if(garage.tires>0)pl.y=FLOOR-40*garage.tires;else pl.off=true;
 }
 function fuseHit(p){
@@ -2575,7 +2576,7 @@ function makeObjsL7(){
 function makeFurnL7(){const C=(x1,y1,x2,y2)=>({x1,y1,x2,y2,hp:999,cost:0,custom:carHit});return{
   carHead:C(900,414,948,446),carWinR:C(306,316,454,398),carWinM:C(458,316,644,398),carWinF:C(648,316,802,398),carWinS:C(804,312,880,400),carBody:C(288,294,950,548),
   fuse:{x1:858,y1:200,x2:918,y2:276,hp:999,cost:0,custom:fuseHit},
-  tires:{x1:1196,y1:470,x2:1268,y2:600,hp:999,cost:0,custom:tiresHit},
+  tires:{x1:1128,y1:470,x2:1200,y2:600,hp:999,cost:0,custom:tiresHit},
 };}
 function picksL7(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
@@ -2616,7 +2617,7 @@ const SPECIES={
 const YARD_CROWN=[[1060,250,52],[1110,205,62],[1175,190,66],[1235,230,52],[1255,290,40],[1205,285,56],[1135,280,60],[1075,300,42],[1150,140,50],[1210,145,44],[1100,150,40],[1035,280,34]];
 const YARD_KIT=[1094,248];
 const YARD_APPLES=(()=>{const inC=(x,y)=>YARD_CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12),A=[];
-  for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inC(x,y)&&Math.hypot(x-1104,y-276)>30)A.push([x,y]);}A.push([1119,281]);return A;})();
+  for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inC(x,y)&&x<1192&&Math.hypot(x-1104,y-276)>30)A.push([x,y]);}A.push([1119,281]);return A;})();
 let yard={birds:[],banned:[],birdT:3,mower:{on:false,x:342,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{}};
 function drawYard(c){
   // pre-dawn sky over the neighbours' roofs
@@ -2717,7 +2718,7 @@ function drawYardDyn(c,t,dt){
   rr(c,382,552,68,48,3);fs(c,'#d9a465',2.5);c.fillStyle='rgba(60,30,10,.55)';c.fillRect(386,566,60,3);c.fillRect(386,582,60,3);
   rr(c,382,552,8,48,2);fs(c,'#c98a52',1.5);rr(c,442,552,8,48,2);fs(c,'#c98a52',1.5);ell(c,416,590,6,6);fs(c,'#e2433a',1.5);c.strokeStyle='#4a8f43';c.lineWidth=2;c.beginPath();c.moveTo(416,584);c.lineTo(420,579);c.stroke();
   // wicker basket of balls by the bean bag, basket of apples under the tree
-  for(const[x,col]of[[1088,'#c98a52'],[1206,'#b57a46']]){c.beginPath();c.moveTo(x-30,566);c.lineTo(x+30,566);c.lineTo(x+24,600);c.lineTo(x-24,600);c.closePath();fs(c,col,2.5);
+  for(const[x,col]of[[1088,'#c98a52'],[1160,'#b57a46']]){c.beginPath();c.moveTo(x-30,566);c.lineTo(x+30,566);c.lineTo(x+24,600);c.lineTo(x-24,600);c.closePath();fs(c,col,2.5);
     c.strokeStyle='rgba(60,30,10,.5)';c.lineWidth=1.5;for(let y=574;y<600;y+=8){c.beginPath();c.moveTo(x-28,y);c.lineTo(x+28,y);c.stroke();}for(let dx=-20;dx<=20;dx+=10){c.beginPath();c.moveTo(x+dx,566);c.lineTo(x+dx*.85,600);c.stroke();}
     c.beginPath();c.arc(x,566,26,Math.PI,0);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();}
   // folding table and chairs, bean bag
@@ -2858,11 +2859,11 @@ function makeFurnL8(){return{
 function picksL8(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
   const fruit=(k,x,y)=>Object.assign(mkPick(k,x,y),{inBowl:true});
-  return[Object.assign(crate('apple',416,12,548),{small:true,r:30}),Object.assign(crate('ball',1088,8,560),{small:true,r:30}),Object.assign(crate('apple',1206,10,560),{small:true,r:30}),
-    mkPick('slipper',40,466),mkPick('apple',520,FLOOR),mkPick('apple',700,FLOOR),mkPick('nut',860,FLOOR),mkPick('ball',600,FLOOR),
-    mkPick('kit',60,466),mkPick('bandage',100,466),mkPick('plaster',220,466),mkPick('zelenka',600,470),mkPick('bandage',960,FLOOR),Object.assign(mkPick('kit',YARD_KIT[0],YARD_KIT[1]+13),{}),...YARD_APPLES.map(([x,y])=>Object.assign(mkPick('apple',x,y+9),{onTree:true})),
+  return[Object.assign(crate('apple',416,12,548),{small:true,r:30}),Object.assign(crate('ball',1088,8,560),{small:true,r:30}),Object.assign(crate('apple',1160,10,560),{small:true,r:30}),
+    mkPick('slipper',108,466),mkPick('apple',520,FLOOR),mkPick('apple',700,FLOOR),mkPick('nut',860,FLOOR),mkPick('ball',600,FLOOR),
+    mkPick('kit',140,466),mkPick('bandage',174,466),mkPick('plaster',220,466),mkPick('zelenka',600,470),mkPick('bandage',960,FLOOR),Object.assign(mkPick('kit',YARD_KIT[0],YARD_KIT[1]+13),{}),...YARD_APPLES.map(([x,y])=>Object.assign(mkPick('apple',x,y+9),{onTree:true})),
     mkPick('cushion',496,505,'#3f7fd8'),mkPick('cushion',824,505,'#3f7fd8'),fruit('apple',680,456),fruit('apple',698,456),
-    mkPick('ball',300,FLOOR),mkPick('slipper',330,FLOOR),mkPick('slipper',760,FLOOR),mkPick('towel',1240,FLOOR)];
+    mkPick('ball',300,FLOOR),mkPick('slipper',330,FLOOR),mkPick('slipper',760,FLOOR),mkPick('towel',1036,FLOOR)];
 }
 LEVELS.push({n:8,name:'Двор',sub:'Все семь котов, птицы и газонокосилка',plats:PLATS_L8,glass:GLASS_L8,exit:EXIT_L8,
   front:[],back:['ebox','chairL','chairR','bean','tree'],
@@ -3346,8 +3347,8 @@ function render(now){
     renderCat(k,t);
     if(k.state!=='pounce'){
       if(k.state==='dunk'&&HEAD_FIRST[k.dunkType]){const inn=platById(k.dunkPlat).inner,hole=DUNK_HOLE[k.dunkType];
-        c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,hole.cy);c.clip();drawBinCat(c,k.b,k.anim,inn.cx,inn.clip,k.flash>0,hole.rx&&hole.rx*.92);c.restore();
-        if(hole.rx){const front=(rx,ry)=>{c.beginPath();c.ellipse(hole.cx,hole.cy,rx,ry,0,0,Math.PI);};
+        c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,hole.cy);if(hole.dry)c.ellipse(hole.cx,hole.cy,hole.rx,hole.ry,0,0,Math.PI*2);c.clip();drawBinCat(c,k.b,k.anim,inn.cx,inn.clip,k.flash>0,hole.rx&&hole.rx*.92);c.restore();
+        if(hole.rx&&!hole.dry){const front=(rx,ry)=>{c.beginPath();c.ellipse(hole.cx,hole.cy,rx,ry,0,0,Math.PI);};
           front(hole.rx,hole.ry);c.closePath();c.fillStyle=hole.col;c.fill();front(hole.rx,hole.ry);c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();
           if(k.dunkType==='toilet'){c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=2;for(let i=0;i<2;i++){const a=(t*1.5+i*.5)%1;c.globalAlpha=1-a;front(16+a*26,2+a*4);c.stroke();}c.globalAlpha=1;}}
         if(k.dunkType==='ksink')foamStrip(c,inn.cx-60,inn.cx+60,inn.clip-4,t);}
@@ -3433,10 +3434,15 @@ function mkSlot(kind,key,onClick){
   const cnt=document.createElement('span');cnt.className='cnt';b.append(cnt);if(key){const ks=document.createElement('span');ks.className='key';ks.textContent=key;b.append(ks);}
   b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('click',()=>{au();onClick(kind);b.blur();});return b;
 }
+function fitTrays(){
+  for(const id of['ammoTray','medTray']){const el=$(id);el.style.removeProperty('--k');if(!el.children.length)continue;const a=el.firstElementChild.getBoundingClientRect(),b=el.lastElementChild.getBoundingClientRect(),need=b.bottom-a.top,have=el.clientHeight;if(need>have+1)el.style.setProperty('--k',(have/need*.98).toFixed(3));}
+}
 function buildTrays(){
+  if(AMMO_ORDER.length>8||MED_ORDER.length>6)console.warn('slot columns hold 8 ammo and 6 med kinds');
   const at=$('ammoTray'),mt=$('medTray');at.textContent='';mt.textContent='';
   AMMO_ORDER.forEach((k,i)=>at.append(mkSlot(k,String(i+1),selectKind)));
   MED_ORDER.forEach(k=>mt.append(mkSlot(k,'',useMed)));
+  requestAnimationFrame(fitTrays);
 }
 function updateTrays(){
   if(!ammo)return;
