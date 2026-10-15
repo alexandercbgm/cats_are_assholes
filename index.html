@@ -2303,15 +2303,15 @@ function drawKids(c){
   c.fillStyle='#16224a';c.fillRect(442,280,156,38);c.strokeStyle=OUT;c.lineWidth=3;c.strokeRect(442,122,156,196);c.fillStyle='#f3ece0';c.fillRect(516,122,8,196);c.strokeRect(516,122,8,196);
   for(const[x1,x2]of[[404,446],[594,636]]){rr(c,x1,96,x2-x1,250,8);fs(c,'#7f6bd6',2.5);c.fillStyle='#f0c040';for(let y=120;y<330;y+=34){ell(c,(x1+x2)/2+((y/34)%2?-8:8),y,3.5,3.5);c.fill();}}
   rr(c,396,90,248,8,3);fs(c,'#c9a24a',2);
-  // door with a basketball hoop
+  // floor and a road-map rug
+  c.fillStyle='#d9b48a';c.fillRect(0,560,W,160);c.strokeStyle='rgba(120,80,40,.3)';c.lineWidth=2;for(const y of[580,606,640,684]){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();}
+  c.fillStyle='#f6f2ea';c.fillRect(0,544,W,18);c.strokeStyle=OUT;c.lineWidth=3;c.beginPath();c.moveTo(0,544);c.lineTo(W,544);c.moveTo(0,562);c.lineTo(W,562);c.stroke();
+  // door with a basketball hoop, drawn over the baseboard down to the floor
   rr(c,1120,150,130,452,4);fs(c,'#e9dcc4',3);rr(c,1134,170,102,170,4);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.2)';c.stroke();rr(c,1134,360,102,220,4);c.stroke();ell(c,1136,390,6,6);fs(c,'#c9a24a',2);
   rr(c,1146,170,80,56,4);fs(c,'#fff',2.5);rr(c,1170,190,32,24,2);c.lineWidth=2;c.strokeStyle='#e2433a';c.stroke();
   c.strokeStyle='#fff';c.lineWidth=1.6;for(let i=0;i<5;i++){c.beginPath();c.moveTo(1160+i*12.5,232);c.lineTo(1166+i*10,272);c.stroke();}
   c.beginPath();c.moveTo(1162,250);c.lineTo(1210,250);c.moveTo(1164,264);c.lineTo(1206,264);c.stroke();
   ell(c,1186,230,28,6);c.lineWidth=4;c.strokeStyle='#f08a24';c.stroke();
-  // floor and a road-map rug
-  c.fillStyle='#d9b48a';c.fillRect(0,560,W,160);c.strokeStyle='rgba(120,80,40,.3)';c.lineWidth=2;for(const y of[580,606,640,684]){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();}
-  c.fillStyle='#f6f2ea';c.fillRect(0,544,W,18);c.strokeStyle=OUT;c.lineWidth=3;c.beginPath();c.moveTo(0,544);c.lineTo(W,544);c.moveTo(0,562);c.lineTo(W,562);c.stroke();
   poly(c,[400,574,930,574,980,668,350,668]);fs(c,'#7fc47a',3);
   c.strokeStyle='#8d989e';c.lineWidth=14;c.beginPath();c.moveTo(380,620);c.lineTo(950,620);c.moveTo(640,576);c.lineTo(660,666);c.stroke();
   c.strokeStyle='#fff';c.lineWidth=2;c.setLineDash([10,8]);c.beginPath();c.moveTo(380,620);c.lineTo(950,620);c.stroke();c.setLineDash([]);
@@ -2321,7 +2321,10 @@ function drawKids(c){
   rr(c,40,290,292,26,4);fs(c,'#c98a52',3);rr(c,40,476,292,28,4);fs(c,'#c98a52',3);
   rr(c,52,276,266,16,6);fs(c,'#f6f2ea',2.5);rr(c,52,462,266,16,6);fs(c,'#f6f2ea',2.5);
   rr(c,40,232,190,12,4);fs(c,'#c98a52',2.5);for(const x of[80,130,180]){rr(c,x,244,8,34,2);fs(c,'#c98a52',2);}
-  for(const x of[296,338]){rr(c,x,250,8,350,3);fs(c,'#b57a46',2.5);}for(let y=280;y<590;y+=44){rr(c,296,y,46,8,3);fs(c,'#b57a46',2);}
+  // ladder beside the foot post: rungs between two rails, bolted to the post
+  for(let y=318;y<590;y+=46){rr(c,350,y,38,8,3);fs(c,'#b57a46',2);}
+  for(const x of[344,384]){rr(c,x,282,10,318,4);fs(c,'#c98a52',2.5);}
+  for(const y of[300,486]){rr(c,336,y-5,10,10,2);fs(c,'#9a6a3c',2);ell(c,341,y,1.8,1.8);c.fillStyle=OUT;c.fill();}
   // blankets: blue on top (boy), pink below (girl)
   c.beginPath();c.moveTo(120,278);c.lineTo(318,278);c.lineTo(318,312);c.quadraticCurveTo(220,324,120,312);c.closePath();fs(c,'#3f7fd8',2.5);c.fillStyle='rgba(255,255,255,.5)';for(let x=140;x<310;x+=28){ell(c,x,296,4,4);c.fill();}
   c.beginPath();c.moveTo(120,464);c.lineTo(318,464);c.lineTo(318,500);c.quadraticCurveTo(220,512,120,500);c.closePath();fs(c,'#f07fae',2.5);c.fillStyle='rgba(255,255,255,.6)';for(let x=140;x<310;x+=28){poly(c,[x,476,x+5,482,x,488,x-5,482]);c.fill();}
@@ -2339,7 +2342,6 @@ function drawKids(c){
   rr(c,1022,554,58,7,3);fs(c,'#4f9f5b',1.5);
   rr(c,1018,480,64,10,2);fs(c,'#4f9f5b',2);
   rr(c,1010,466,84,15,6);fs(c,'#7fd08a',2.5);
-  c.fillStyle='rgba(255,255,255,.35)';c.fillRect(1018,469,66,3);c.fillRect(1021,492,2,96);
 }
 function drawKidsFG(c){}
 function makeObjsL6(){
