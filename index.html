@@ -2677,9 +2677,12 @@ function drawYard(c){
   for(const[x,y,w,h]of[[40,140,84,92],[150,140,70,92],[30,262,90,104]]){rr(c,x-6,y-6,w+12,h+12,3);fs(c,'#f6f2ea',2.5);rr(c,x,y,w,h,2);fs(c,'#3d5068',2);c.fillStyle='#ffd36b';c.globalAlpha=.55;c.fillRect(x+3,y+3,w-6,h-6);c.globalAlpha=1;c.fillStyle='#f6f2ea';c.fillRect(x+w/2-2,y,4,h);c.fillRect(x,y+h/2-2,w,4);}
   // door canopy: a straight tiled slab (tiles laid like brickwork) on a white fascia, held by two square-cut brackets beside the door
   for(const x of[140,226]){rr(c,x,305,6,13,0);fs(c,'#f6f2ea',2);}
-  rr(c,138,286,96,14,0);fs(c,'#8a4a3a',2.5);
-  c.save();c.beginPath();c.rect(138,286,96,14);c.clip();c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=1.4;c.beginPath();c.moveTo(138,293);c.lineTo(234,293);
-  for(let x=146;x<234;x+=12){c.moveTo(x,286);c.lineTo(x,293);c.moveTo(x+6,293);c.lineTo(x+6,300);}c.stroke();c.restore();
+  // tiled part: a trapezoid widening downwards, centred on the door (x 186)
+  const roof=()=>{c.beginPath();c.moveTo(146,286);c.lineTo(226,286);c.lineTo(236,300);c.lineTo(136,300);c.closePath();};
+  roof();c.fillStyle='#8a4a3a';c.fill();
+  c.save();roof();c.clip();c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=1.4;c.beginPath();c.moveTo(130,293);c.lineTo(242,293);
+  for(let x=138;x<240;x+=12){c.moveTo(x+6,286);c.lineTo(x+6,293);c.moveTo(x,293);c.lineTo(x,300);}c.stroke();c.restore();
+  roof();c.lineWidth=2.5;c.strokeStyle=OUT;c.stroke();
   rr(c,136,299,100,6,0);fs(c,'#f6f2ea',2);
   rr(c,150,322,72,148,4);fs(c,'#7a4a2e',3);rr(c,160,334,52,58,3);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.25)';c.stroke();rr(c,160,402,52,58,3);c.stroke();ell(c,206,404,4,4);fs(c,'#e8c35a',1.5);
   // porch: plank deck, railing, lattice skirt and steps
