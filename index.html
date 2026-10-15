@@ -2432,7 +2432,7 @@ const PLATS_L7=[
  {id:'carRoof',x1:314,x2:800,y:298},
  {id:'carHood',x1:890,x2:940,y:410},
  {id:'bench',x1:962,x2:1178,y:450},
- {id:'tires',x1:1132,x2:1196,y:480},
+ {id:'tires',x1:1104,x2:1196,y:504},
 ];
 const EXIT_L7={x1:-20,y1:-20,x2:-10,y2:-10},GLASS_L7=[{x1:792,y1:96,x2:928,y2:176}];
 const FOB={x:1150,y:262};
@@ -2493,7 +2493,20 @@ function drawCar(c,t){
     ell(c,x,552,48,48);fs(c,'#26262c',3);ell(c,x,552,28,28);fs(c,'#3a3f46',2);for(let i=0;i<5;i++){const a=i*1.2566+.3;c.save();c.translate(x,552);c.rotate(a);rr(c,-3,-26,6,22,2);fs(c,'#c4cbd2',1);c.restore();}ell(c,x,552,7,7);fs(c,'#c4cbd2',1.5);}
   drawMarks(c);
 }
-function drawTireAt(c,x,y,rot){c.save();c.translate(x,y);c.rotate(rot);ell(c,0,0,34,34);fs(c,'#26262c',3);ell(c,0,0,16,16);fs(c,'#5c6670',2);c.strokeStyle='#44444c';c.lineWidth=3;for(let i=0;i<8;i++){const a=i*Math.PI/4;c.beginPath();c.moveTo(Math.cos(a)*24,Math.sin(a)*24);c.lineTo(Math.cos(a)*32,Math.sin(a)*32);c.stroke();}c.restore();}
+// spare tyres are the size of the van's wheels (r 48) and have no rims
+// a tyre lying flat, seen from the side: tread blocks on its face; y is the bottom
+function drawTireSide(c,x,y){
+  const L=x-48,T=y-32;rr(c,L,T,96,32,12);c.fillStyle='#24242a';c.fill();
+  c.save();rr(c,L,T,96,32,12);c.clip();c.fillStyle='#34343c';for(let i=0;i<10;i++){const tx=L+5+i*9.4;c.fillRect(tx,T+6,5,8);c.fillRect(tx+4,T+18,5,8);}
+  c.fillStyle='rgba(255,255,255,.08)';c.fillRect(L,T+2,96,3);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(L,T+27,96,5);c.restore();
+  rr(c,L,T,96,32,12);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();
+}
+// a rolling tyre: a ring with an empty middle and tread on the rim
+function drawTireAt(c,x,y,rot){c.save();c.translate(x,y);c.rotate(rot);
+  c.beginPath();c.arc(0,0,48,0,Math.PI*2);c.arc(0,0,30,0,Math.PI*2,true);c.fillStyle='#26262c';c.fill('evenodd');
+  c.lineWidth=3;c.strokeStyle=OUT;c.beginPath();c.arc(0,0,48,0,Math.PI*2);c.stroke();c.beginPath();c.arc(0,0,30,0,Math.PI*2);c.stroke();
+  c.strokeStyle='#44444c';c.lineWidth=4;for(let i=0;i<16;i++){const a=i*Math.PI/8;c.beginPath();c.moveTo(Math.cos(a)*40,Math.sin(a)*40);c.lineTo(Math.cos(a)*46,Math.sin(a)*46);c.stroke();}
+  c.restore();}
 function drawGarageDyn(c,t,dt){
   drawCar(c,t);
   ell(c,MHOLE,562,9,11);c.fillStyle='#14141a';c.fill();
@@ -2501,13 +2514,9 @@ function drawGarageDyn(c,t,dt){
   // fuse box
   rr(c,858,200,60,76,4);fs(c,'#b8c0c8',2.5);rr(c,866,208,44,60,3);fs(c,'#9aa3b5',1.5);poly(c,[892,214,880,240,890,240,884,262,900,232,890,232]);fs(c,'#f0c040',1.5);
   rr(c,904,garage.power?220:244,10,14,3);fs(c,garage.power?'#5fb36a':'#e2433a',1.5);
-  for(let i=0;i<garage.tires;i++){const y=FLOOR-40*(i+1);
-    rr(c,1130,y,68,39,13);fs(c,'#24242a',3);
-    c.save();rr(c,1130,y,68,39,13);c.clip();c.fillStyle='#34343c';for(let x=1134;x<1196;x+=9){c.fillRect(x,y+8,5,9);c.fillRect(x+4,y+22,5,9);}
-    c.fillStyle='rgba(255,255,255,.08)';c.fillRect(1130,y+3,68,3);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(1130,y+33,68,6);c.restore();
-    rr(c,1130,y,68,39,13);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();}
-  for(const x of garage.lying){ell(c,x,FLOOR-8,36,10);fs(c,'#26262c',2.5);ell(c,x,FLOOR-10,16,4);c.fillStyle='#5c6670';c.fill();}
-  if(garage.roll)drawTireAt(c,garage.roll.x,FLOOR-34,garage.roll.rot);
+  for(let i=0;i<garage.tires;i++)drawTireSide(c,1150,FLOOR-32*i);
+  for(const x of garage.lying)drawTireSide(c,x,FLOOR);
+  if(garage.roll)drawTireAt(c,garage.roll.x,FLOOR-48,garage.roll.rot);
   // key fob on its hook
   c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.arc(FOB.x,FOB.y-22,5,0,Math.PI*2);c.stroke();c.beginPath();c.moveTo(FOB.x,FOB.y-17);c.lineTo(FOB.x,FOB.y-12);c.stroke();
   rr(c,FOB.x-11,FOB.y-12,22,32,7);fs(c,'#26262c',2.5);ell(c,FOB.x,FOB.y-2,4,4);fs(c,'#e2433a',1.2);ell(c,FOB.x,FOB.y+9,4,4);fs(c,'#5c6670',1.2);
@@ -2529,8 +2538,8 @@ function carHit(p,id){
 }
 function tiresHit(p){
   if(garage.tires<=0||garage.roll){sThud();return;}
-  garage.tires--;garage.roll={x:1164,vx:-460,rot:0,hit:[]};sThud();pop(1164,FLOOR-160,'Покрышка покатилась!','#fff',18);
-  const pl=platById('tires');if(garage.tires>0)pl.y=FLOOR-40*garage.tires;else pl.off=true;
+  garage.tires--;garage.roll={x:1150,vx:-460,rot:0,hit:[]};sThud();pop(1150,FLOOR-130,'Покрышка покатилась!','#fff',18);
+  const pl=platById('tires');if(garage.tires>0)pl.y=FLOOR-32*garage.tires;else pl.off=true;
 }
 function fuseHit(p){
   sClick();burst(888,240,['#ffe27a','#fff'],8,220,'shard');
@@ -2567,7 +2576,7 @@ function garageTick(dt){
   const R=garage.roll;
   if(R){R.x+=R.vx*dt;R.rot+=R.vx*dt/34;R.vx+=150*dt;
     for(const k of cats)if(!R.hit.includes(k)&&k.state!=='asleep'&&!k.air&&k.plat==='floor'&&Math.abs(k.x-R.x)<44*k.b.size){R.hit.push(k);fur(k,6);if(!hurtCat(k,18,'Покрышкой!')){k.state='stunned';k.stunType='daze';k.stunT=1.4;k.kvx=R.vx*.3;}}
-    if(R.vx>-40||R.x<70){garage.lying.push(clamp(R.x,70,1180));garage.roll=null;sThud();}}
+    if(R.vx>-40||R.x<70){garage.lying.push(clamp(R.x,70,1150));garage.roll=null;sThud();}}
 }
 function garageLand(k){if(k.plat.startsWith('car'))garage.landAlarm=true;}
 function garageObjLand(o,pl){
@@ -2591,7 +2600,7 @@ function makeObjsL7(){
 function makeFurnL7(){const C=(x1,y1,x2,y2)=>({x1,y1,x2,y2,hp:999,cost:0,custom:carHit});return{
   carHead:C(900,414,948,446),carWinR:C(306,316,454,398),carWinM:C(458,316,644,398),carWinF:C(648,316,802,398),carWinS:C(804,312,880,400),carBody:C(288,294,950,548),
   fuse:{x1:858,y1:200,x2:918,y2:276,hp:999,cost:0,custom:fuseHit},
-  tires:{x1:1128,y1:470,x2:1200,y2:600,hp:999,cost:0,custom:tiresHit},
+  tires:{x1:1100,y1:500,x2:1200,y2:600,hp:999,cost:0,custom:tiresHit},
 };}
 function picksL7(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
@@ -2603,7 +2612,7 @@ LEVELS.push({n:7,name:'Гараж',sub:'Машина с сигнализацие
   room:drawGarage,fg:drawGarageFG,objs:makeObjsL7,furn:makeFurnL7,dyn:drawGarageDyn,picks:picksL7,tick:garageTick,post:garagePost,hitX:garageHit,onLand:garageLand,onObjLand:garageObjLand,
   catX:640,second:1100,secondBreed:'black',outTo:'Потеряно',lostLabel:'Потеряно',lostWhere:'закатилось под машину',glassLabel:'Окошко',
   win:'Вмятины выправите утром.',hello:'Котов двое. Не задевайте машину: от сигнализации уходит сон. Брелок висит на стене.',
-  init:()=>{garage={alarm:0,head:false,tires:3,roll:null,lying:[],sirenT:0,power:true};kids={mouse:{s:'hole',x:MHOLE,y:FLOOR,vx:0,t:0,cd:rnd(5,8)}};const pl=platById('tires');pl.y=FLOOR-120;}});
+  init:()=>{garage={alarm:0,head:false,tires:3,roll:null,lying:[],sirenT:0,power:true};kids={mouse:{s:'hole',x:MHOLE,y:FLOOR,vx:0,t:0,cd:rnd(5,8)}};const pl=platById('tires');pl.y=FLOOR-96;}});
 
 /* ---------------- level 8: the yard, all seven cats ---------------- */
 const PLATS_L8=[
@@ -2634,7 +2643,7 @@ const YARD_KIT=[1094,248];
 const YARD_APPLES_ALL=(()=>{const inC=(x,y)=>YARD_CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12),A=[];
   for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inC(x,y)&&Math.hypot(x-1104,y-276)>30)A.push([x,y]);}A.push([1119,281]);return A;})();
 // apples under the right-hand slot column can't be clicked: they are painted on the tree, the rest can be picked
-const YARD_APPLES=YARD_APPLES_ALL.filter(([x])=>x<1192),YARD_APPLES_DECO=YARD_APPLES_ALL.filter(([x])=>x>=1192);
+const YARD_APPLES=YARD_APPLES_ALL.map(([x,y])=>x>1260?[1250,y-14]:[x,y]),YARD_APPLES_DECO=[];
 let yard={birds:[],banned:[],birdT:3,mower:{on:false,x:342,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{}};
 function drawYard(c){
   // pre-dawn sky over the neighbours' roofs
@@ -2861,7 +2870,7 @@ function treeHit(p){
 function makeObjsL8(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   const wash=(x,kind,col)=>O('laundry',x,312,null,{w:56,h:72,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:kind,braidN:1,hurts:5,hurtLabel:'Мокрым бельём!',col});
-  return[wash(500,'towel','#3fa9d4'),wash(650,'pillow','#f6f2ea'),wash(800,'towel','#f07fae'),
+  return[wash(500,'towel','#3fa9d4'),wash(650,'pillow','#a9aeb8'),wash(800,'towel','#f07fae'),
     O('glass',590,470,'table8',{w:22,h:32,fragile:true,knockable:true,cost:300,label:'Стакан лимонада',water:true}),
     O('glass',632,470,'table8',{w:22,h:32,fragile:true,knockable:true,cost:300,label:'Стакан лимонада',water:true}),
     O('bowl',688,470,'table8',{w:62,h:24,fragile:true,knockable:true,cost:600,label:'Миска с яблоками'}),
