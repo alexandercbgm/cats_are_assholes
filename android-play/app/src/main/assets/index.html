@@ -925,9 +925,16 @@ function drawObj(c,o,t){
     c.beginPath();c.arc(0,-36,24,Math.PI*.55,Math.PI*1.45);c.lineWidth=2.5;c.strokeStyle='#c9a24a';c.stroke();
     break;
   case 'piggy':
-    ell(c,0,-14,22,14);fs(c,'#f2a0b4',2.5);ell(c,20,-15,6,7);fs(c,'#f7b8cc',2);ell(c,19,-16,1.2,1.6);c.fillStyle=OUT;c.fill();ell(c,22,-14,1.2,1.6);c.fill();
-    poly(c,[4,-26,8,-34,12,-25]);fs(c,'#f2a0b4',2);ell(c,9,-18,1.6,1.6);c.fill();c.fillStyle=OUT;c.fillRect(-6,-28,10,2.5);
-    for(const x of[-12,10])rr(c,x-3,-4,6,5,1),fs(c,'#e98aa8',1.5);
+    // ceramic piggy bank: round body, stubby legs, a snout disc, ears, a curly tail and the coin slot on its back
+    c.beginPath();c.moveTo(-24,-17);c.bezierCurveTo(-31,-21,-33,-13,-28,-12);c.bezierCurveTo(-24,-11,-26,-17,-30,-16);c.lineWidth=4.5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2;c.strokeStyle='#ee98b0';c.stroke();
+    for(const x of[-14,8]){rr(c,x-4.5,-8,9,9,2.5);fs(c,'#e58aa6',2);}
+    poly(c,[-2,-27,1,-38,8,-28]);fs(c,'#e58aa6',2);
+    banded(c,()=>ell(c,0,-16,25,16),'#f2a0b4',2.5,()=>{ell(c,-2,-4,30,10);c.fillStyle='rgba(200,90,120,.28)';c.fill();ell(c,-6,-24,12,5);c.fillStyle='rgba(255,255,255,.4)';c.fill();});
+    for(const x of[-9,13]){rr(c,x-4.5,-6,9,7,2.5);fs(c,'#f2a0b4',2);}
+    poly(c,[6,-28,11,-39,15,-27]);fs(c,'#f7b8cc',2);
+    rr(c,-8,-33,13,3.5,1.5);c.fillStyle='#7a3a52';c.fill();
+    ell(c,13,-21,1.9,2.2);c.fillStyle=OUT;c.fill();
+    rr(c,22,-22,6,12,3);fs(c,'#f2a0b4',2);ell(c,28,-16,4,6.2);fs(c,'#f7b8cc',2);ell(c,27.4,-18.2,.9,1.4);c.fillStyle=OUT;c.fill();ell(c,27.4,-13.8,.9,1.4);c.fill();
     break;
   case 'chandelier':drawChandelier(c,t,o.state==='stand');break;
   case 'teapot':
@@ -2302,7 +2309,6 @@ function drawKids(c){
   c.beginPath();c.moveTo(120,464);c.lineTo(318,464);c.lineTo(318,500);c.quadraticCurveTo(220,512,120,500);c.closePath();fs(c,'#f07fae',2.5);c.fillStyle='rgba(255,255,255,.6)';for(let x=140;x<310;x+=28){poly(c,[x,476,x+5,482,x,488,x-5,482]);c.fill();}
   // toy chest and lego bin (heaps are pickups)
   rr(c,420,520,140,80,6);fs(c,'#e2433a',3);c.save();c.translate(490,562);c.beginPath();for(let j=0;j<10;j++){const a=j*Math.PI/5-Math.PI/2,r=j%2?8:18;c.lineTo(Math.cos(a)*r,Math.sin(a)*r);}c.closePath();fs(c,'#f0c040',2);c.restore();
-  poly(c,[420,520,560,520,570,486,430,486]);fs(c,'#c8352e',3);
   rr(c,584,520,92,80,8);fs(c,'#3f7fd8',3);for(const[dx,dy]of[[-16,-8],[16,-8],[-16,14],[16,14]]){ell(c,630+dx,560+dy,7,7);fs(c,'#5fa0f0',2);}
   // desk, shelf, chair
   rr(c,760,430,240,14,3);fs(c,'#f0c040',3);rr(c,770,444,14,156,3);fs(c,'#e2b030',2.5);rr(c,896,444,96,156,4);fs(c,'#f6d34a',2.5);
@@ -2327,7 +2333,7 @@ function makeFurnL6(){return{
 function picksL6(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
   return[crate('block',490,10,512),crate('lego',630,8,516),
-    mkPick('pillow',112,290),mkPick('pillow',112,476),mkPick('plush',250,290,'#e98b6a'),mkPick('plush',230,476,'#c79a62'),
+    mkPick('pillow',86,290),mkPick('pillow',86,476),mkPick('plush',250,290,'#e98b6a'),mkPick('plush',230,476,'#c79a62'),
     mkPick('lego',716,FLOOR,'#e2433a'),mkPick('lego',792,FLOOR,'#f0c040'),mkPick('lego',350,FLOOR,'#3f7fd8'),
     mkPick('slipper',1000,FLOOR),mkPick('ball',1100,FLOOR),mkPick('plaster',840,430)];
 }
