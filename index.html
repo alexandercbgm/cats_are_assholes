@@ -3407,6 +3407,8 @@ function render(now){
 const SLOT_ICONS={};
 function slotIcon(c,kind){
   let ic=SLOT_ICONS[kind];
+  // a lost GPU context wipes the cached art too: draw it again
+  if(ic&&ic.t.getContext('2d').isContextLost?.())ic=null;
   if(!ic){const t=document.createElement('canvas');t.width=t.height=320;const tc=t.getContext('2d');tc.translate(160,160);tc.scale(2,2);drawItem(tc,kind,0,0,1,0,true,0);
     const d=tc.getImageData(0,0,320,320).data;let x0=320,y0=320,x1=-1,y1=-1,n=0,sx=0,sy=0;
     for(let y=0;y<320;y++)for(let x=0;x<320;x++){const a=d[(y*320+x)*4+3];if(a>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}if(a>128){n++;sx+=x;sy+=y;}}
@@ -3426,7 +3428,7 @@ function fitLabel(el,name){
 }
 function mkSlot(kind,key,onClick){
   const b=document.createElement('button');b.className='slot';b.type='button';b.dataset.k=kind;b.title=ITEM[kind].name+(ITEM[kind].heal?` (+${ITEM[kind].heal} здоровья)`:'');
-  const cvs=document.createElement('canvas');cvs.width=120;cvs.height=96;slotIcon(cvs.getContext('2d'),kind);
+  const cvs=document.createElement('canvas');cvs.width=120;cvs.height=96;slotIcon(cvs.getContext('2d'),kind);cvs.addEventListener('contextrestored',()=>askRepaint());
   b.append(cvs);const nm=document.createElement('span');nm.className='nm';nm.textContent=ITEM[kind].name;fitLabel(nm,ITEM[kind].name);b.append(nm);
   const cnt=document.createElement('span');cnt.className='cnt';b.append(cnt);if(key){const ks=document.createElement('span');ks.className='key';ks.textContent=key;b.append(ks);}
   b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('click',()=>{au();onClick(kind);b.blur();});return b;
@@ -3610,7 +3612,7 @@ $('langBtn').addEventListener('click',()=>setLang(LANG==='en'?'ru':'en'));
 // Android back button: close whatever is on top; false means we are on the main menu and the app may close
 window.ugomoniBack=()=>{if(!$('payOv').hidden){$('payLater').click();return true;}if(!$('finalOv').hidden){$('finalMenuBtn').click();return true;}if(game.running){setPause(!game.paused);return true;}if(!$('endOv').hidden){showMenu();return true;}return false;};
 // browsers may drop canvas contents while the tab is in the background: repaint every static layer
-function repaintAll(){if(!LV)return;paintLevel(LV);for(const L of LEVELS)L.thumb=makeThumb(L);renderLvl();buildTrays();updateTrays();drawTipIcons();finalBgDone=false;}
+function repaintAll(){if(!LV)return;for(const k in SLOT_ICONS)delete SLOT_ICONS[k];paintLevel(LV);for(const L of LEVELS)L.thumb=makeThumb(L);renderLvl();buildTrays();updateTrays();drawTipIcons();finalBgDone=false;}
 let repaintT=0;const askRepaint=()=>{clearTimeout(repaintT);repaintT=setTimeout(repaintAll,60);};
 for(const c2 of[bg,fg,cv,catBuf])c2.addEventListener('contextrestored',askRepaint);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)askRepaint();});
