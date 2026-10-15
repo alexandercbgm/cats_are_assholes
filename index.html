@@ -67,15 +67,16 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .chip.good{background:#9fdcc0}
 @keyframes blink{50%{opacity:.55}}
 
-.tray{position:absolute;bottom:.6em;display:flex;gap:.45em;pointer-events:auto;font-size:calc(3.5em/4.5)}
-.ammo{left:1em}
-.meds{right:1em}
+.tray{position:absolute;display:flex;flex-direction:column;justify-content:center;gap:.45em;pointer-events:none;font-size:calc(3.5em/4.5)}
+.tray>*{pointer-events:auto}
+.ammo{left:.6em;top:7em;bottom:.6em}
+.meds{right:.6em;top:11.6em;bottom:.6em}
 .slot{position:relative;width:4.5em;height:4.5em;padding:0;border:0;border-radius:.85em;background:rgba(255,250,242,.93);box-shadow:0 .25em .9em rgba(10,6,24,.32);cursor:pointer;font:inherit;color:var(--ink);transition:transform .12s,box-shadow .12s}
 .slot canvas{position:absolute;inset:.2em .2em 1.1em;width:calc(100% - .4em);height:calc(100% - 1.3em)}
 .slot .nm{position:absolute;left:0;right:0;bottom:.25em;font-size:.6em;font-weight:700;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden}
 .slot .cnt{position:absolute;top:-.45em;right:-.45em;min-width:1.45em;height:1.45em;border-radius:1em;background:var(--ink);color:var(--paper);font-size:.75em;font-weight:800;display:grid;place-items:center;font-variant-numeric:tabular-nums}
 .slot .key{position:absolute;top:.2em;left:.4em;font-size:.6em;font-weight:800;color:var(--muted)}
-.slot.sel{transform:translateY(-.25em);box-shadow:0 0 0 .16em var(--gold),0 .4em 1em rgba(10,6,24,.35)}
+.slot.sel{transform:translateX(.3em);box-shadow:0 0 0 .16em var(--gold),0 .4em 1em rgba(10,6,24,.35)}
 .slot.sel .nm{color:var(--ink)}
 .slot.empty{opacity:.45}
 .slot:focus-visible{outline:.16em solid var(--sky);outline-offset:.15em}
@@ -1594,9 +1595,6 @@ function drawBathDyn(c,t,dt){
 }
 
 /* ---------------- dunking, wet fur, flooded floor ---------------- */
-function shadeHex(h,a){const[r,g,b]=hexRgb(h),t=a<0?0:255,p=Math.abs(a);return'#'+[r,g,b].map(v=>Math.round(v+(t-v)*p).toString(16).padStart(2,'0')).join('');}
-const WET=new Map();
-function wetB(b){if(!WET.has(b))WET.set(b,Object.assign({},b,{fur:shadeHex(b.fur,-.28),belly:shadeHex(b.belly,-.22),tail:shadeHex(b.tail,-.28),paw:shadeHex(b.paw,-.2)}));return WET.get(b);}
 const sSplash=()=>{nz(.6,.45,'lowpass',1600,180,.7);for(let i=0;i<5;i++)tone('sine',rnd(380,620),rnd(900,1400),.09,.09,.05+i*.07);};
 const sBlub=()=>tone('sine',rnd(250,400),rnd(700,900),.12,.12);
 const sShake=()=>nz(.7,.25,'bandpass',2600,1200,1.2);
@@ -1694,16 +1692,18 @@ function drawKitchen(c){
   // big trash bin in front of the counter
   poly(c,[508,468,612,468,604,600,516,600]);fs(c,'#8d989e',3);rr(c,502,460,116,12,4);fs(c,'#76818a',3);
   c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=3;for(const x of[530,560,590]){c.beginPath();c.moveTo(x,480);c.lineTo(x+(x-560)*.05,590);c.stroke();}
-  c.beginPath();c.moveTo(584,460);c.quadraticCurveTo(592,446,604,452);c.quadraticCurveTo(596,456,594,462);c.closePath();fs(c,'#f6d34a',1.8);
   rr(c,548,590,24,8,2);fs(c,'#5a646a',2);
   // stove with oven and towel bar
   rr(c,860,412,200,188,6);fs(c,'#eeeeea',3);rr(c,856,404,208,12,3);fs(c,'#2f2f35',2.5);
   for(const x of[900,1020]){ell(c,x,404,26,4);c.strokeStyle='#5a5a62';c.lineWidth=2;c.stroke();}
   for(let i=0;i<4;i++){ell(c,890+i*46,428,6,6);fs(c,'#d0d0cc',2);}
   rr(c,880,446,160,6,3);fs(c,'#cfd8dc',2);rr(c,880,462,160,114,8);fs(c,'#2f3338',3);rr(c,894,474,132,74,6);c.fillStyle='rgba(255,170,90,.18)';c.fill();
-  // table and chair
-  rr(c,1196,372,12,96,3);fs(c,'#9a6740',2.5);rr(c,1236,372,12,96,3);fs(c,'#9a6740',2.5);rr(c,1192,372,62,10,3);fs(c,'#b27b4f',2.5);
-  rr(c,1100,476,10,124,3);fs(c,'#9a6740',2.5);rr(c,1222,476,10,124,3);fs(c,'#9a6740',2.5);rr(c,1086,462,160,14,4);fs(c,'#b27b4f',3);
+  // kitchen table: tapered turned legs, stretcher, apron with a drawer, thick top
+  rr(c,1108,556,116,8,3);fs(c,'#8c5b37',2.5);
+  for(const x of[1104,1228]){poly(c,[x-7,488,x+7,488,x+4.5,590,x-4.5,590]);fs(c,'#9a6740',2.5);
+    rr(c,x-9,500,18,7,3.5);fs(c,'#b27b4f',2);rr(c,x-8,540,16,6,3);fs(c,'#b27b4f',2);rr(c,x-6.5,588,13,10,3);fs(c,'#7d4f30',2.5);}
+  rr(c,1094,472,144,20,3);fs(c,'#a8714a',2.5);rr(c,1140,476,52,11,2.5);fs(c,'#bf8a5c',2);ell(c,1166,481.5,3.2,3.2);fs(c,'#f2c75a',1.5);
+  rr(c,1082,462,168,14,4);fs(c,'#b27b4f',3);c.fillStyle='rgba(255,240,215,.35)';c.fillRect(1088,465,156,3);
 }
 function drawKitchenFG(c){
   const g=c.createLinearGradient(0,650,0,720);g.addColorStop(0,'#d06a52');g.addColorStop(1,'#9c3f33');
@@ -3251,7 +3251,7 @@ function update(dt){
 function renderCat(k,t){
   cb.setTransform(1,0,0,1,0,0);cb.clearRect(0,0,1280,960);cb.setTransform(2,0,0,2,640,760);
   cb.save();cb.scale(k.face,1);
-  const bb=k.wet>0?wetB(k.b):k.b;
+  const bb=k.b;
   if(k.state==='asleep')drawCatKO(cb,bb,t,k.ko,k.anim-(k.koStart||0));
   else{
     const s=k.state,o={walk:s==='walk',phase:k.phase,eyes:'normal',mouth:0,headTilt:0,seed:k.seed};
@@ -3346,7 +3346,7 @@ function render(now){
     renderCat(k,t);
     if(k.state!=='pounce'){
       if(k.state==='dunk'&&HEAD_FIRST[k.dunkType]){const inn=platById(k.dunkPlat).inner,hole=DUNK_HOLE[k.dunkType];
-        c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,hole.cy);c.clip();drawBinCat(c,k.wet>0?wetB(k.b):k.b,k.anim,inn.cx,inn.clip,k.flash>0,hole.rx&&hole.rx*.92);c.restore();
+        c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,hole.cy);c.clip();drawBinCat(c,k.b,k.anim,inn.cx,inn.clip,k.flash>0,hole.rx&&hole.rx*.92);c.restore();
         if(hole.rx){const front=(rx,ry)=>{c.beginPath();c.ellipse(hole.cx,hole.cy,rx,ry,0,0,Math.PI);};
           front(hole.rx,hole.ry);c.closePath();c.fillStyle=hole.col;c.fill();front(hole.rx,hole.ry);c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();
           if(k.dunkType==='toilet'){c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=2;for(let i=0;i<2;i++){const a=(t*1.5+i*.5)%1;c.globalAlpha=1-a;front(16+a*26,2+a*4);c.stroke();}c.globalAlpha=1;}}
