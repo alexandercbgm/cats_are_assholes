@@ -154,7 +154,7 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
 .pvhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 #pvName{font-size:22px}
 #pvCount{font-weight:700;font-size:11px;opacity:.6;font-variant-numeric:tabular-nums}
-.pvtag{margin:3px 0 0;font-size:12px;line-height:1.4;opacity:.8}
+.pvtag{margin:3px 0 0;font-size:12px;line-height:1.4;opacity:.8;white-space:pre-line;min-height:2.8em}
 .catgrid{margin-top:auto;display:grid;grid-template-columns:1.35fr 1fr;gap:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
 .traits{display:grid;grid-template-columns:auto 1fr;gap:4px 9px;margin:0;font-size:11.5px;align-content:start}
 .traits dt{opacity:.6}
@@ -238,6 +238,8 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
           <g fill="#1d1428" stroke="#1d1428" stroke-width="16" stroke-linejoin="round" opacity=".28" transform="translate(0 6)"><text x="12" y="96">Угомони кота</text></g>
           <g fill="#1d1428" stroke="#1d1428" stroke-width="14" stroke-linejoin="round"><text x="12" y="96">Угомони кота</text></g>
           <g fill="url(#furPat)"><text x="12" y="96">Угомони кота</text></g>
+          <linearGradient id="ptGrad"><stop offset="0" stop-opacity=".95"/><stop offset=".2" stop-opacity="0"/><stop offset=".8" stop-opacity="0"/><stop offset="1" stop-opacity=".95"/></linearGradient>
+          <g id="logoPts" fill="url(#ptGrad)" display="none"><text x="12" y="96">Угомони кота</text></g>
         </g>
       </svg></h1>
       <p class="lead">Три часа ночи. Вам утром на работу, а коту приспичило поорать. Уложите его спать раньше, чем зазвонит будильник.</p>
@@ -545,13 +547,13 @@ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- data ---------------- */
 const BREEDS=[
- {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бес',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Кислотные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true},
- {id:'brit',name:'Барон Булкин',breed:'Британец',type:'Кот-батон',tag:'Медленный, но непробиваемый. Требует завтрак с достоинством.',build:'Толстый',size:1.05,fat:1.28,fur:'#8f9cb2',belly:'#aab6c8',paw:'#9eabc0',tail:'#8f9cb2',lid:'#8f9cb2',pattern:'solid',eye:'#e3892b',eyeName:'Медные',color:'Голубой',nose:'#6f7b93',whisk:'rgba(255,255,255,.75)',hp:220,speed:85,regen:4.5,aggr:.55,loud:.9,dmgMul:1,pitch:.8},
- {id:'siam',name:'Сирена',breed:'Сиамская',type:'Сиамская истеричка',tag:'Орёт громче будильника и прекрасно об этом знает.',build:'Стройная',size:.95,fat:.86,fur:'#efe1c6',belly:'#f8f0df',paw:'#4a3328',tail:'#4a3328',point:'#4a3328',lid:'#4a3328',pattern:'points',eye:'#3f9ce9',eyeName:'Голубые',color:'Сил-пойнт',nose:'#3a2820',whisk:'rgba(60,40,40,.6)',hp:130,speed:175,regen:3,aggr:.85,loud:1.7,dmgMul:.9,pitch:1.25},
- {id:'mcoon',name:'Бигфут',breed:'Мейн-кун',type:'Рысь-переросток',tag:'Огромный, пушистый и тяжёлый. Царапает больнее всех.',build:'Громадный',size:1.28,fat:1.1,fur:'#8b5b33',belly:'#d7b48c',paw:'#d7b48c',tail:'#7a4e2a',stripe:'#3d2513',lid:'#8b5b33',pattern:'tabby',eye:'#86c541',eyeName:'Зелёные',color:'Табби',nose:'#e98a94',whisk:'rgba(255,255,255,.75)',hp:280,speed:110,regen:5,aggr:.7,loud:1,dmgMul:1.4,pitch:.72,tufts:true},
- {id:'sphynx',name:'Доби',breed:'Сфинкс',type:'Лысый домовой',tag:'Тёплый, морщинистый и очень мстительный.',build:'Морщинистый',size:.95,fat:.9,fur:'#e8b5a2',belly:'#f2cbbb',paw:'#e8b5a2',tail:'#e8b5a2',lid:'#d9a08c',pattern:'sphynx',eye:'#c3e46b',eyeName:'Лимонные',color:'Розовый',nose:'#d27d86',whisk:'rgba(90,50,50,.5)',hp:120,speed:155,regen:3,aggr:1,loud:1.5,dmgMul:.9,pitch:1.2,bigEars:true},
- {id:'bengal',name:'Турбо',breed:'Бенгальская',type:'Мини-леопард',tag:'Работает на батарейках, которые никогда не садятся.',build:'Атлетичный',size:1.02,fat:.95,fur:'#e2a24c',belly:'#f6dfb0',paw:'#f0c98a',tail:'#e2a24c',stripe:'#4a2a14',lid:'#e2a24c',pattern:'spots',eye:'#9bc43a',eyeName:'Оливковые',color:'Леопардовый',nose:'#c9706e',whisk:'rgba(255,255,255,.8)',hp:140,speed:195,regen:3.6,aggr:1,loud:1.1,dmgMul:1.1,pitch:1.1},
  {id:'ginger',name:'Апельсин',breed:'Рыжий дворовый',type:'Одна извилина',tag:'Делит одну извилину со всеми рыжими котами мира. Сегодня не его очередь.',build:'Жилистый',size:1,fat:1,fur:'#ee8b2e',belly:'#f8d29b',paw:'#f8e3c4',tail:'#ee8b2e',stripe:'#b9561a',lid:'#ee8b2e',pattern:'tabby',eye:'#f2c62f',eyeName:'Жёлтые, косые',color:'Рыжий',nose:'#e7798b',whisk:'rgba(255,255,255,.8)',hp:160,speed:150,regen:3.8,aggr:1.15,loud:1.2,dmgMul:1.15,pitch:1,torn:true,derp:true},
+ {id:'siam',name:'Сирена',breed:'Сиамская',type:'Сиамская истеричка',tag:'Орёт громче будильника и прекрасно об этом знает.',build:'Стройная',size:.95,fat:.86,fur:'#efe1c6',belly:'#f8f0df',paw:'#4a3328',tail:'#4a3328',point:'#4a3328',lid:'#4a3328',pattern:'points',eye:'#3f9ce9',eyeName:'Голубые',color:'Сил-пойнт',nose:'#3a2820',whisk:'rgba(60,40,40,.6)',hp:130,speed:175,regen:3,aggr:.85,loud:1.7,dmgMul:.9,pitch:1.25},
+ {id:'black',name:'Люцифер',breed:'Чёрный кот',type:'Чёрный бес',tag:'В три ночи гоняет невидимых демонов. Глаза по пять копеек.',build:'Поджарый',size:.98,fat:.95,fur:'#2b2934',belly:'#3a3846',paw:'#2b2934',tail:'#2b2934',lid:'#2b2934',pattern:'solid',eye:'#cde33f',eyeName:'Кислотные',color:'Чёрный',nose:'#4a3a46',whisk:'rgba(255,255,255,.8)',hp:150,speed:185,regen:3.8,aggr:1.1,loud:1.1,dmgMul:1,pitch:1.05,crazy:true},
+ {id:'mcoon',name:'Бигфут',breed:'Мейн-кун',type:'Рысь-переросток',tag:'Огромный, пушистый и тяжёлый. Царапает больнее всех.',build:'Громадный',size:1.28,fat:1.1,fur:'#8b5b33',belly:'#d7b48c',paw:'#d7b48c',tail:'#7a4e2a',stripe:'#3d2513',lid:'#8b5b33',pattern:'tabby',eye:'#86c541',eyeName:'Зелёные',color:'Табби',nose:'#e98a94',whisk:'rgba(255,255,255,.75)',hp:280,speed:110,regen:5,aggr:.7,loud:1,dmgMul:1.4,pitch:.72,tufts:true},
+ {id:'bengal',name:'Турбо',breed:'Бенгальская',type:'Мини-леопард',tag:'Работает на батарейках, которые никогда не садятся.',build:'Атлетичный',size:1.02,fat:.95,fur:'#e2a24c',belly:'#f6dfb0',paw:'#f0c98a',tail:'#e2a24c',stripe:'#4a2a14',lid:'#e2a24c',pattern:'spots',eye:'#9bc43a',eyeName:'Оливковые',color:'Леопардовый',nose:'#c9706e',whisk:'rgba(255,255,255,.8)',hp:140,speed:195,regen:3.6,aggr:1,loud:1.1,dmgMul:1.1,pitch:1.1},
+ {id:'sphynx',name:'Доби',breed:'Сфинкс',type:'Лысый домовой',tag:'Тёплый, морщинистый и очень мстительный.',build:'Морщинистый',size:.95,fat:.9,fur:'#e8b5a2',belly:'#f2cbbb',paw:'#e8b5a2',tail:'#e8b5a2',lid:'#d9a08c',pattern:'sphynx',eye:'#c3e46b',eyeName:'Лимонные',color:'Розовый',nose:'#d27d86',whisk:'rgba(90,50,50,.5)',hp:120,speed:155,regen:3,aggr:1,loud:1.5,dmgMul:.9,pitch:1.2,bigEars:true},
+ {id:'brit',name:'Барон Булкин',breed:'Британец',type:'Кот-батон',tag:'Медленный, но непробиваемый. Требует завтрак с достоинством.',build:'Толстый',size:1.05,fat:1.28,fur:'#8f9cb2',belly:'#aab6c8',paw:'#9eabc0',tail:'#8f9cb2',lid:'#8f9cb2',pattern:'solid',eye:'#e3892b',eyeName:'Медные',color:'Голубой',nose:'#6f7b93',whisk:'rgba(255,255,255,.75)',hp:220,speed:85,regen:4.5,aggr:.55,loud:.9,dmgMul:1,pitch:.8},
 ];
 const PHRASES=['МЯЯЯУ!','МРРРАУ!','КОРМИ!','АААУУУ!','МЯУ-МЯУ!','ОТКРОЙ ДВЕРЬ!','МИСКА ПУСТАЯ!','ВСТАВАЙ!','МЯ!'];
 
@@ -3515,7 +3517,7 @@ function renderLvl(){
 function setLvl(i){selLvl=clamp(i,1,LEVELS.length);renderLvl();}
 function showMenu(){game.running=false;game.over=false;setLogo(game.breed);renderLvl();$('endOv').hidden=true;$('pauseOv').hidden=true;$('startOv').hidden=false;$('startBtn').focus();}
 function renderPreviewInfo(){
-  const b=game.breed;$('pvName').textContent=b.name;$('pvCount').textContent=`${catIdx+1} / ${BREEDS.length}`;$('pvTag').textContent=b.tag;
+  const b=game.breed;$('pvName').textContent=b.name;$('pvCount').textContent=`${catIdx+1} / ${BREEDS.length}`;$('pvTag').textContent=window.tr(b.tag).split(/(?<=[.!?…])\s+/).join('\n');
   const tr=$('pvTraits');tr.innerHTML='';
   for(const[a,v,col]of[['Типаж',b.type],['Порода',b.breed],['Комплекция',b.build],['Окрас',b.color,b.pattern==='points'?b.point:b.fur],['Глаза',b.eyeName,b.eye]]){const dt=document.createElement('dt');dt.textContent=a;const dd=document.createElement('dd');if(col){const s=document.createElement('span');s.className='dot';s.style.background=col;dd.append(s);}dd.append(document.createTextNode(v));tr.append(dt,dd);}
   const st=$('pvStats');st.innerHTML='';
@@ -3528,7 +3530,7 @@ function setLogo(b){
   const add=(tag,a)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);pat.append(e);return e;};
   const LW=1000;add('rect',{width:LW,height:116,fill:b.fur});
   const lines=[[26,96]];
-  if(b.pattern==='points'){for(let i=0;i<7;i++){const o=String(.95-i*.14);add('rect',{x:i*16,y:0,width:16,height:116,fill:b.point,opacity:o});add('rect',{x:LW-16-i*16,y:0,width:16,height:116,fill:b.point,opacity:o});}}
+  $('logoPts').setAttribute('display',b.pattern==='points'?'inline':'none');for(const st of $('ptGrad').children)st.setAttribute('stop-color',b.point||'#000');
   if(b.pattern==='tabby'){for(const[t,bt]of lines)for(let x=-6;x<LW+20;x+=38)add('path',{d:`M${x} ${t+4}q12 ${(bt-t)*.4} -3 ${bt-t-18}`,stroke:b.stripe,'stroke-width':10,'stroke-linecap':'round',fill:'none'});}
   if(b.pattern==='spots'){let r=0;for(const[t,bt]of lines)for(let y=t+24;y<bt-14;y+=19,r++)for(let x=(r%2)*19+((r*7)%11);x<LW+10;x+=38){add('ellipse',{cx:x,cy:y,rx:8.5,ry:6.5,fill:'none',stroke:b.stripe,'stroke-width':4});add('ellipse',{cx:x+1,cy:y,rx:3.5,ry:2.6,fill:shade(b.fur,-.15)});}}
   for(const[t,bt]of lines){
