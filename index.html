@@ -2675,12 +2675,12 @@ function drawYard(c){
   poly(c,[-20,104,272,104,190,24,-20,24]);fs(c,'#8a4a3a',3);c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=2;for(let y=40;y<104;y+=14){c.beginPath();c.moveTo(-20,y);c.lineTo(190+(y-24)*82/80,y);c.stroke();}
   rr(c,-20,100,296,10,3);fs(c,'#f6f2ea',2);
   for(const[x,y,w,h]of[[40,140,84,92],[150,140,70,92],[30,262,90,104]]){rr(c,x-6,y-6,w+12,h+12,3);fs(c,'#f6f2ea',2.5);rr(c,x,y,w,h,2);fs(c,'#3d5068',2);c.fillStyle='#ffd36b';c.globalAlpha=.55;c.fillRect(x+3,y+3,w-6,h-6);c.globalAlpha=1;c.fillStyle='#f6f2ea';c.fillRect(x+w/2-2,y,4,h);c.fillRect(x,y+h/2-2,w,4);}
-  // door canopy: a shingled shed roof with a white fascia, carried by two wooden brackets on the wall beside the door
-  for(const s2 of[-1,1]){const x=186+s2*50;c.beginPath();c.moveTo(x,305);c.lineTo(x+s2*12,305);c.lineTo(x,321);c.closePath();fs(c,'#f6f2ea',2);c.beginPath();c.moveTo(x+s2*2,308);c.lineTo(x+s2*8,308);c.lineTo(x+s2*2,316);c.closePath();c.fillStyle='rgba(120,80,40,.25)';c.fill();}
-  poly(c,[136,284,236,284,244,300,128,300]);fs(c,'#8a4a3a',2.5);
-  c.save();poly(c,[136,284,236,284,244,300,128,300]);c.clip();c.strokeStyle='rgba(0,0,0,.22)';c.lineWidth=1.4;c.beginPath();c.moveTo(120,292);c.lineTo(252,292);c.stroke();
-  for(let x=142;x<244;x+=14){c.beginPath();c.moveTo(x,284);c.lineTo(x-2,292);c.moveTo(x+7,292);c.lineTo(x+5,300);c.stroke();}c.restore();
-  rr(c,126,299,120,7,2);fs(c,'#f6f2ea',2);
+  // door canopy: a straight tiled slab (tiles laid like brickwork) on a white fascia, held by two square-cut brackets beside the door
+  for(const x of[140,226]){rr(c,x,305,6,13,0);fs(c,'#f6f2ea',2);}
+  rr(c,138,286,96,14,0);fs(c,'#8a4a3a',2.5);
+  c.save();c.beginPath();c.rect(138,286,96,14);c.clip();c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=1.4;c.beginPath();c.moveTo(138,293);c.lineTo(234,293);
+  for(let x=146;x<234;x+=12){c.moveTo(x,286);c.lineTo(x,293);c.moveTo(x+6,293);c.lineTo(x+6,300);}c.stroke();c.restore();
+  rr(c,136,299,100,6,0);fs(c,'#f6f2ea',2);
   rr(c,150,322,72,148,4);fs(c,'#7a4a2e',3);rr(c,160,334,52,58,3);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.25)';c.stroke();rr(c,160,402,52,58,3);c.stroke();ell(c,206,404,4,4);fs(c,'#e8c35a',1.5);
   // porch: plank deck, railing, lattice skirt and steps
   rr(c,-10,466,280,14,3);fs(c,'#b57a46',3);
