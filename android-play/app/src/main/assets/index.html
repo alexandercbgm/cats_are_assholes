@@ -951,7 +951,9 @@ function drawObj(c,o,t){
       ()=>{c.strokeStyle='#c75b4a';c.lineWidth=3;c.beginPath();c.moveTo(-40,-15);c.quadraticCurveTo(0,-5,40,-15);c.stroke();});
     break;
   case 'pan':
-    rr(c,24,-11,40,7,3);fs(c,'#6b4423',2);ell(c,0,-7,28,8);fs(c,'#3a3a42',2.5);ell(c,0,-9,22,5);c.fillStyle='#55555f';c.fill();
+    c.save();c.translate(25,-29);c.rotate(-.1);rr(c,-4,-3.5,48,7,3.5);fs(c,'#6b4423',2.2);ell(c,40,0,1.6,1.6);c.fillStyle=OUT;c.fill();c.restore();
+    banded(c,()=>{c.beginPath();c.moveTo(-28,-31);c.lineTo(28,-31);c.lineTo(23,-18);c.quadraticCurveTo(22,-16,19,-16);c.lineTo(-19,-16);c.quadraticCurveTo(-22,-16,-23,-18);c.closePath();},'#3a3a42',2.5,
+      ()=>{c.fillStyle='#565662';c.fillRect(-30,-31,60,4);});
     break;
   case 'candle':{
     rr(c,-11,-26,22,26,5);c.fillStyle='rgba(255,230,190,.55)';c.fill();rr(c,-9,-14,18,12,3);c.fillStyle='#f6e3c2';c.fill();
@@ -1213,7 +1215,7 @@ addEventListener('resize',()=>{layout();if(typeof fitTrays==='function')fitTrays
 const AU={ctx:null,on:true,master:null,nb:null};
 function au(){
   if(!AU.ctx){try{AU.ctx=new(window.AudioContext||window.webkitAudioContext)();AU.master=AU.ctx.createGain();AU.master.gain.value=.45;AU.master.connect(AU.ctx.destination);}catch(e){AU.ctx=null;}}
-  if(AU.ctx&&AU.ctx.state==='suspended')AU.ctx.resume();return AU.ctx;
+  if(AU.ctx&&AU.ctx.state==='suspended'&&!AU.sleep)AU.ctx.resume();return AU.ctx;
 }
 function tone(type,f0,f1,dur,vol,delay){const c=AU.ctx;if(!c||!AU.on)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+(delay||0);o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(AU.master);o.start(t);o.stop(t+dur+.03);}
 function nz(dur,vol,type,f0,f1,q,delay){const c=AU.ctx;if(!c||!AU.on)return;if(!AU.nb){AU.nb=c.createBuffer(1,c.sampleRate,c.sampleRate);const d=AU.nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
@@ -1698,7 +1700,10 @@ function drawKitchen(c){
   rr(c,548,590,24,8,2);fs(c,'#5a646a',2);
   // stove with oven and towel bar
   rr(c,860,412,200,188,6);fs(c,'#eeeeea',3);rr(c,856,404,208,12,3);fs(c,'#2f2f35',2.5);
-  for(const x of[900,1020]){ell(c,x,404,26,4);c.strokeStyle='#5a5a62';c.lineWidth=2;c.stroke();}
+  for(const x of[900,1020]){
+    rr(c,x-14,398,28,7,3);fs(c,'#4a4a52',2);rr(c,x-9,395,18,4,2);fs(c,'#6a6a74',1.6);
+    c.lineCap='round';for(const dx of[-25,-17,17,25]){c.beginPath();c.moveTo(x+dx,404);c.lineTo(x+dx,396);c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.4;c.strokeStyle='#3a3a42';c.stroke();}
+    c.beginPath();c.moveTo(x-27,396);c.lineTo(x+27,396);c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.4;c.strokeStyle='#3a3a42';c.stroke();}
   for(let i=0;i<4;i++){ell(c,890+i*46,428,6,6);fs(c,'#d0d0cc',2);}
   rr(c,880,446,160,6,3);fs(c,'#cfd8dc',2);rr(c,880,462,160,114,8);fs(c,'#2f3338',3);rr(c,894,474,132,74,6);c.fillStyle='rgba(255,170,90,.18)';c.fill();
   // kitchen table: tapered turned legs, stretcher, apron with a drawer, thick top
@@ -1713,7 +1718,7 @@ function makeObjsL3(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   return[
     O('jar',300,394,'counter',{w:32,h:40,fragile:true,knockable:true,cost:700,label:'Банка с печеньем'}),
-    O('pan',1020,412,'stove',{w:64,h:16,fragile:false,knockable:true,cost:200,label:'Сковорода'}),
+    O('pan',1020,412,'stove',{w:58,h:32,fragile:false,knockable:true,cost:200,label:'Сковорода'}),
     O('bowl',1165,466,'table',{w:72,h:26,fragile:true,knockable:true,cost:900,label:'Ваза для фруктов'}),
   ];
 }
@@ -2949,7 +2954,7 @@ function musStart(){const c=AU.ctx;if(!c||MUS.on||c.state!=='running')return;
   MUS.bus=c.createGain();MUS.bus.gain.setValueAtTime(.0001,c.currentTime);MUS.bus.gain.exponentialRampToValueAtTime(.55,c.currentTime+.6);MUS.bus.connect(AU.master);
   MUS.on=true;MUS.step=0;MUS.next=c.currentTime+.1;musSchedule();MUS.tmr=setInterval(musSchedule,100);}
 function musStop(){if(!MUS.on)return;MUS.on=false;clearInterval(MUS.tmr);const c=AU.ctx,b=MUS.bus;if(c&&b){b.gain.cancelScheduledValues(c.currentTime);b.gain.setValueAtTime(b.gain.value,c.currentTime);b.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.4);setTimeout(()=>b.disconnect(),600);}}
-function musTick(){if(!$('startOv').hidden&&AU.on&&AU.ctx&&AU.ctx.state!=='running'&&!(performance.now()<AU.wakeT)){AU.wakeT=performance.now()+1000;AU.ctx.resume().catch(()=>{});}
+function musTick(){if(!AU.sleep&&!$('startOv').hidden&&AU.on&&AU.ctx&&AU.ctx.state!=='running'&&!(performance.now()<AU.wakeT)){AU.wakeT=performance.now()+1000;AU.ctx.resume().catch(()=>{});}
   const want=!$('startOv').hidden&&AU.on&&AU.ctx&&AU.ctx.state==='running';if(want&&!MUS.on)musStart();else if(!want&&MUS.on)musStop();}
 for(const ev of['pointerdown','touchstart','mousedown','keydown'])document.addEventListener(ev,()=>{if(!$('startOv').hidden)au();},{passive:true});
 
@@ -3619,7 +3624,14 @@ function repaintAll(){if(!LV)return;for(const k in SLOT_ICONS)delete SLOT_ICONS[
 let repaintT=0;const askRepaint=()=>{clearTimeout(repaintT);repaintT=setTimeout(repaintAll,60);};
 for(const c2 of[bg,fg,cv,catBuf])c2.addEventListener('contextrestored',askRepaint);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)askRepaint();});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&game.running&&!game.paused)setPause(true);});
+// app hidden (screen locked, another app in front): pause the round and silence everything until it comes back
+function appSleep(on){
+  AU.sleep=!!on;
+  if(on){if(game.running&&!game.paused)setPause(true);if(AU.ctx&&AU.ctx.state==='running')AU.ctx.suspend().catch(()=>{});}
+  else if(AU.on&&AU.ctx)AU.ctx.resume().catch(()=>{});
+}
+window.ugomoniSleep=appSleep;
+document.addEventListener('visibilitychange',()=>appSleep(document.hidden));
 
 /* ---------------- boot ---------------- */
 let last=performance.now();

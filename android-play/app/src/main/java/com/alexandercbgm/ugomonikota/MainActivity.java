@@ -19,6 +19,7 @@ import android.window.OnBackInvokedDispatcher;
 public class MainActivity extends Activity {
     private WebView web;
     private StoreBridge store;
+    private boolean active;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -97,18 +98,21 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
-        // a running round pauses itself when the app leaves the screen
-        web.evaluateJavascript("if(typeof game!==\"undefined\"&&game.running&&!game.paused)setPause(true)", null);
-        web.onPause();
+        // screen locked or app in the background: pause the round and silence the audio, then freeze the page
+        active = false;
+        web.evaluateJavascript("window.ugomoniSleep&&ugomoniSleep(true)", v -> {
+            if (!active) web.onPause();
+        });
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        active = true;
         web.onResume();
         hideSystemBars();
-        web.evaluateJavascript("window.au&&au()", null);
+        web.evaluateJavascript("window.ugomoniSleep&&ugomoniSleep(false)", null);
         store.refresh();
     }
 
