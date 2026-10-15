@@ -694,7 +694,7 @@ function drawItem(c,kind,x,y,sc,rot,lying,t,col){
     rr(c,-14,-2.5,28,5,2);fs(c,'#9aa3b5',2);for(const s2 of[-1,1]){c.save();c.translate(s2*15,0);ell(c,0,0,6,6);fs(c,'#9aa3b5',2);c.fillStyle='rgba(0,0,0,.6)';c.fillRect(s2>0?1:-6,-2,5,4);c.restore();}
     break;
   case 'hammer':
-    rr(c,-16,-2.5,26,5,2);fs(c,'#a8732e',2);rr(c,8,-9,9,18,2);fs(c,'#6a737c',2);
+    rr(c,-26,-2.5,36,5,2);fs(c,'#a8732e',2);rr(c,8,-9,9,18,2);fs(c,'#6a737c',2);
     break;
   case 'nut':
     c.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;c.lineTo(Math.cos(a)*7,Math.sin(a)*7);}c.closePath();fs(c,'#b8c0c8',2);ell(c,0,0,2.8,2.8);c.fillStyle='#4a535c';c.fill();
@@ -915,7 +915,7 @@ function drawObj(c,o,t){
     rr(c,-16,-38,32,38,4);fs(c,'#c9d0d4',2.5);rr(c,-16,-28,32,18,2);fs(c,o.col||'#3f7fd8',2);rr(c,-17,-42,34,6,2);fs(c,'#9aa3b5',2);c.beginPath();c.arc(0,-40,14,Math.PI,0);c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();
     break;
   case 'canister':
-    rr(c,-18,-50,36,50,5);fs(c,'#c8352e',2.5);rr(c,-12,-58,10,10,2);fs(c,'#c8352e',2);rr(c,2,-60,12,6,3);fs(c,'#6a737c',1.5);c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=2;c.beginPath();c.moveTo(-12,-40);c.lineTo(12,-10);c.moveTo(12,-40);c.lineTo(-12,-10);c.stroke();
+    rr(c,-18,-50,36,50,5);fs(c,'#c8352e',2.5);rr(c,-12,-58,10,10,2);fs(c,'#c8352e',2);rr(c,4,-57,9,8,2);fs(c,'#9e2a24',1.8);c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=2;c.beginPath();c.moveTo(-12,-40);c.lineTo(12,-10);c.moveTo(12,-40);c.lineTo(-12,-10);c.stroke();
     break;
   case 'toolbox':
     rr(c,-32,-30,64,30,4);fs(c,'#e2433a',2.5);rr(c,-32,-34,64,8,3);fs(c,'#c8352e',2);rr(c,-12,-44,24,8,3);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();rr(c,-6,-22,12,8,2);fs(c,'#b8c0c8',1.5);
@@ -1351,7 +1351,7 @@ function fallNow(o,dir){o.state='fall';o.from=o.plat;o.vx=dir*rnd(40,90);o.vy=o.
 function landObj(o,pl){
   o.y=pl.y;
   if(LV.onObjLand)LV.onObjLand(o,pl);
-  if(o.braid){o.state='broken';sThud();dust(o.x,pl.y,8);for(let i=0;i<(o.braidN||4);i++)dropPick(o.braid,o.x+(i-1.5)*18,pl.y-20);return;}
+  if(o.braid){o.state='broken';sThud();dust(o.x,pl.y,8);const n=o.braidN||4;for(let i=0;i<n;i++){const it=dropPick(o.braid,o.x+(i-(n-1)/2)*18,pl.y-20);if(o.braidSc){it.sc=o.braidSc;it.r*=o.braidSc;it.x=clamp(it.x,pl.x1+26*o.braidSc,pl.x2-21*o.braidSc);it.vx*=.3;it.rot=rnd(-.12,.12);}}return;}
   if(o.fragile){breakObj(o);return;}
   if(o.keepUp){o.state='stand';o.rot=0;o.hang=false;o.knockable=true;o.plat=pl.id;o.hurtDone=false;sThud();dust(o.x,pl.y,8);if(!o.charged){o.charged=true;addDamage(o,o.x,pl.y-60);}return;}
   o.state='lying';o.rot=(o.vr>=0?1:-1)*Math.PI/2;o.plat=pl.id;sThud();dust(o.x,pl.y,6);
@@ -1576,7 +1576,7 @@ function drawPick(c,it,t){
   if(it.crate){drawCrate(c,it,t);return;}
   if(it.big){drawCushion(c,it);return;}
   if(it.hang){rr(c,it.x-17,it.y-37,34,74,4);fs(c,'#3fa9d4',2.5);c.fillStyle='#fff';c.fillRect(it.x-9,it.y-37,4,74);c.fillRect(it.x+5,it.y-37,4,74);c.strokeStyle=OUT;c.lineWidth=1.5;for(let i=0;i<6;i++){c.beginPath();c.moveTo(it.x-14+i*5.6,it.y+37);c.lineTo(it.x-14+i*5.6,it.y+42);c.stroke();}return;}
-  drawItem(c,it.kind,it.x,it.y,1,it.rot,true,t,it.col);
+  drawItem(c,it.kind,it.x,it.y,it.sc||1,it.rot,true,t,it.col);
 }
 function drawMarks(c){
   for(const m of marks){
@@ -2446,14 +2446,15 @@ function drawGarage(c){
   c.strokeStyle='rgba(60,40,20,.4)';c.lineWidth=2;c.setLineDash([4,3]);rr(c,1080,214,46,90,4);c.stroke();c.setLineDash([]);
   // workbench with a vise
   rr(c,956,450,228,16,3);fs(c,'#9a6740',3);for(const x of[966,1164]){rr(c,x,466,12,134,2);fs(c,'#7d5135',2.5);}rr(c,966,540,210,8,2);fs(c,'#7d5135',2);
-  rr(c,1112,404,26,46,5);fs(c,'#5c6670',2.5);c.fillStyle='rgba(255,255,255,.18)';c.fillRect(1116,409,4,36);rr(c,1118,396,14,10,2);fs(c,'#4a535c',2);rr(c,1116,389,18,8,3);fs(c,'#2f363d',2);rr(c,1114,420,22,12,2);fs(c,'#e2c36a',1.5);
+  c.save();c.translate(1127,450);rr(c,-18,-50,36,50,5);fs(c,'#7d868e',2.5);rr(c,-12,-58,10,10,2);fs(c,'#7d868e',2);rr(c,4,-57,9,8,2);fs(c,'#5a6168',1.8);
+  c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=2;c.beginPath();c.moveTo(-12,-40);c.lineTo(12,-10);c.moveTo(12,-40);c.lineTo(-12,-10);c.stroke();c.restore();
   // floor: concrete with an oil stain
   c.fillStyle='#7c858c';c.fillRect(0,560,W,160);c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=2;for(const x of[200,520,840,1160]){c.beginPath();c.moveTo(x,560);c.lineTo(x+(x-640)*.4,720);c.stroke();}
   
   c.fillStyle='#e8c35a';c.fillRect(0,548,W,14);c.fillStyle='#2b2b33';for(let x=0;x<W;x+=40)poly(c,[x,548,x+20,548,x+6,562,x-14,562]),c.fill();
   c.strokeStyle=OUT;c.lineWidth=3;c.beginPath();c.moveTo(0,548);c.lineTo(W,548);c.moveTo(0,562);c.lineTo(W,562);c.stroke();
   // bucket of nuts in front of the bench (heap is a pickup)
-  poly(c,[1000,516,1080,516,1072,600,1008,600]);fs(c,'#9aa3b5',3);ell(c,1040,516,40,8);fs(c,'#7f8896',2.5);
+  poly(c,[1000,516,1080,516,1072,600,1008,600]);fs(c,'#9aa3b5',3);rr(c,996,511,88,9,3);fs(c,'#848d9c',2.5);c.fillStyle='rgba(255,255,255,.2)';c.fillRect(1010,524,6,70);
 }
 function drawGarageFG(c){}
 function drawCar(c,t){
@@ -2498,7 +2499,6 @@ function drawGarageDyn(c,t,dt){
     c.save();rr(c,1130,y,68,39,13);c.clip();c.fillStyle='#34343c';for(let x=1134;x<1196;x+=9){c.fillRect(x,y+8,5,9);c.fillRect(x+4,y+22,5,9);}
     c.fillStyle='rgba(255,255,255,.08)';c.fillRect(1130,y+3,68,3);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(1130,y+33,68,6);c.restore();
     rr(c,1130,y,68,39,13);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();}
-  if(garage.tires>0){const y=FLOOR-40*garage.tires;ell(c,1164,y+2,32,7);fs(c,'#2c2c33',2.5);ell(c,1164,y+2,15,3.4);c.fillStyle='#0e0e12';c.fill();}
   for(const x of garage.lying){ell(c,x,FLOOR-8,36,10);fs(c,'#26262c',2.5);ell(c,x,FLOOR-10,16,4);c.fillStyle='#5c6670';c.fill();}
   if(garage.roll)drawTireAt(c,garage.roll.x,FLOOR-34,garage.roll.rot);
   // key fob on its hook
@@ -2570,9 +2570,9 @@ function makeObjsL7(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   return[
     O('tube',430,196,null,{w:220,h:22,fragile:true,knockable:false,cost:900,label:'Лампа',hang:true,hurts:16,hurtLabel:'Лампой!'}),
-    O('hamH',996,320,null,{w:34,h:96,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'hammer',braidN:1,hurts:12,hurtLabel:'Молотком!'}),
-    O('wrenchH',1046,312,null,{w:30,h:88,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'wrench',braidN:1,hurts:10,hurtLabel:'Ключом!'}),
-    O('wrenchH',1102,300,null,{w:30,h:80,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'wrench',braidN:1,hurts:10,hurtLabel:'Ключом!'}),
+    O('hamH',996,320,null,{braidSc:2,w:34,h:96,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'hammer',braidN:1,hurts:12,hurtLabel:'Молотком!'}),
+    O('wrenchH',1046,312,null,{braidSc:2,w:30,h:88,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'wrench',braidN:1,hurts:10,hurtLabel:'Ключом!'}),
+    O('wrenchH',1102,300,null,{braidSc:1.85,w:30,h:80,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'wrench',braidN:1,hurts:10,hurtLabel:'Ключом!'}),
     O('paint',80,200,'shelfA',{w:34,h:40,fragile:true,knockable:true,cost:600,label:'Банка краски',col:'#3f7fd8'}),
     O('canister',200,200,'shelfA',{w:40,h:54,fragile:false,knockable:true,cost:400,label:'Канистра'}),
     O('toolbox',110,320,'shelfB',{w:66,h:38,fragile:true,knockable:true,cost:300,label:'Ящик с инструментами',drops:['bandage','plaster','wrench']}),
@@ -2587,7 +2587,7 @@ function makeFurnL7(){const C=(x1,y1,x2,y2)=>({x1,y1,x2,y2,hp:999,cost:0,custom:
 };}
 function picksL7(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
-  return[crate('nut',1040,24,512),mkPick('kit',150,200),mkPick('nut',380,FLOOR),mkPick('nut',700,FLOOR),mkPick('wrench',880,FLOOR),mkPick('ball',1000,FLOOR),mkPick('slipper',560,FLOOR),Object.assign(mkPick('hammer',1082,442),{rot:-Math.PI/2}),mkPick('rag',1000,450),mkPick('rag',1040,450),mkPick('wrench',260,FLOOR),mkPick('slipper',940,FLOOR),mkPick('ball',140,FLOOR),mkPick('zelenka',1158,450)];
+  return[crate('nut',1040,24,512),mkPick('kit',150,200),mkPick('nut',380,FLOOR),mkPick('nut',700,FLOOR),mkPick('wrench',880,FLOOR),mkPick('ball',1000,FLOOR),mkPick('slipper',560,FLOOR),Object.assign(mkPick('hammer',1082,440),{rot:Math.PI/2}),mkPick('rag',1000,450),mkPick('rag',1040,450),mkPick('wrench',260,FLOOR),mkPick('slipper',940,FLOOR),mkPick('ball',140,FLOOR),mkPick('zelenka',1158,450)];
 }
 LEVELS.push({n:7,name:'Гараж',sub:'Машина с сигнализацией и два кота',plats:PLATS_L7,glass:GLASS_L7,exit:EXIT_L7,
   front:[],back:['fuse','carHead','carWinR','carWinM','carWinF','carWinS','carBody','tires'],knockOff:{carRoof:'С крыши минивэна!',carHood:'С капота!'},think:kidsThink,
@@ -2623,8 +2623,10 @@ const SPECIES={
 // the apple tree: crown blobs and where its apples hang (the apples are pickups)
 const YARD_CROWN=[[1060,250,52],[1110,205,62],[1175,190,66],[1235,230,52],[1255,290,40],[1205,285,56],[1135,280,60],[1075,300,42],[1150,140,50],[1210,145,44],[1100,150,40],[1035,280,34]];
 const YARD_KIT=[1094,248];
-const YARD_APPLES=(()=>{const inC=(x,y)=>YARD_CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12),A=[];
-  for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inC(x,y)&&x<1192&&Math.hypot(x-1104,y-276)>30)A.push([x,y]);}A.push([1119,281]);return A;})();
+const YARD_APPLES_ALL=(()=>{const inC=(x,y)=>YARD_CROWN.some(([cx,cy,r])=>Math.hypot(x-cx,(y-cy)/.86)<r-12),A=[];
+  for(let r=0;r<4;r++)for(let k=0;k<5;k++){const x=1040+k*52+(r%2)*26+((r*7+k*13)%11-5)*2,y=150+r*48+((r*5+k*3)%7-3)*3;if(inC(x,y)&&Math.hypot(x-1104,y-276)>30)A.push([x,y]);}A.push([1119,281]);return A;})();
+// apples under the right-hand slot column can't be clicked: they are painted on the tree, the rest can be picked
+const YARD_APPLES=YARD_APPLES_ALL.filter(([x])=>x<1192),YARD_APPLES_DECO=YARD_APPLES_ALL.filter(([x])=>x>=1192);
 let yard={birds:[],banned:[],birdT:3,mower:{on:false,x:342,dir:1},zapCd:0,zapT:0,zaps:0,burnt:false,apples:8,folded:{}};
 function drawYard(c){
   // pre-dawn sky over the neighbours' roofs
@@ -2641,6 +2643,7 @@ function drawYard(c){
   for(const[x,y,r]of CROWN){ell(c,x,y,r,r*.86);c.lineWidth=6;c.strokeStyle=OUT;c.stroke();}
   for(const[x,y,r]of CROWN){ell(c,x,y,r,r*.86);c.fillStyle='#4a8f43';c.fill();}
   for(const[x,y,r]of CROWN){ell(c,x+r*.18,y+r*.3,r*.7,r*.5);c.fillStyle='rgba(20,60,25,.35)';c.fill();ell(c,x-r*.3,y-r*.35,r*.42,r*.3);c.fillStyle='rgba(170,220,120,.32)';c.fill();}
+  for(const[x,y]of YARD_APPLES_DECO)drawItem(c,'apple',x,y+9,1,0,true,0);
   c.strokeStyle='rgba(20,60,25,.45)';c.lineWidth=2;for(let i=0;i<60;i++){const[x,y,r]=CROWN[i%CROWN.length],a=i*2.4,d=r*((i*37%60)/80);const px=x+Math.cos(a)*d,py=y+Math.sin(a)*d*.8;c.beginPath();c.moveTo(px,py);c.quadraticCurveTo(px+5,py-6,px+9,py-2);c.stroke();}
   // picket fence
   rr(c,250,462,1040,12,3);fs(c,'#e9e4d8',2.5);rr(c,250,520,1040,12,3);fs(c,'#e9e4d8',2.5);
@@ -2720,7 +2723,7 @@ function drawYardDyn(c,t,dt){
   for(const x of[408,892]){rr(c,x-4,226,8,374,2);fs(c,'#9aa3b5',2);}c.strokeStyle='#f6f2ea';c.lineWidth=2;c.beginPath();c.moveTo(408,232);c.quadraticCurveTo(650,252,892,232);c.stroke();
   // apple crate: slatted wooden box (the heap on top is a pickup)
   rr(c,382,552,68,48,3);fs(c,'#d9a465',2.5);c.fillStyle='rgba(60,30,10,.55)';c.fillRect(386,566,60,3);c.fillRect(386,582,60,3);
-  rr(c,382,552,8,48,2);fs(c,'#c98a52',1.5);rr(c,442,552,8,48,2);fs(c,'#c98a52',1.5);ell(c,416,590,6,6);fs(c,'#e2433a',1.5);c.strokeStyle='#4a8f43';c.lineWidth=2;c.beginPath();c.moveTo(416,584);c.lineTo(420,579);c.stroke();
+  rr(c,382,552,8,48,2);fs(c,'#c98a52',1.5);rr(c,442,552,8,48,2);fs(c,'#c98a52',1.5);
   // wicker basket of balls by the bean bag, basket of apples under the tree
   for(const[x,col]of[[1088,'#c98a52'],[1160,'#b57a46']]){c.beginPath();c.moveTo(x-30,566);c.lineTo(x+30,566);c.lineTo(x+24,600);c.lineTo(x-24,600);c.closePath();fs(c,col,2.5);
     c.strokeStyle='rgba(60,30,10,.5)';c.lineWidth=1.5;for(let y=574;y<600;y+=8){c.beginPath();c.moveTo(x-28,y);c.lineTo(x+28,y);c.stroke();}for(let dx=-20;dx<=20;dx+=10){c.beginPath();c.moveTo(x+dx,566);c.lineTo(x+dx*.85,600);c.stroke();}
