@@ -2680,7 +2680,7 @@ function drawYard(c){
   roof();c.fillStyle='#8a4a3a';c.fill();
   c.save();roof();c.clip();c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=1.4;c.beginPath();c.moveTo(130,293);c.lineTo(242,293);
   for(let x=138;x<240;x+=12){c.moveTo(x+6,286);c.lineTo(x+6,293);c.moveTo(x,293);c.lineTo(x,300);}c.stroke();c.restore();
-  roof();c.lineWidth=2.5;c.strokeStyle=OUT;c.stroke();
+  c.save();c.lineJoin="round";c.lineCap="round";c.beginPath();c.moveTo(136,300);c.lineTo(146,286);c.lineTo(226,286);c.lineTo(236,300);c.lineWidth=2.5;c.strokeStyle=OUT;c.stroke();c.restore();
   rr(c,136,299,100,6,0);fs(c,'#f6f2ea',2);
   rr(c,150,322,72,148,4);fs(c,'#7a4a2e',3);rr(c,160,334,52,58,3);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.25)';c.stroke();rr(c,160,402,52,58,3);c.stroke();ell(c,206,404,4,4);fs(c,'#e8c35a',1.5);
   // porch: plank deck, railing, lattice skirt and steps
