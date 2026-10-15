@@ -754,12 +754,12 @@ function drawItem(c,kind,x,y,sc,rot,lying,t,col){
     ell(c,0,0,10,10);fs(c,'#f39a2b',2.5);c.fillStyle='rgba(180,90,20,.35)';for(let i=0;i<6;i++){ell(c,-5+((i*7)%11),-4+((i*5)%9),.9,.9);c.fill();}ell(c,2,-10,3.5,1.8,.4);fs(c,'#4bb04f',1.2);
     break;
   case 'banana':
-    // a full-size curved banana: thick crescent, ridge, stem and dark tip
-    c.beginPath();c.moveTo(-21,-9);c.bezierCurveTo(-12,8,12,8,22,-8);c.bezierCurveTo(14,-1,-12,-1,-21,-9);c.closePath();fs(c,'#f6d34a',2.4);
-    c.beginPath();c.moveTo(-17,-5);c.bezierCurveTo(-8,5,8,5,18,-5);c.strokeStyle='rgba(190,140,30,.55)';c.lineWidth=1.6;c.stroke();
-    c.beginPath();c.moveTo(-14,-3);c.bezierCurveTo(-6,2,4,2,12,-2);c.strokeStyle='rgba(255,250,200,.7)';c.lineWidth=1.4;c.stroke();
-    c.save();c.translate(22,-8);c.rotate(-.7);rr(c,-1.5,-6,4,7,1.5);fs(c,'#7a5a2a',1.6);c.restore();
-    ell(c,-21,-9,2.6,2.2);c.fillStyle='#4a3218';c.fill();
+    // a big curved banana: thick crescent, ridge, highlight, stem and dark tip
+    c.beginPath();c.moveTo(-27,-12);c.bezierCurveTo(-15,11,15,11,28,-11);c.bezierCurveTo(17,-6,-15,-6,-27,-12);c.closePath();fs(c,'#f6d34a',2.6);
+    c.beginPath();c.moveTo(-22,-6);c.bezierCurveTo(-11,7,11,7,23,-5);c.strokeStyle='rgba(190,140,30,.6)';c.lineWidth=1.8;c.stroke();
+    c.beginPath();c.moveTo(-17,-7);c.bezierCurveTo(-7,-1,6,-1,16,-6);c.strokeStyle='rgba(255,250,200,.75)';c.lineWidth=1.8;c.stroke();
+    c.save();c.translate(28,-11);c.rotate(-.7);rr(c,-2,-8,5,9,2);fs(c,'#7a5a2a',1.8);c.restore();
+    ell(c,-27,-12,3.2,2.8);c.fillStyle='#4a3218';c.fill();
     break;
   case 'kit':
     c.beginPath();c.arc(0,-13,7,Math.PI,0);c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.5;c.strokeStyle='#ddd';c.stroke();
@@ -1633,7 +1633,7 @@ function paintLevel(L){
 function makeThumb(L){
   const cv2=document.createElement('canvas');cv2.width=640;cv2.height=360;const c=cv2.getContext('2d');c.scale(.5,.5);
   const keep=[furn,objs,marks,flood];furn=L.furn();objs=L.objs();marks=[];flood=0;
-  L.room(c);L.dyn(c,0,0);for(const o of objs)drawObj(c,o,0);for(const it of L.picks())drawPick(c,it,0);L.fg(c);
+  L.room(c);L.dyn(c,0,0);const lp=L.picks();for(const it of lp)if(it.inBowl)drawPick(c,it,0);for(const o of objs)drawObj(c,o,0);for(const it of lp)if(!it.inBowl)drawPick(c,it,0);L.fg(c);
   [furn,objs,marks,flood]=keep;return cv2;
 }
 
@@ -1723,7 +1723,7 @@ function picksL3(){
   const shut=(k,x,y)=>Object.assign(mkPick(k,x,y),{hidden:true,hiddenIn:'medcab'});
   const jar=(x,y,i)=>Object.assign(mkPick('spice',x,y,SPICE_COLS[i%6]),{hidden:true,hiddenIn:'cab1'});
   return[
-    fruit('apple',1146,454),fruit('orange',1166,452),fruit('apple',1186,454),Object.assign(fruit('banana',1168,462),{rot:-.12}),
+    fruit('apple',1144,447),fruit('orange',1166,444),fruit('apple',1188,447),Object.assign(fruit('banana',1166,442),{rot:-.08}),
     mkPick('towel',925,456),mkPick('towel',995,456),mkPick('slipper',360,FLOOR),
     shut('kit',1132,206),shut('bandage',1186,206),shut('zelenka',1140,262),shut('bandage',1186,262),
     ...[0,1,2,3].flatMap(i=>[jar(331+i*29,176,i),jar(331+i*29,245,i+2)]),
@@ -2103,7 +2103,7 @@ function picksL5(){
     cush('cb',140,420,132,64,'#d9a43a'),cush('cs',140,488,140,32,'#e2b14a'),
     cush('sb1',366,420,116,68,'#3f8f8a'),cush('sb2',490,420,116,68,'#3f8f8a'),cush('sb3',614,420,116,68,'#3f8f8a'),
     cush('ss1',366,482,118,34,'#47a39c'),cush('ss2',490,482,118,34,'#47a39c'),cush('ss3',614,482,118,34,'#47a39c'),
-    fruit('apple',1149,428),fruit('orange',1168,426),Object.assign(fruit('banana',1159,438),{rot:-.12}),
+    fruit('apple',1142,420),fruit('orange',1172,418),Object.assign(fruit('banana',1158,424),{rot:-.06}),
     mkPick('block',420,612,'#e2433a'),mkPick('block',452,622,'#3f7fd8'),mkPick('block',700,616,'#f0c040'),mkPick('ball',820,620),mkPick('block',890,630,'#5fb36a'),
     mkPick('slipper',262,FLOOR),
   ];
@@ -3311,10 +3311,12 @@ function render(now){
   c.restore();
   LV.dyn(c,t,game.running&&!game.paused?Math.min(.033,t-(render.lt||t)):0);render.lt=t;
   for(const d of debris){for(const s of d.sh){c.save();c.translate(d.x+s.dx,d.y-2);c.rotate(s.rot);poly(c,s.pts);fs(c,s.color,1.5);c.restore();}if(d.type==='pot'){ell(c,d.x,d.y-4,34,8);c.fillStyle='#4a2e1c';c.fill();}if(d.type==='glass'){ell(c,d.x+10,d.y-1,30,4);c.fillStyle='rgba(120,190,255,.45)';c.fill();}}
+  const pickGlow=it=>{if(it.rest&&!it.crate&&!it.big){const pulse=.5+.5*Math.sin(t*4+it.x);ell(c,it.x,it.y,it.r+12+pulse*3,(it.r+12+pulse*3)*.75);c.fillStyle=`rgba(255,236,150,${.14+pulse*.12})`;c.fill();}};
+  for(const it of picks)if(it.inBowl&&!it.hidden){pickGlow(it);drawPick(c,it,t);}
   if(objs)for(const o of objs)if(o.state!=='broken')drawObj(c,o,t);
   // pickups
   for(const it of picks){
-    if(it.hidden)continue;
+    if(it.hidden||it.inBowl)continue;
     if(it.rest&&!it.crate&&!it.big){const pulse=.5+.5*Math.sin(t*4+it.x);ell(c,it.x,it.y,it.r+12+pulse*3,(it.r+12+pulse*3)*.75);c.fillStyle=`rgba(255,236,150,${.14+pulse*.12})`;c.fill();}
     drawPick(c,it,t);
   }
