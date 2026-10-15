@@ -931,7 +931,9 @@ function drawObj(c,o,t){
     break;
   case 'chandelier':drawChandelier(c,t,o.state==='stand');break;
   case 'teapot':
-    c.beginPath();c.moveTo(16,-22);c.quadraticCurveTo(30,-26,30,-34);c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.5;c.strokeStyle='#f6f2ea';c.stroke();
+    // short tapered spout: wide where it joins the body, narrowing to an upturned tip
+    c.beginPath();c.moveTo(12,-6);c.quadraticCurveTo(24,-8,27,-21);c.lineTo(31,-25);c.quadraticCurveTo(30,-28,26,-27);c.quadraticCurveTo(21,-17,12,-20);c.closePath();fs(c,'#f6f2ea',2.5);
+    ell(c,28.6,-26,2.6,1.4);c.fillStyle='#c9c2b4';c.fill();
     c.beginPath();c.arc(-20,-16,8,Math.PI*.5,Math.PI*1.5);c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.5;c.strokeStyle='#f6f2ea';c.stroke();
     ell(c,0,-14,20,14);fs(c,'#f6f2ea',2.5);c.strokeStyle='#3f7fd8';c.lineWidth=2;c.beginPath();c.moveTo(-17,-12);c.quadraticCurveTo(0,-4,17,-12);c.stroke();
     ell(c,0,-28,10,3);fs(c,'#f6f2ea',2);ell(c,0,-33,3,3);fs(c,'#3f7fd8',1.5);
@@ -2081,12 +2083,11 @@ function makeObjsL5(){
   return[
     O('chandelier',330,214,null,{skip:['sofaBack','chairBack'],w:150,h:84,fragile:true,knockable:false,cost:9000,label:'Люстра',hang:true,hurts:28,hurtLabel:'Люстрой!'}),
     O('books',875,230,'bookshelf',{w:62,h:52,fragile:false,knockable:true,cost:300,label:'Книги'}),
-    O('plate',1029,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
-    O('glass',1059,440,'table',{w:22,h:32,fragile:true,knockable:true,cost:400,label:'Бокал'}),
-    O('plate',1085,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
-    O('teapot',1116,440,'table',{w:44,h:36,fragile:true,knockable:true,cost:1200,label:'Чайник'}),
-    O('bowl',1159,440,'table',{w:62,h:24,fragile:true,knockable:true,cost:900,label:'Ваза с фруктами'}),
-    O('candle',1182,440,'table',{w:20,h:26,fragile:true,knockable:true,cost:200,label:'Свеча'}),
+    O('plate',1022,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
+    O('glass',1047,440,'table',{w:22,h:32,fragile:true,knockable:true,cost:400,label:'Бокал'}),
+    O('teapot',1082,440,'table',{w:44,h:36,fragile:true,knockable:true,cost:1200,label:'Чайник'}),
+    O('bowl',1153,440,'table',{w:62,h:24,fragile:true,knockable:true,cost:900,label:'Ваза с фруктами'}),
+    O('candle',1186,440,'table',{w:20,h:26,fragile:true,knockable:true,cost:200,label:'Свеча'}),
   ];
 }
 function makeFurnL5(){return{
@@ -2103,7 +2104,7 @@ function picksL5(){
     cush('cb',140,420,132,64,'#d9a43a'),cush('cs',140,488,140,32,'#e2b14a'),
     cush('sb1',366,420,116,68,'#3f8f8a'),cush('sb2',490,420,116,68,'#3f8f8a'),cush('sb3',614,420,116,68,'#3f8f8a'),
     cush('ss1',366,482,118,34,'#47a39c'),cush('ss2',490,482,118,34,'#47a39c'),cush('ss3',614,482,118,34,'#47a39c'),
-    fruit('apple',1142,420),fruit('orange',1172,418),Object.assign(fruit('banana',1158,424),{rot:-.06}),
+    fruit('apple',1136,420),fruit('orange',1166,418),Object.assign(fruit('banana',1152,424),{rot:-.06}),
     mkPick('block',420,612,'#e2433a'),mkPick('block',452,622,'#3f7fd8'),mkPick('block',700,616,'#f0c040'),mkPick('ball',820,620),mkPick('block',890,630,'#5fb36a'),
     mkPick('slipper',262,FLOOR),
   ];
