@@ -1704,11 +1704,7 @@ function drawKitchen(c){
   rr(c,1094,472,144,20,3);fs(c,'#a8714a',2.5);rr(c,1140,476,52,11,2.5);fs(c,'#bf8a5c',2);ell(c,1166,481.5,3.2,3.2);fs(c,'#f2c75a',1.5);
   rr(c,1082,462,168,14,4);fs(c,'#b27b4f',3);c.fillStyle='rgba(255,240,215,.35)';c.fillRect(1088,465,156,3);
 }
-function drawKitchenFG(c){
-  const g=c.createLinearGradient(0,650,0,720);g.addColorStop(0,'#d06a52');g.addColorStop(1,'#9c3f33');
-  c.beginPath();c.moveTo(-10,730);c.lineTo(-10,682);c.bezierCurveTo(240,666,440,690,640,676);c.bezierCurveTo(860,664,1080,688,1290,676);c.lineTo(1290,730);c.closePath();c.fillStyle=g;c.fill();c.lineWidth=4;c.strokeStyle=OUT;c.stroke();
-  c.save();c.clip();c.fillStyle='rgba(255,230,190,.45)';for(let x=-20;x<1300;x+=90){c.fillRect(x,660,14,80);c.fillRect(x+24,660,6,80);}c.restore();
-}
+function drawKitchenFG(c){}
 function makeObjsL3(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   return[
