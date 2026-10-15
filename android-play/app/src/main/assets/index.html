@@ -2431,11 +2431,11 @@ const PLATS_L7=[
  {id:'carRoof',x1:314,x2:800,y:298},
  {id:'carHood',x1:890,x2:940,y:410},
  {id:'bench',x1:962,x2:1178,y:450},
- {id:'tires',x1:1104,x2:1196,y:504},
+ {id:'tires',x1:1104,x2:1196,y:472},
 ];
 const EXIT_L7={x1:-20,y1:-20,x2:-10,y2:-10},GLASS_L7=[{x1:792,y1:96,x2:928,y2:176}];
 const FOB={x:1150,y:262};
-let garage={alarm:0,head:false,tires:3,roll:null,lying:[],sirenT:0,power:true};
+let garage={alarm:0,head:false,tires:4,rolls:[],lying:[],sirenT:0,power:true};
 const MHOLE=290;
 function drawGarage(c){
   // concrete block walls
@@ -2515,7 +2515,7 @@ function drawGarageDyn(c,t,dt){
   rr(c,904,garage.power?220:244,10,14,3);fs(c,garage.power?'#5fb36a':'#e2433a',1.5);
   for(let i=0;i<garage.tires;i++)drawTireSide(c,1150,FLOOR-32*i);
   for(const x of garage.lying)drawTireSide(c,x,FLOOR);
-  if(garage.roll)drawTireAt(c,garage.roll.x,FLOOR-48,garage.roll.rot);
+  for(const R of garage.rolls)drawTireAt(c,R.x,FLOOR-48,R.rot);
   // key fob on its hook
   c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.arc(FOB.x,FOB.y-22,5,0,Math.PI*2);c.stroke();c.beginPath();c.moveTo(FOB.x,FOB.y-17);c.lineTo(FOB.x,FOB.y-12);c.stroke();
   rr(c,FOB.x-11,FOB.y-12,22,32,7);fs(c,'#26262c',2.5);ell(c,FOB.x,FOB.y-2,4,4);fs(c,'#e2433a',1.2);ell(c,FOB.x,FOB.y+9,4,4);fs(c,'#5c6670',1.2);
@@ -2535,11 +2535,17 @@ function carHit(p,id){
   }else sThud();
   alarmStart();
 }
+// every hit on the stack sends a tyre rolling, even while the previous one is still on its way
 function tiresHit(p){
-  if(garage.tires<=0||garage.roll){sThud();return;}
-  garage.tires--;garage.roll={x:1150,vx:-460,rot:0,hit:[]};sThud();pop(1150,FLOOR-130,'Покрышка покатилась!','#fff',18);
-  const pl=platById('tires');if(garage.tires>0)pl.y=FLOOR-32*garage.tires;else pl.off=true;
+  p.away=true;
+  if(garage.tires<=0){sThud();return;}
+  garage.tires--;garage.rolls.push({x:1150,vx:-rnd(390,520),rot:0,hit:[]});sThud();pop(1150,FLOOR-32*garage.tires-40,'Покрышка покатилась!','#fff',18);
+  tiresTop();
 }
+// the stack's platform and hit box follow its height
+function tiresTop(){const pl=platById('tires'),f=furn.tires;pl.off=garage.tires<=0;pl.y=FLOOR-32*garage.tires;f.y1=FLOOR-32*garage.tires-4;}
+// a tap on the stack throws at it: only a pickup right under the finger is collected instead
+const TIRE_BOX=(x,y)=>LV.n===7&&garage.tires>0&&x>1102&&x<1198&&y>FLOOR-32*garage.tires&&y<FLOOR;
 function fuseHit(p){
   sClick();burst(888,240,['#ffe27a','#fff'],8,220,'shard');
   if(objs.some(o=>o.type==='tube'&&o.state==='broken')){pop(888,190,'Лампа разбита','#fff',18);return;}
@@ -2572,10 +2578,9 @@ function garageTick(dt){
   if(garage.landAlarm){garage.landAlarm=false;alarmStart();}
   if(garage.alarm>0){garage.alarm-=dt;player.sleep=Math.max(0,player.sleep-2.6*dt);garage.sirenT-=dt;
     if(garage.sirenT<=0){garage.sirenT=.5;tone('square',garage.alt?1100:750,garage.alt?750:1100,.45,.06);garage.alt=!garage.alt;}}
-  const R=garage.roll;
-  if(R){R.x+=R.vx*dt;R.rot+=R.vx*dt/34;R.vx+=150*dt;
+  for(const R of garage.rolls.slice()){R.x+=R.vx*dt;R.rot+=R.vx*dt/34;R.vx+=150*dt;
     for(const k of cats)if(!R.hit.includes(k)&&k.state!=='asleep'&&!k.air&&k.plat==='floor'&&Math.abs(k.x-R.x)<44*k.b.size){R.hit.push(k);fur(k,6);if(!hurtCat(k,18,'Покрышкой!')){k.state='stunned';k.stunType='daze';k.stunT=1.4;k.kvx=R.vx*.3;}}
-    if(R.vx>-40||R.x<70){garage.lying.push(clamp(R.x,70,1150));garage.roll=null;sThud();}}
+    if(R.vx>-40||R.x<70){garage.lying.push(clamp(R.x,70,1150));garage.rolls.splice(garage.rolls.indexOf(R),1);sThud();}}
 }
 function garageLand(k){if(k.plat.startsWith('car'))garage.landAlarm=true;}
 function garageObjLand(o,pl){
@@ -2599,7 +2604,7 @@ function makeObjsL7(){
 function makeFurnL7(){const C=(x1,y1,x2,y2)=>({x1,y1,x2,y2,hp:999,cost:0,custom:carHit});return{
   carHead:C(900,414,948,446),carWinR:C(306,316,454,398),carWinM:C(458,316,644,398),carWinF:C(648,316,802,398),carWinS:C(804,312,880,400),carBody:C(288,294,950,548),
   fuse:{x1:858,y1:200,x2:918,y2:276,hp:999,cost:0,custom:fuseHit},
-  tires:{x1:1100,y1:500,x2:1200,y2:600,hp:999,cost:0,custom:tiresHit},
+  tires:{x1:1100,y1:468,x2:1200,y2:600,hp:999,cost:0,custom:tiresHit},
 };}
 function picksL7(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
@@ -2611,7 +2616,7 @@ LEVELS.push({n:7,name:'Гараж',sub:'Машина с сигнализацие
   room:drawGarage,fg:drawGarageFG,objs:makeObjsL7,furn:makeFurnL7,dyn:drawGarageDyn,picks:picksL7,tick:garageTick,post:garagePost,hitX:garageHit,onLand:garageLand,onObjLand:garageObjLand,
   catX:640,second:1100,secondBreed:'black',outTo:'Потеряно',lostLabel:'Потеряно',lostWhere:'закатилось под машину',glassLabel:'Окошко',
   win:'Вмятины выправите утром.',hello:'Котов двое. Не задевайте машину: от сигнализации уходит сон. Брелок висит на стене.',
-  init:()=>{garage={alarm:0,head:false,tires:3,roll:null,lying:[],sirenT:0,power:true};kids={mouse:{s:'hole',x:MHOLE,y:FLOOR,vx:0,t:0,cd:rnd(5,8)}};const pl=platById('tires');pl.y=FLOOR-96;}});
+  init:()=>{garage={alarm:0,head:false,tires:4,rolls:[],lying:[],sirenT:0,power:true};kids={mouse:{s:'hole',x:MHOLE,y:FLOOR,vx:0,t:0,cd:rnd(5,8)}};tiresTop();}});
 
 /* ---------------- level 8: the yard, all seven cats ---------------- */
 const PLATS_L8=[
@@ -2675,13 +2680,13 @@ function drawYard(c){
   for(const[x,y,w,h]of[[40,140,84,92],[150,140,70,92],[30,262,90,104]]){rr(c,x-6,y-6,w+12,h+12,3);fs(c,'#f6f2ea',2.5);rr(c,x,y,w,h,2);fs(c,'#3d5068',2);c.fillStyle='#ffd36b';c.globalAlpha=.55;c.fillRect(x+3,y+3,w-6,h-6);c.globalAlpha=1;c.fillStyle='#f6f2ea';c.fillRect(x+w/2-2,y,4,h);c.fillRect(x,y+h/2-2,w,4);}
   // door canopy: a straight tiled slab (tiles laid like brickwork) on a white fascia, held by two square-cut brackets beside the door
   for(const x of[140,226]){rr(c,x,305,6,13,0);fs(c,'#f6f2ea',2);}
-  // tiled part: a trapezoid widening downwards, centred on the door (x 186)
+  // tiled part: a trapezoid widening downwards, centred on the door (x 186); roof and fascia share one outline so the corners stay clean
   const roof=()=>{c.beginPath();c.moveTo(146,286);c.lineTo(226,286);c.lineTo(236,300);c.lineTo(136,300);c.closePath();};
-  roof();c.fillStyle='#8a4a3a';c.fill();
+  roof();c.fillStyle='#8a4a3a';c.fill();c.fillStyle='#f6f2ea';c.fillRect(136,300,100,6);
   c.save();roof();c.clip();c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=1.4;c.beginPath();c.moveTo(130,293);c.lineTo(242,293);
   for(let x=138;x<240;x+=12){c.moveTo(x+6,286);c.lineTo(x+6,293);c.moveTo(x,293);c.lineTo(x,300);}c.stroke();c.restore();
-  c.save();c.lineJoin="round";c.lineCap="round";c.beginPath();c.moveTo(136,300);c.lineTo(146,286);c.lineTo(226,286);c.lineTo(236,300);c.lineWidth=2.5;c.strokeStyle=OUT;c.stroke();c.restore();
-  rr(c,136,299,100,6,0);fs(c,'#f6f2ea',2);
+  c.save();c.lineJoin='round';c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(136,300);c.lineTo(236,300);c.stroke();
+  c.lineWidth=2.5;c.beginPath();c.moveTo(146,286);c.lineTo(226,286);c.lineTo(236,300);c.lineTo(236,306);c.lineTo(136,306);c.lineTo(136,300);c.closePath();c.stroke();c.restore();
   rr(c,150,322,72,148,4);fs(c,'#7a4a2e',3);rr(c,160,334,52,58,3);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.25)';c.stroke();rr(c,160,402,52,58,3);c.stroke();ell(c,206,404,4,4);fs(c,'#e8c35a',1.5);
   // porch: plank deck, railing, lattice skirt and steps
   rr(c,-10,466,280,14,3);fs(c,'#b57a46',3);
@@ -2874,7 +2879,7 @@ function treeHit(p){
 function makeObjsL8(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   const wash=(x,kind,col)=>O('laundry',x,312,null,{w:56,h:72,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:kind,braidN:1,hurts:5,hurtLabel:'Мокрым бельём!',col});
-  return[wash(500,'towel','#3fa9d4'),wash(650,'pillow','#a9aeb8'),wash(800,'towel','#f07fae'),
+  return[wash(500,'towel','#3fa9d4'),wash(650,'pillow','#f2c94c'),wash(800,'towel','#f07fae'),
     O('glass',590,470,'table8',{w:22,h:32,fragile:true,knockable:true,cost:300,label:'Стакан лимонада',water:true}),
     O('glass',632,470,'table8',{w:22,h:32,fragile:true,knockable:true,cost:300,label:'Стакан лимонада',water:true}),
     O('bowl',688,470,'table8',{w:62,h:24,fragile:true,knockable:true,cost:600,label:'Миска с яблоками'}),
@@ -3018,7 +3023,7 @@ function walls(e,r){if(e.x<14+r){e.x=14+r;e.vx=Math.abs(e.vx)*.5;}if(e.x>W-14-r)
 /* ---------------- player actions ---------------- */
 function toWorld(ev){const r=cv.getBoundingClientRect(),k=r.width/W;return{x:(ev.clientX-r.left)/k,y:(ev.clientY-r.top)/k+viewOY};}
 // an awake cat in front of an item takes the click: the player is aiming at the cat, not reaching for the item behind it
-function pickAt(x,y){for(const k of cats)if(catActive(k)&&catHit(k,x,y,8))return null;let best=null,bd=1e9;for(const it of picks){if(!it.rest||it.hidden||it.empty)continue;const d=Math.hypot(it.x-x,it.y-y);if(d<it.r+24&&d<bd){bd=d;best=it;}}return best;}
+function pickAt(x,y){for(const k of cats)if(catActive(k)&&catHit(k,x,y,8))return null;let best=null,bd=1e9;const slack=TIRE_BOX(x,y)?0:24;for(const it of picks){if(!it.rest||it.hidden||it.empty)continue;const d=Math.hypot(it.x-x,it.y-y);if(d<it.r+slack&&d<bd){bd=d;best=it;}}return best;}
 function catDanger(it){for(const k of cats){if(!catActive(k))continue;const bd=catBody(k);if(Math.hypot(bd.x-it.x,bd.y-it.y)<190*k.b.size)return k;}return null;}
 function tryCollect(it){
   const dk=catDanger(it);
@@ -3242,7 +3247,7 @@ function update(dt){
           else if(!p.touched&&GLASS.some(g=>inRect(g,p.x,p.y))){if(a.obj>=1){if(!cracks.length)addDamage({cost:5000,label:LV.glassLabel},p.x,p.y-30);cracks.push({x:p.x,y:p.y});sCrash();}else sThud();}
           else if(!p.touched&&hitFurniture(BACK,p)){}
           else if(p.kind==='ball')sBoing();else sThud();
-          p.vx*=.22;p.vy=Math.max(-80,vyNow*.15);if(p.kind==='ball')p.vy=-Math.abs(vyNow)*.18;
+          p.vx*=.22;p.vy=Math.max(-80,vyNow*.15);if(p.away){p.vx=-rnd(260,340);p.away=false;}if(p.kind==='ball')p.vy=-Math.abs(vyNow)*.18;
         }
         p.mode='scene';p.sy=p.y;
       }
