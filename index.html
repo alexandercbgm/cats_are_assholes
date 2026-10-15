@@ -418,7 +418,7 @@ const EN={
  'Дверца выбита':'Door knocked out','Лыжи рухнули':'Skis fell','Санки рухнули':'Sled fell','Телевизор разбит':'TV smashed','Стол рухнул':'Table collapsed','Рюкзак упал':'Backpack fell',
  'Свеча':'Candle','Духи':'Perfume','Стакан со щётками':'Toothbrush cup','Шкафчик':'Cabinet','Дверь':'Door','Унитаз':'Toilet','Банка с печеньем':'Cookie jar','Сковорода':'Frying pan',
  'Ваза для фруктов':'Fruit bowl','Морозилка':'Freezer','Холодильник':'Fridge','Аптечный шкафчик':'Medicine cabinet','Вытяжка':'Hood','Плита':'Stove','Фонарь':'Lantern',
- 'Старые книги':'Old books','Банка варенья':'Jam jar','Лыжи':'Skis','Санки':'Sled','Люстра':'Chandelier','Тарелка':'Plate','Бокал':'Wine glass','Чайник':'Teapot','Ваза с фруктами':'Fruit bowl',
+ 'Старые книги':'Old books','Банка варенья':'Jam jar','Лыжи':'Skis','Санки':'Sled','Люстра':'Chandelier','Тарелка':'Plate','Чайная пара':'Teacup','Бокал':'Wine glass','Чайник':'Teapot','Ваза с фруктами':'Fruit bowl',
  'Телевизор':'TV','Ножка стола':'Table leg','Глобус':'Globe','Копилка':'Piggy bank','Настольная лампа':'Desk lamp','Книжки со сказками':'Storybooks','Банка краски':'Paint can','Канистра':'Jerrycan',
  'Ящик с инструментами':'Toolbox','Фара разбита':'Headlight smashed','Стекло треснуло':'Glass cracked','Вмятина':'Dent','Стакан лимонада':'Glass of lemonade','Миска с яблоками':'Bowl of apples',
  // pops, toasts
@@ -852,7 +852,7 @@ function makeObjs(){
     O('pot',1176,FLOOR,'floor',{w:64,h:128,fragile:true,knockable:false,cost:900,label:'Фикус',drop:'plantain'}),
   ];
 }
-const OBJ_COLORS={laundry:['#3fa9d4','#f6f2ea','#f07fae'],bike:['#3fa9d4','#4a4a52','#b8c0c8'],tube:['#f6f9ff','#cfe3ea','#9aa3b5'],paint:['#3f7fd8','#5fb36a','#f0c040','#c9d0d4'],toolbox:['#e2433a','#9aa3b5','#6a737c'],canister:['#c8352e'],mobile:['#f0c040','#5fb3e8','#e98b6a'],globe:['#5fb3e8','#5fb36a'],piggy:['#f2a0b4','#f0c040','#f0c040'],chandelier:['#d9b45a','#d2ebff','#fff7e0'],teapot:['#f6f2ea','#3f7fd8'],lantern:['#3b3b46','#fff3b0','#cfe3ea'],braidG:['#f4efe6','#8a6a3a'],braidO:['#d48a3a','#8a6a3a'],plate:['#fffdf8','#e8f1f7','#9fc3dd'],jar:['#dff0f5','#a86b3c'],bowl:['#e8d4b0','#c75b4a'],pan:['#3a3a42'],candle:['#ffe0b0','#f3c27a'],perfume:['#f2b6d8','#e8c35a'],cup:['#cfeeff','#ffffff'],clock:['#f6efe1','#1d1428','#c9b99a'],vase:['#4f7fd1','#fff','#2f5fb0'],glass:['#cdeeff','#9fd6ff'],lamp:['#f6c75b','#3b3b4e'],frame:['#c88c4e','#e8d9b5'],pot:['#c8643c','#4a2e1c','#3e9b4f'],books:['#d9534f','#f0c040'],laptop:['#9aa3b5']};
+const OBJ_COLORS={laundry:['#3fa9d4','#f6f2ea','#f07fae'],bike:['#3fa9d4','#4a4a52','#b8c0c8'],tube:['#f6f9ff','#cfe3ea','#9aa3b5'],paint:['#3f7fd8','#5fb36a','#f0c040','#c9d0d4'],toolbox:['#e2433a','#9aa3b5','#6a737c'],canister:['#c8352e'],mobile:['#f0c040','#5fb3e8','#e98b6a'],globe:['#5fb3e8','#5fb36a'],piggy:['#f2a0b4','#f0c040','#f0c040'],chandelier:['#d9b45a','#d2ebff','#fff7e0'],teapot:['#f6f2ea','#3f7fd8'],lantern:['#3b3b46','#fff3b0','#cfe3ea'],braidG:['#f4efe6','#8a6a3a'],braidO:['#d48a3a','#8a6a3a'],plate:['#fffdf8','#e8f1f7','#9fc3dd'],jar:['#dff0f5','#a86b3c'],bowl:['#e8d4b0','#c75b4a'],pan:['#3a3a42'],candle:['#ffe0b0','#f3c27a'],perfume:['#f2b6d8','#e8c35a'],cup:['#cfeeff','#ffffff'],teacup:['#f6f2ea','#3f7fd8'],clock:['#f6efe1','#1d1428','#c9b99a'],vase:['#4f7fd1','#fff','#2f5fb0'],glass:['#cdeeff','#9fd6ff'],lamp:['#f6c75b','#3b3b4e'],frame:['#c88c4e','#e8d9b5'],pot:['#c8643c','#4a2e1c','#3e9b4f'],books:['#d9534f','#f0c040'],laptop:['#9aa3b5']};
 function drawObj(c,o,t){
   c.save();
   if(o.state==='lying'){c.translate(o.x,o.y-o.w/2);c.rotate(o.rot);c.translate(0,o.h/2);}
@@ -934,7 +934,8 @@ function drawObj(c,o,t){
     // short tapered spout: wide where it joins the body, narrowing to an upturned tip
     c.beginPath();c.moveTo(12,-6);c.quadraticCurveTo(24,-8,27,-21);c.lineTo(31,-25);c.quadraticCurveTo(30,-28,26,-27);c.quadraticCurveTo(21,-17,12,-20);c.closePath();fs(c,'#f6f2ea',2.5);
     ell(c,28.6,-26,2.6,1.4);c.fillStyle='#c9c2b4';c.fill();
-    c.beginPath();c.arc(-20,-16,8,Math.PI*.5,Math.PI*1.5);c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.5;c.strokeStyle='#f6f2ea';c.stroke();
+    // handle: grows out of the shoulder, loops out and tucks back in low on the body
+    c.beginPath();c.moveTo(-12,-25);c.bezierCurveTo(-30,-30,-34,-10,-17,-6);c.lineWidth=6.5;c.strokeStyle=OUT;c.stroke();c.lineWidth=3.5;c.strokeStyle='#f6f2ea';c.stroke();
     ell(c,0,-14,20,14);fs(c,'#f6f2ea',2.5);c.strokeStyle='#3f7fd8';c.lineWidth=2;c.beginPath();c.moveTo(-17,-12);c.quadraticCurveTo(0,-4,17,-12);c.stroke();
     ell(c,0,-28,10,3);fs(c,'#f6f2ea',2);ell(c,0,-33,3,3);fs(c,'#3f7fd8',1.5);
     break;
@@ -960,6 +961,13 @@ function drawObj(c,o,t){
   case 'perfume':
     rr(c,-13,-32,26,32,7);c.fillStyle='rgba(240,150,200,.78)';c.fill();c.lineWidth=2.5;c.strokeStyle=OUT;c.stroke();
     rr(c,-4,-38,8,7,2);fs(c,'#f0c040',2);rr(c,-8,-46,16,9,3);fs(c,'#e8c35a',2.5);c.fillStyle='rgba(255,255,255,.5)';c.fillRect(-8,-27,4,18);
+    break;
+  case 'teacup':
+    ell(c,0,-3,19,4.5);fs(c,'#f6f2ea',2.2);ell(c,0,-3.5,11,2.2);c.fillStyle='#ddd6c8';c.fill();
+    c.beginPath();c.arc(12,-12,5,-Math.PI*.5,Math.PI*.5);c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.5;c.strokeStyle='#f6f2ea';c.stroke();
+    c.beginPath();c.moveTo(-13,-19);c.lineTo(13,-19);c.quadraticCurveTo(12,-5,4,-5);c.lineTo(-4,-5);c.quadraticCurveTo(-12,-5,-13,-19);c.closePath();fs(c,'#f6f2ea',2.4);
+    c.strokeStyle='#3f7fd8';c.lineWidth=1.8;c.beginPath();c.moveTo(-12,-14);c.quadraticCurveTo(0,-11,12,-14);c.stroke();
+    ell(c,0,-19,13,2.6);c.fillStyle='#9a5a2a';c.fill();c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
     break;
   case 'cup':
     for(const[dx,col,a]of[[-4,'#5fb3e8',-.18],[5,'#f07fae',.16]]){c.save();c.translate(dx,-18);c.rotate(a);rr(c,-2,-26,4,28,2);fs(c,col,1.6);rr(c,-3.5,-34,7,9,2);fs(c,'#fff',1.5);c.restore();}
@@ -2083,11 +2091,10 @@ function makeObjsL5(){
   return[
     O('chandelier',330,214,null,{skip:['sofaBack','chairBack'],w:150,h:84,fragile:true,knockable:false,cost:9000,label:'Люстра',hang:true,hurts:28,hurtLabel:'Люстрой!'}),
     O('books',875,230,'bookshelf',{w:62,h:52,fragile:false,knockable:true,cost:300,label:'Книги'}),
-    O('plate',1022,440,'table',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
-    O('glass',1047,440,'table',{w:22,h:32,fragile:true,knockable:true,cost:400,label:'Бокал'}),
-    O('teapot',1082,440,'table',{w:44,h:36,fragile:true,knockable:true,cost:1200,label:'Чайник'}),
+    O('teacup',1019,440,'table',{w:38,h:22,fragile:true,knockable:true,cost:400,label:'Чайная пара'}),
+    O('teapot',1061,440,'table',{w:44,h:36,fragile:true,knockable:true,cost:1200,label:'Чайник'}),
     O('bowl',1153,440,'table',{w:62,h:24,fragile:true,knockable:true,cost:900,label:'Ваза с фруктами'}),
-    O('candle',1186,440,'table',{w:20,h:26,fragile:true,knockable:true,cost:200,label:'Свеча'}),
+    O('candle',1105,440,'table',{w:20,h:26,fragile:true,knockable:true,cost:200,label:'Свеча'}),
   ];
 }
 function makeFurnL5(){return{
@@ -3215,7 +3222,9 @@ function update(dt){
       const hc=o.hurts&&!o.hurtDone&&o.vy>0?cats.find(k=>k.state!=='asleep'&&catHit(k,o.x,o.y-Math.min(o.h,60)*.5,o.w*.5)):null;
       if(hc){o.hurtDone=true;fur(hc,8);
         if(!hurtCat(hc,o.hurts,o.hurtLabel||'По башке!')){hc.state='stunned';hc.stunType='daze';hc.stunT=Math.max(hc.stunT||0,1.5);}}
-      for(const pl of PLATS){if(pl.id===o.from||pl.off||(o.skip&&o.skip.includes(pl.id)))continue;if(o.x<pl.x1||o.x>pl.x2)continue;if(prevY<=pl.y&&o.y>=pl.y){landObj(o,pl);break;}}}
+      for(const pl of PLATS){if(pl.id===o.from||pl.off||(o.skip&&o.skip.includes(pl.id)))continue;if(o.x<pl.x1||o.x>pl.x2)continue;if(prevY<=pl.y&&o.y>=pl.y){landObj(o,pl);break;}}
+      // right at the wall the floor platform ends a few pixels early: never fall through the floor
+      if(o.state==='fall'&&o.y>=FLOOR){const fl=platById('floor');if(fl){o.x=clamp(o.x,fl.x1,fl.x2);landObj(o,fl);}}}
   }
   // particles
   for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.life-=dt;if(q.life<=0){parts.splice(i,1);continue;}
