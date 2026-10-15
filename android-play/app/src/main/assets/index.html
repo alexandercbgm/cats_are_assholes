@@ -833,12 +833,12 @@ function drawRoom(c){
   rr(c,862,432,296,16,5);fs(c,'#c27d4f',3);
   // wall socket
   // a European outlet: square plate, round recess, two round pin holes and the earthing clips
-  rr(c,1177,499,36,36,6);fs(c,'#f4efe6',2.5);c.fillStyle='rgba(0,0,0,.08)';c.fillRect(1180,530,30,3);
-  ell(c,1195,517,13,13);c.fillStyle='#ded7c8';c.fill();c.lineWidth=1.5;c.strokeStyle='rgba(60,50,40,.45)';c.stroke();
-  ell(c,1195,519,11,10);c.fillStyle='rgba(0,0,0,.06)';c.fill();
-  c.fillStyle='#a9a294';c.fillRect(1192,504,6,3);c.fillRect(1192,527,6,3);
-  ell(c,1189,517,2.6,2.6);c.fillStyle=OUT;c.fill();ell(c,1201,517,2.6,2.6);c.fill();
-  c.strokeStyle='rgba(255,255,255,.7)';c.lineWidth=1.5;c.beginPath();c.moveTo(1181,505);c.lineTo(1181,526);c.stroke();
+  rr(c,1166,499,36,36,6);fs(c,'#f4efe6',2.5);c.fillStyle='rgba(0,0,0,.08)';c.fillRect(1169,530,30,3);
+  ell(c,1184,517,13,13);c.fillStyle='#ded7c8';c.fill();c.lineWidth=1.5;c.strokeStyle='rgba(60,50,40,.45)';c.stroke();
+  ell(c,1184,519,11,10);c.fillStyle='rgba(0,0,0,.06)';c.fill();
+  c.fillStyle='#a9a294';c.fillRect(1181,504,6,3);c.fillRect(1181,527,6,3);
+  ell(c,1178,517,2.6,2.6);c.fillStyle=OUT;c.fill();ell(c,1190,517,2.6,2.6);c.fill();
+  c.strokeStyle='rgba(255,255,255,.7)';c.lineWidth=1.5;c.beginPath();c.moveTo(1170,505);c.lineTo(1170,526);c.stroke();
 }
 function curtain(c,x1,x2,side){
   const g=c.createLinearGradient(x1,0,x2,0);g.addColorStop(0,'#a33c63');g.addColorStop(.5,'#c9527a');g.addColorStop(1,'#a33c63');
@@ -1465,15 +1465,7 @@ function drawFurniture(c,t,dt){
   // wardrobe: right door swings open
   if(furn.wardrobe.broken){
     rr(c,132,196,82,372,4);fs(c,'#2a1a12',2.5);c.lineWidth=3;c.strokeStyle='#9a9aa8';c.beginPath();c.moveTo(136,214);c.lineTo(210,214);c.stroke();
-    // clothes on hangers: a dress at the back, a shirt and a jacket in front
-    c.save();c.beginPath();c.rect(133,197,80,370);c.clip();
-    const hanger=x=>{c.strokeStyle='#c9ccd6';c.lineWidth=2;c.beginPath();c.arc(x,213,4,Math.PI,Math.PI*2.2);c.moveTo(x,217);c.lineTo(x-17,227);c.lineTo(x+17,227);c.closePath();c.stroke();};
-    hanger(194);poly(c,[182,226,206,226,208,242,214,330,172,330,180,242]);fs(c,'#8a5a8c',2);c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=1.5;c.beginPath();c.moveTo(181,262);c.lineTo(211,262);c.stroke();
-    hanger(176);poly(c,[160,226,192,226,202,252,196,256,194,240,194,316,158,316,158,240,156,256,150,252]);fs(c,'#e9e2d0',2);
-    poly(c,[170,226,176,236,182,226]);fs(c,'#cfc6b0',1.5);c.fillStyle='#9a917c';for(let y=244;y<312;y+=14){ell(c,176,y,1.6,1.6);c.fill();}
-    hanger(152);poly(c,[136,226,168,226,176,262,168,266,166,246,166,322,138,322,138,246,136,266,128,262]);fs(c,'#3f5a82',2);
-    c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=1.5;c.beginPath();c.moveTo(152,232);c.lineTo(152,322);c.moveTo(141,286);c.lineTo(149,286);c.moveTo(155,286);c.lineTo(163,286);c.stroke();
-    c.restore();
+    for(const[x,col]of[[142,'#46607e'],[160,'#9aa0aa'],[180,'#d9c7a4'],[196,'#3b3b46']]){rr(c,x,216,14,120,4);fs(c,col,2);}
     const op=Math.min(1,(furn.wardrobe.t||0)*4);poly(c,[214,196,214+48*op,186,214+48*op,578,214,568]);fs(c,'#b8744c',3);
     ell(c,214+40*op,382,4,4);fs(c,'#f2c75a',2);
   }
@@ -2337,7 +2329,15 @@ function drawKids(c){
   rr(c,760,430,240,14,3);fs(c,'#f0c040',3);rr(c,770,444,14,156,3);fs(c,'#e2b030',2.5);rr(c,896,444,96,156,4);fs(c,'#f6d34a',2.5);
   for(const y of[460,512]){rr(c,906,y,76,40,4);fs(c,'#f0c040',2);ell(c,944,y+20,4,4);fs(c,'#3f7fd8',1.5);}
   rr(c,766,252,228,10,3);fs(c,'#e2b030',2.5);
-  rr(c,1074,370,14,230,3);fs(c,'#5fb36a',2.5);rr(c,1014,470,76,12,4);fs(c,'#6fc47a',2.5);rr(c,1018,482,8,118,2);fs(c,'#5fb36a',2);
+  // kid's chair in three-quarter view: far legs behind, a seat with a visible top, a slatted back between two uprights
+  const fx=26,fy=-12;
+  rr(c,1018+fx,482+fy,8,118,2);fs(c,'#3f8a4c',2);rr(c,1078+fx,376+fy,10,224,3);fs(c,'#3f8a4c',2);
+  for(const[y,h]of[[380,20],[418,9],[440,9]]){poly(c,[1086,y,1080+fx,y+fy,1080+fx,y+fy+h,1086,y+h]);fs(c,'#6fc47a',2);}
+  rr(c,1076,376,12,224,3);fs(c,'#5fb36a',2.5);
+  poly(c,[1012,470,1088,470,1088+fx,470+fy,1012+fx,470+fy]);fs(c,'#86d690',2.5);
+  rr(c,1012,470,76,12,3);fs(c,'#6fc47a',2.5);
+  rr(c,1018,482,9,118,2);fs(c,'#5fb36a',2);rr(c,1024,556,54,6,2);fs(c,'#4f9f5b',1.5);
+  c.fillStyle='rgba(255,255,255,.35)';c.fillRect(1079,382,3,86);c.fillRect(1020,486,2,100);
 }
 function drawKidsFG(c){}
 function makeObjsL6(){
