@@ -628,6 +628,11 @@ function paw(c,x,y,s){ell(c,x,y+s*.4,s,s*.8);c.fill();for(let i=-1;i<=1;i++){ell
 /* ---------------- items ---------------- */
 // dishes: colour bands are clipped to the body so they never cross the black outline
 function banded(c,path,fill,lw,bands){path();c.fillStyle=fill;c.fill();c.save();path();c.clip();bands();c.restore();path();c.lineWidth=lw;c.strokeStyle=OUT;c.stroke();}
+// pegboard tools: the same art hanging on the wall and lying on the bench after a fall
+function drawWallTool(c,kind,h){
+  if(kind==='hamH'){rr(c,-4,-88,8,70,3);fs(c,'#a8732e',2);rr(c,-15,-26,30,22,3);fs(c,'#6a737c',2.5);return;}
+  rr(c,-4,-h+10,8,h-22,3);fs(c,'#9aa3b5',2);ell(c,0,-h+12,8,8);fs(c,'#9aa3b5',2);ell(c,0,-10,9,9);fs(c,'#9aa3b5',2);c.fillStyle='rgba(0,0,0,.6)';c.fillRect(-3,-12,6,8);
+}
 function drawItem(c,kind,x,y,sc,rot,lying,t,col){
   c.save();c.translate(x,y);c.rotate(rot||0);c.scale(sc,sc);c.lineJoin='round';c.lineCap='round';
   switch(kind){
@@ -694,7 +699,7 @@ function drawItem(c,kind,x,y,sc,rot,lying,t,col){
     rr(c,-14,-2.5,28,5,2);fs(c,'#9aa3b5',2);for(const s2 of[-1,1]){c.save();c.translate(s2*15,0);ell(c,0,0,6,6);fs(c,'#9aa3b5',2);c.fillStyle='rgba(0,0,0,.6)';c.fillRect(s2>0?1:-6,-2,5,4);c.restore();}
     break;
   case 'hammer':
-    rr(c,-26,-2.5,36,5,2);fs(c,'#a8732e',2);rr(c,8,-9,9,18,2);fs(c,'#6a737c',2);
+    rr(c,-34,-2.5,44,5,2);fs(c,'#a8732e',2);rr(c,8,-9,9,18,2);fs(c,'#6a737c',2);
     break;
   case 'nut':
     c.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;c.lineTo(Math.cos(a)*7,Math.sin(a)*7);}c.closePath();fs(c,'#b8c0c8',2);ell(c,0,0,2.8,2.8);c.fillStyle='#4a535c';c.fill();
@@ -891,8 +896,8 @@ function drawObj(c,o,t){
     drawLantern(c,t,true);break;
   case 'laundry':{
     const sw=o.state==='stand'?Math.sin(t*1.6+o.x)*.05:0;c.rotate(sw);
-    c.beginPath();c.moveTo(-26,-o.h);c.lineTo(26,-o.h);c.lineTo(24,-4);for(let x=24;x>-26;x-=10)c.quadraticCurveTo(x-5,4,x-10,-4);c.closePath();fs(c,o.col||'#3fa9d4',2.5);
-    c.fillStyle='rgba(255,255,255,.35)';c.fillRect(-26,-o.h+14,52,5);c.fillRect(-26,-20,52,4);
+    banded(c,()=>{c.beginPath();c.moveTo(-26,-o.h);c.lineTo(26,-o.h);c.lineTo(24,-4);for(let x=24;x>-26;x-=10)c.quadraticCurveTo(x-5,4,x-10,-4);c.closePath();},o.col||'#3fa9d4',2.5,
+      ()=>{c.fillStyle='rgba(255,255,255,.35)';c.fillRect(-30,-o.h+14,60,5);c.fillRect(-30,-20,60,4);});
     if(o.state==='stand')for(const x of[-16,16]){rr(c,x-3,-o.h-8,6,14,2);fs(c,'#d9b45a',1.5);}
     break;}
   case 'bike':{
@@ -906,17 +911,18 @@ function drawObj(c,o,t){
     rr(c,-110,-22,220,14,6);fs(c,'#cfd8dc',2.5);rr(c,-102,-10,204,10,5);fs(c,o.state==='stand'&&garage.power?'#f6f9ff':'#8e979f',2);
     break;
   case 'hamH':
-    c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(0,-96);c.lineTo(0,-88);c.stroke();rr(c,-4,-88,8,70,3);fs(c,'#a8732e',2);rr(c,-15,-26,30,22,3);fs(c,'#6a737c',2.5);
+    c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(0,-96);c.lineTo(0,-88);c.stroke();drawWallTool(c,'hamH',o.h);
     break;
   case 'wrenchH':
-    c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(0,-o.h);c.lineTo(0,-o.h+8);c.stroke();rr(c,-4,-o.h+10,8,o.h-22,3);fs(c,'#9aa3b5',2);ell(c,0,-o.h+12,8,8);fs(c,'#9aa3b5',2);ell(c,0,-10,9,9);fs(c,'#9aa3b5',2);c.fillStyle='rgba(0,0,0,.6)';c.fillRect(-3,-12,6,8);
+    c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(0,-o.h);c.lineTo(0,-o.h+8);c.stroke();drawWallTool(c,'wrenchH',o.h);
     break;
   case 'paint':
     rr(c,-16,-38,32,38,4);fs(c,'#c9d0d4',2.5);rr(c,-16,-28,32,18,2);fs(c,o.col||'#3f7fd8',2);rr(c,-17,-42,34,6,2);fs(c,'#9aa3b5',2);c.beginPath();c.arc(0,-40,14,Math.PI,0);c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();
     break;
-  case 'canister':
-    rr(c,-18,-50,36,50,5);fs(c,'#c8352e',2.5);rr(c,-12,-58,10,10,2);fs(c,'#c8352e',2);rr(c,4,-57,9,8,2);fs(c,'#9e2a24',1.8);c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=2;c.beginPath();c.moveTo(-12,-40);c.lineTo(12,-10);c.moveTo(12,-40);c.lineTo(-12,-10);c.stroke();
-    break;
+  case 'canister':{
+    const k=o.sc||1,cc=o.col||'#c8352e',cd=o.col2||'#9e2a24';c.scale(k,k);
+    rr(c,-18,-50,36,50,5);fs(c,cc,2.5);rr(c,-12,-58,10,10,2);fs(c,cc,2);rr(c,4,-57,9,8,2);fs(c,cd,1.8);c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=2;c.beginPath();c.moveTo(-12,-40);c.lineTo(12,-10);c.moveTo(12,-40);c.lineTo(-12,-10);c.stroke();
+    break;}
   case 'toolbox':
     rr(c,-32,-30,64,30,4);fs(c,'#e2433a',2.5);rr(c,-32,-34,64,8,3);fs(c,'#c8352e',2);rr(c,-12,-44,24,8,3);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();rr(c,-6,-22,12,8,2);fs(c,'#b8c0c8',1.5);
     break;
@@ -1351,7 +1357,7 @@ function fallNow(o,dir){o.state='fall';o.from=o.plat;o.vx=dir*rnd(40,90);o.vy=o.
 function landObj(o,pl){
   o.y=pl.y;
   if(LV.onObjLand)LV.onObjLand(o,pl);
-  if(o.braid){o.state='broken';sThud();dust(o.x,pl.y,8);const n=o.braidN||4;for(let i=0;i<n;i++){const it=dropPick(o.braid,o.x+(i-(n-1)/2)*18,pl.y-20);if(o.braidSc){it.sc=o.braidSc;it.r*=o.braidSc;it.x=clamp(it.x,pl.x1+26*o.braidSc,pl.x2-21*o.braidSc);it.vx*=.3;it.rot=rnd(-.12,.12);}}return;}
+  if(o.braid){o.state='broken';sThud();dust(o.x,pl.y,8);const n=o.braidN||4;for(let i=0;i<n;i++){const it=dropPick(o.braid,o.x+(i-(n-1)/2)*18,pl.y-20);if(o.wallLook){it.look=o.type;it.lookH=o.h;it.r=o.type==='hamH'?15:9;it.x=clamp(it.x,pl.x1+o.h/2,pl.x2-o.h/2);it.vx*=.3;it.rot=rnd(-.1,.1);}}return;}
   if(o.fragile){breakObj(o);return;}
   if(o.keepUp){o.state='stand';o.rot=0;o.hang=false;o.knockable=true;o.plat=pl.id;o.hurtDone=false;sThud();dust(o.x,pl.y,8);if(!o.charged){o.charged=true;addDamage(o,o.x,pl.y-60);}return;}
   o.state='lying';o.rot=(o.vr>=0?1:-1)*Math.PI/2;o.plat=pl.id;sThud();dust(o.x,pl.y,6);
@@ -1576,6 +1582,7 @@ function drawPick(c,it,t){
   if(it.crate){drawCrate(c,it,t);return;}
   if(it.big){drawCushion(c,it);return;}
   if(it.hang){rr(c,it.x-17,it.y-37,34,74,4);fs(c,'#3fa9d4',2.5);c.fillStyle='#fff';c.fillRect(it.x-9,it.y-37,4,74);c.fillRect(it.x+5,it.y-37,4,74);c.strokeStyle=OUT;c.lineWidth=1.5;for(let i=0;i<6;i++){c.beginPath();c.moveTo(it.x-14+i*5.6,it.y+37);c.lineTo(it.x-14+i*5.6,it.y+42);c.stroke();}return;}
+  if(it.look){c.save();c.translate(it.x,it.y);c.rotate(it.rot-Math.PI/2);c.translate(0,it.look==='hamH'?46:it.lookH/2);drawWallTool(c,it.look,it.lookH);c.restore();return;}
   drawItem(c,it.kind,it.x,it.y,it.sc||1,it.rot,true,t,it.col);
 }
 function drawMarks(c){
@@ -2446,15 +2453,14 @@ function drawGarage(c){
   c.strokeStyle='rgba(60,40,20,.4)';c.lineWidth=2;c.setLineDash([4,3]);rr(c,1080,214,46,90,4);c.stroke();c.setLineDash([]);
   // workbench with a vise
   rr(c,956,450,228,16,3);fs(c,'#9a6740',3);for(const x of[966,1164]){rr(c,x,466,12,134,2);fs(c,'#7d5135',2.5);}rr(c,966,540,210,8,2);fs(c,'#7d5135',2);
-  c.save();c.translate(1127,450);rr(c,-18,-50,36,50,5);fs(c,'#7d868e',2.5);rr(c,-12,-58,10,10,2);fs(c,'#7d868e',2);rr(c,4,-57,9,8,2);fs(c,'#5a6168',1.8);
-  c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=2;c.beginPath();c.moveTo(-12,-40);c.lineTo(12,-10);c.moveTo(12,-40);c.lineTo(-12,-10);c.stroke();c.restore();
+
   // floor: concrete with an oil stain
   c.fillStyle='#7c858c';c.fillRect(0,560,W,160);c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=2;for(const x of[200,520,840,1160]){c.beginPath();c.moveTo(x,560);c.lineTo(x+(x-640)*.4,720);c.stroke();}
   
   c.fillStyle='#e8c35a';c.fillRect(0,548,W,14);c.fillStyle='#2b2b33';for(let x=0;x<W;x+=40)poly(c,[x,548,x+20,548,x+6,562,x-14,562]),c.fill();
   c.strokeStyle=OUT;c.lineWidth=3;c.beginPath();c.moveTo(0,548);c.lineTo(W,548);c.moveTo(0,562);c.lineTo(W,562);c.stroke();
   // bucket of nuts in front of the bench (heap is a pickup)
-  poly(c,[1000,516,1080,516,1072,600,1008,600]);fs(c,'#9aa3b5',3);rr(c,996,511,88,9,3);fs(c,'#848d9c',2.5);c.fillStyle='rgba(255,255,255,.2)';c.fillRect(1010,524,6,70);
+  poly(c,[1000,516,1080,516,1072,600,1008,600]);fs(c,'#9aa3b5',3);rr(c,997,513,86,4,2);fs(c,'#848d9c',2);c.fillStyle='rgba(255,255,255,.2)';c.fillRect(1010,524,6,70);
 }
 function drawGarageFG(c){}
 function drawCar(c,t){
@@ -2570,11 +2576,12 @@ function makeObjsL7(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   return[
     O('tube',430,196,null,{w:220,h:22,fragile:true,knockable:false,cost:900,label:'Лампа',hang:true,hurts:16,hurtLabel:'Лампой!'}),
-    O('hamH',996,320,null,{braidSc:2,w:34,h:96,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'hammer',braidN:1,hurts:12,hurtLabel:'Молотком!'}),
-    O('wrenchH',1046,312,null,{braidSc:2,w:30,h:88,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'wrench',braidN:1,hurts:10,hurtLabel:'Ключом!'}),
-    O('wrenchH',1102,300,null,{braidSc:1.85,w:30,h:80,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'wrench',braidN:1,hurts:10,hurtLabel:'Ключом!'}),
+    O('hamH',996,320,null,{wallLook:true,w:34,h:96,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'hammer',braidN:1,hurts:12,hurtLabel:'Молотком!'}),
+    O('wrenchH',1046,312,null,{wallLook:true,w:30,h:88,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'wrench',braidN:1,hurts:10,hurtLabel:'Ключом!'}),
+    O('wrenchH',1102,300,null,{wallLook:true,w:30,h:80,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:'wrench',braidN:1,hurts:10,hurtLabel:'Ключом!'}),
+    O('canister',1124,450,'bench',{sc:.8,col:'#7d868e',col2:'#5a6168',w:30,h:46,fragile:false,knockable:true,cost:300,label:'Канистра'}),
     O('paint',80,200,'shelfA',{w:34,h:40,fragile:true,knockable:true,cost:600,label:'Банка краски',col:'#3f7fd8'}),
-    O('canister',200,200,'shelfA',{w:40,h:54,fragile:false,knockable:true,cost:400,label:'Канистра'}),
+    O('canister',200,200,'shelfA',{sc:1.12,w:44,h:64,fragile:false,knockable:true,cost:400,label:'Канистра'}),
     O('toolbox',110,320,'shelfB',{w:66,h:38,fragile:true,knockable:true,cost:300,label:'Ящик с инструментами',drops:['bandage','plaster','wrench']}),
     O('paint',210,320,'shelfB',{w:34,h:40,fragile:true,knockable:true,cost:600,label:'Банка краски',col:'#5fb36a'}),
     O('paint',150,440,'shelfC',{w:34,h:40,fragile:true,knockable:true,cost:600,label:'Банка краски',col:'#f0c040'}),
@@ -2587,7 +2594,7 @@ function makeFurnL7(){const C=(x1,y1,x2,y2)=>({x1,y1,x2,y2,hp:999,cost:0,custom:
 };}
 function picksL7(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
-  return[crate('nut',1040,24,512),mkPick('kit',150,200),mkPick('nut',380,FLOOR),mkPick('nut',700,FLOOR),mkPick('wrench',880,FLOOR),mkPick('ball',1000,FLOOR),mkPick('slipper',560,FLOOR),Object.assign(mkPick('hammer',1082,440),{rot:Math.PI/2}),mkPick('rag',1000,450),mkPick('rag',1040,450),mkPick('wrench',260,FLOOR),mkPick('slipper',940,FLOOR),mkPick('ball',140,FLOOR),mkPick('zelenka',1158,450)];
+  return[crate('nut',1040,24,514),mkPick('kit',150,200),mkPick('nut',380,FLOOR),mkPick('nut',700,FLOOR),mkPick('wrench',880,FLOOR),mkPick('ball',1000,FLOOR),mkPick('slipper',560,FLOOR),Object.assign(mkPick('hammer',1082,440),{rot:Math.PI/2}),mkPick('rag',1000,450),mkPick('rag',1040,450),mkPick('wrench',260,FLOOR),mkPick('slipper',940,FLOOR),mkPick('ball',140,FLOOR),mkPick('zelenka',1158,450)];
 }
 LEVELS.push({n:7,name:'Гараж',sub:'Машина с сигнализацией и два кота',plats:PLATS_L7,glass:GLASS_L7,exit:EXIT_L7,
   front:[],back:['fuse','carHead','carWinR','carWinM','carWinF','carWinS','carBody','tires'],knockOff:{carRoof:'С крыши минивэна!',carHood:'С капота!'},think:kidsThink,
@@ -2658,7 +2665,6 @@ function drawYard(c){
   rr(c,-20,100,296,10,3);fs(c,'#f6f2ea',2);
   for(const[x,y,w,h]of[[40,140,84,92],[150,140,70,92],[30,262,90,104]]){rr(c,x-6,y-6,w+12,h+12,3);fs(c,'#f6f2ea',2.5);rr(c,x,y,w,h,2);fs(c,'#3d5068',2);c.fillStyle='#ffd36b';c.globalAlpha=.55;c.fillRect(x+3,y+3,w-6,h-6);c.globalAlpha=1;c.fillStyle='#f6f2ea';c.fillRect(x+w/2-2,y,4,h);c.fillRect(x,y+h/2-2,w,4);}
   rr(c,150,322,72,148,4);fs(c,'#7a4a2e',3);rr(c,160,334,52,58,3);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.25)';c.stroke();rr(c,160,402,52,58,3);c.stroke();ell(c,206,404,4,4);fs(c,'#e8c35a',1.5);
-  ell(c,232,300,9,9);fs(c,'#fff3b0',2);
   // porch: plank deck, railing, lattice skirt and steps
   rr(c,-10,466,280,14,3);fs(c,'#b57a46',3);
   c.save();c.beginPath();c.rect(-10,480,274,120);c.clip();c.fillStyle='#9a6740';c.fillRect(-10,480,274,120);c.strokeStyle='rgba(60,30,10,.55)';c.lineWidth=3;
