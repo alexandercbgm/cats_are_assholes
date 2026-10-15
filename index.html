@@ -626,6 +626,8 @@ function hexA(h,a){const[r,g,b]=hexRgb(h);return`rgba(${r},${g},${b},${a})`;}
 function paw(c,x,y,s){ell(c,x,y+s*.4,s,s*.8);c.fill();for(let i=-1;i<=1;i++){ell(c,x+i*s*.9,y-s*.75+Math.abs(i)*s*.3,s*.38,s*.42);c.fill();}}
 
 /* ---------------- items ---------------- */
+// dishes: colour bands are clipped to the body so they never cross the black outline
+function banded(c,path,fill,lw,bands){path();c.fillStyle=fill;c.fill();c.save();path();c.clip();bands();c.restore();path();c.lineWidth=lw;c.strokeStyle=OUT;c.stroke();}
 function drawItem(c,kind,x,y,sc,rot,lying,t,col){
   c.save();c.translate(x,y);c.rotate(rot||0);c.scale(sc,sc);c.lineJoin='round';c.lineCap='round';
   switch(kind){
@@ -860,8 +862,8 @@ function drawObj(c,o,t){
   c.lineJoin='round';c.lineCap='round';
   switch(o.type){
   case 'vase':
-    c.beginPath();c.moveTo(-11,0);c.bezierCurveTo(-24,-14,-22,-40,-7,-50);c.lineTo(-7,-56);c.lineTo(-11,-62);c.lineTo(11,-62);c.lineTo(7,-56);c.lineTo(7,-50);c.bezierCurveTo(22,-40,24,-14,11,0);c.closePath();fs(c,'#4f7fd1',3);
-    c.strokeStyle='#fff';c.lineWidth=3;c.beginPath();c.moveTo(-18,-28);c.quadraticCurveTo(0,-20,18,-28);c.stroke();
+    banded(c,()=>{c.beginPath();c.moveTo(-11,0);c.bezierCurveTo(-24,-14,-22,-40,-7,-50);c.lineTo(-7,-56);c.lineTo(-11,-62);c.lineTo(11,-62);c.lineTo(7,-56);c.lineTo(7,-50);c.bezierCurveTo(22,-40,24,-14,11,0);c.closePath();},'#4f7fd1',3,
+      ()=>{c.strokeStyle='#fff';c.lineWidth=3;c.beginPath();c.moveTo(-24,-29);c.quadraticCurveTo(0,-19,24,-29);c.stroke();});
     ell(c,0,-36,4,4);c.fillStyle='#fff';c.fill();ell(c,-9,-38,2.5,2.5);c.fill();ell(c,9,-38,2.5,2.5);c.fill();
     break;
   case 'books':
@@ -936,7 +938,7 @@ function drawObj(c,o,t){
     ell(c,28.6,-26,2.6,1.4);c.fillStyle='#c9c2b4';c.fill();
     // handle: grows out of the shoulder, loops out and tucks back in low on the body
     c.beginPath();c.moveTo(-12,-25);c.bezierCurveTo(-30,-30,-34,-10,-17,-6);c.lineWidth=6.5;c.strokeStyle=OUT;c.stroke();c.lineWidth=3.5;c.strokeStyle='#f6f2ea';c.stroke();
-    ell(c,0,-14,20,14);fs(c,'#f6f2ea',2.5);c.strokeStyle='#3f7fd8';c.lineWidth=2;c.beginPath();c.moveTo(-17,-12);c.quadraticCurveTo(0,-4,17,-12);c.stroke();
+    banded(c,()=>ell(c,0,-14,20,14),'#f6f2ea',2.5,()=>{c.strokeStyle='#3f7fd8';c.lineWidth=2;c.beginPath();c.moveTo(-22,-13);c.quadraticCurveTo(0,-3,22,-13);c.stroke();});
     ell(c,0,-28,10,3);fs(c,'#f6f2ea',2);ell(c,0,-33,3,3);fs(c,'#3f7fd8',1.5);
     break;
   case 'plate':
@@ -947,8 +949,8 @@ function drawObj(c,o,t){
     rr(c,-15,-34,30,34,7);c.lineWidth=2.5;c.strokeStyle=OUT;c.stroke();rr(c,-17,-41,34,9,3);fs(c,'#c79a62',2.5);
     break;
   case 'bowl':
-    c.beginPath();c.moveTo(-36,-24);c.quadraticCurveTo(-34,0,0,0);c.quadraticCurveTo(34,0,36,-24);c.closePath();fs(c,'#e8d4b0',2.5);
-    c.strokeStyle='#c75b4a';c.lineWidth=3;c.beginPath();c.moveTo(-32,-14);c.quadraticCurveTo(0,-6,32,-14);c.stroke();
+    banded(c,()=>{c.beginPath();c.moveTo(-36,-24);c.quadraticCurveTo(-34,0,0,0);c.quadraticCurveTo(34,0,36,-24);c.closePath();},'#e8d4b0',2.5,
+      ()=>{c.strokeStyle='#c75b4a';c.lineWidth=3;c.beginPath();c.moveTo(-40,-15);c.quadraticCurveTo(0,-5,40,-15);c.stroke();});
     break;
   case 'pan':
     rr(c,24,-11,40,7,3);fs(c,'#6b4423',2);ell(c,0,-7,28,8);fs(c,'#3a3a42',2.5);ell(c,0,-9,22,5);c.fillStyle='#55555f';c.fill();
@@ -963,11 +965,10 @@ function drawObj(c,o,t){
     rr(c,-4,-38,8,7,2);fs(c,'#f0c040',2);rr(c,-8,-46,16,9,3);fs(c,'#e8c35a',2.5);c.fillStyle='rgba(255,255,255,.5)';c.fillRect(-8,-27,4,18);
     break;
   case 'teacup':
-    ell(c,0,-3,19,4.5);fs(c,'#f6f2ea',2.2);ell(c,0,-3.5,11,2.2);c.fillStyle='#ddd6c8';c.fill();
-    c.beginPath();c.arc(12,-12,5,-Math.PI*.5,Math.PI*.5);c.lineWidth=5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.5;c.strokeStyle='#f6f2ea';c.stroke();
-    c.beginPath();c.moveTo(-13,-19);c.lineTo(13,-19);c.quadraticCurveTo(12,-5,4,-5);c.lineTo(-4,-5);c.quadraticCurveTo(-12,-5,-13,-19);c.closePath();fs(c,'#f6f2ea',2.4);
-    c.strokeStyle='#3f7fd8';c.lineWidth=1.8;c.beginPath();c.moveTo(-12,-14);c.quadraticCurveTo(0,-11,12,-14);c.stroke();
-    ell(c,0,-19,13,2.6);c.fillStyle='#9a5a2a';c.fill();c.lineWidth=2;c.strokeStyle=OUT;c.stroke();
+    banded(c,()=>{c.beginPath();c.moveTo(-20,-5);c.lineTo(20,-5);c.quadraticCurveTo(15,0,9,0);c.lineTo(-9,0);c.quadraticCurveTo(-15,0,-20,-5);c.closePath();},'#f6f2ea',2.2,()=>{});
+    c.beginPath();c.arc(12.5,-15,5.5,-Math.PI*.5,Math.PI*.5);c.lineWidth=5.5;c.strokeStyle=OUT;c.stroke();c.lineWidth=2.6;c.strokeStyle='#f6f2ea';c.stroke();
+    banded(c,()=>{c.beginPath();c.moveTo(-14,-24);c.lineTo(14,-24);c.quadraticCurveTo(13,-7,4,-5);c.lineTo(-4,-5);c.quadraticCurveTo(-13,-7,-14,-24);c.closePath();},'#f6f2ea',2.4,
+      ()=>{c.strokeStyle='#3f7fd8';c.lineWidth=2;c.beginPath();c.moveTo(-18,-17);c.quadraticCurveTo(0,-11,18,-17);c.stroke();});
     break;
   case 'cup':
     for(const[dx,col,a]of[[-4,'#5fb3e8',-.18],[5,'#f07fae',.16]]){c.save();c.translate(dx,-18);c.rotate(a);rr(c,-2,-26,4,28,2);fs(c,col,1.6);rr(c,-3.5,-34,7,9,2);fs(c,'#fff',1.5);c.restore();}
@@ -2091,7 +2092,7 @@ function makeObjsL5(){
   return[
     O('chandelier',330,214,null,{skip:['sofaBack','chairBack'],w:150,h:84,fragile:true,knockable:false,cost:9000,label:'Люстра',hang:true,hurts:28,hurtLabel:'Люстрой!'}),
     O('books',875,230,'bookshelf',{w:62,h:52,fragile:false,knockable:true,cost:300,label:'Книги'}),
-    O('teacup',1019,440,'table',{w:38,h:22,fragile:true,knockable:true,cost:400,label:'Чайная пара'}),
+    O('teacup',1019,440,'table',{w:40,h:26,fragile:true,knockable:true,cost:400,label:'Чайная пара'}),
     O('teapot',1061,440,'table',{w:44,h:36,fragile:true,knockable:true,cost:1200,label:'Чайник'}),
     O('bowl',1153,440,'table',{w:62,h:24,fragile:true,knockable:true,cost:900,label:'Ваза с фруктами'}),
     O('candle',1105,440,'table',{w:20,h:26,fragile:true,knockable:true,cost:200,label:'Свеча'}),
@@ -2958,9 +2959,11 @@ for(const ev of['pointerdown','touchstart','mousedown','keydown'])document.addEv
 function surf(e,prevY,r,rest,fric,roll,dt,ignore){
   e.on=null;
   for(const p of PLATS){
-    if(p.id===ignore||p.off)continue;if(e.x<p.x1||e.x>p.x2)continue;
-    if(e.vy>=0&&prevY+r<=p.y+1&&e.y+r>=p.y){
-      e.y=p.y-r;e.on=p.id;
+    // the floor catches everything wall to wall (its platform stops a few pixels short of the walls)
+    // things that lie a little below the floor line (toys on a rug drawn in perspective) stay at their depth
+    if(p.id===ignore||p.off)continue;const isF=p.id==='floor';if(!isF&&(e.x<p.x1||e.x>p.x2))continue;
+    if(e.vy>=0&&(isF||prevY+r<=p.y+1)&&e.y+r>=p.y){
+      e.y=isF&&prevY+r>p.y+1?Math.min(prevY,p.y+40):p.y-r;e.on=p.id;
       if(e.vy<90){e.vy=0;e.vx*=Math.max(0,1-roll*dt);return 1;}
       e.vy=-e.vy*rest;e.vx*=fric;return 2;
     }

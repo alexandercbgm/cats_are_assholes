@@ -36,8 +36,8 @@
    **минимум 12 тестировщиков в течение 14 дней подряд**. Тестировщиков (друзья, родные) лучше найти заранее.
 
 ### 2. Собрать AAB
-Готовый подписанный файл уже лежит в репозитории: [`dist/hush-the-cat-v18.aab`](../dist/hush-the-cat-v18.aab)
-(versionCode 18, versionName 1.1). Он подписан ключом загрузки `upload-key.jks`, который передан отдельно и в git не попадает.
+Готовый подписанный файл уже лежит в репозитории: [`dist/hush-the-cat-v19.aab`](../dist/hush-the-cat-v19.aab)
+(versionCode 19, versionName 1.1). Он подписан ключом загрузки `upload-key.jks`, который передан отдельно и в git не попадает.
 Сертификат ключа загрузки: SHA-256 `5c:02:25:59:1f:00:40:23:eb:ab:57:23:52:98:08:07:bc:28:a0:7e:0a:ce:ca:b6:73:c2:9a:74:1c:1d:ea:d5`.
 Для следующих версий нужен этот же ключ (положить `upload-key.jks` и `keystore.properties` в `android-play/`).
 Если ключ потеряется, его можно сбросить через Play Console (Setup → App signing → Request upload key reset).
