@@ -70,7 +70,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .tray{position:absolute;display:flex;overflow:visible;flex-direction:column;justify-content:flex-end;gap:.45em;pointer-events:none;font-size:calc(3.5em/4.5)}
 .tray>*{pointer-events:auto}
 .tray .slot{font-size:calc(var(--k,1)*1em)}
-.ammo{left:.77em;top:9.2em;bottom:.77em}
+.ammo{left:.77em;top:9.2em;bottom:.77em;justify-content:center}
 .meds{right:.77em;top:14.9em;bottom:.77em}
 .slot{position:relative;width:4.5em;height:4.5em;padding:0;border:0;border-radius:.85em;background:rgba(255,250,242,.93);box-shadow:0 .25em .9em rgba(10,6,24,.32);cursor:pointer;font:inherit;color:var(--ink);transition:transform .12s,box-shadow .12s}
 .slot canvas{position:absolute;inset:.2em .2em 1.1em;width:calc(100% - .4em);height:calc(100% - 1.3em)}
@@ -3414,7 +3414,12 @@ function mkSlot(kind,key,onClick){
   b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('click',()=>{au();onClick(kind);b.blur();});return b;
 }
 function fitTrays(){
-  for(const id of['ammoTray','medTray']){const el=$(id);el.style.removeProperty('--k');if(!el.children.length)continue;const a=el.firstElementChild.getBoundingClientRect(),b=el.lastElementChild.getBoundingClientRect(),need=b.bottom-a.top,have=el.clientHeight;if(need>have+1)el.style.setProperty('--k',(have/need*.98).toFixed(3));}
+  const fit=el=>{el.style.removeProperty('--k');if(!el.children.length)return;const a=el.firstElementChild.getBoundingClientRect(),b=el.lastElementChild.getBoundingClientRect(),need=b.bottom-a.top,have=el.clientHeight;if(need>have+1)el.style.setProperty('--k',(have/need*.98).toFixed(3));};
+  // ammo is centred in its column; the med column ends on the same line as the last ammo slot
+  const at=$('ammoTray'),mt=$('medTray');fit(at);mt.style.bottom='';
+  const last=at.lastElementChild&&at.lastElementChild.getBoundingClientRect();
+  if(last&&last.height)mt.style.bottom=Math.max(0,$('hud').getBoundingClientRect().bottom-last.bottom)+'px';
+  fit(mt);
 }
 function buildTrays(){
   if(AMMO_ORDER.length>8||MED_ORDER.length>6)console.warn('slot columns hold 8 ammo and 6 med kinds');
