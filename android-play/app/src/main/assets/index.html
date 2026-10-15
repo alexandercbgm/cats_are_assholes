@@ -2313,7 +2313,7 @@ function drawKids(c){
   poly(c,[400,574,930,574,980,668,350,668]);fs(c,'#7fc47a',3);
   c.strokeStyle='#8d989e';c.lineWidth=14;c.beginPath();c.moveTo(380,620);c.lineTo(950,620);c.moveTo(640,576);c.lineTo(660,666);c.stroke();
   c.strokeStyle='#fff';c.lineWidth=2;c.setLineDash([10,8]);c.beginPath();c.moveTo(380,620);c.lineTo(950,620);c.stroke();c.setLineDash([]);
-  for(const[x,y,col]of[[470,592,'#e98b6a'],[820,598,'#5fb3e8'],[880,650,'#f0c040']]){rr(c,x,y,24,18,2);fs(c,col,2);poly(c,[x-2,y,x+12,y-10,x+26,y]);fs(c,'#c8524c',2);}
+  for(const[x,y,col]of[[820,598,'#5fb3e8'],[880,650,'#f0c040']]){rr(c,x,y,24,18,2);fs(c,col,2);poly(c,[x-2,y,x+12,y-10,x+26,y]);fs(c,'#c8524c',2);}
   // bunk bed: posts, rails, ladder, mattresses
   for(const x of[36,322]){rr(c,x,150,16,450,4);fs(c,'#c98a52',3);}
   rr(c,40,290,292,26,4);fs(c,'#c98a52',3);rr(c,40,476,292,28,4);fs(c,'#c98a52',3);
