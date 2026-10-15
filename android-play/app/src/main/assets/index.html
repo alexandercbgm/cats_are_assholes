@@ -65,7 +65,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .chip.good{background:#9fdcc0}
 @keyframes blink{50%{opacity:.55}}
 
-.tray{position:absolute;display:flex;overflow:visible;flex-direction:column;justify-content:center;gap:.45em;pointer-events:none;font-size:calc(3.5em/4.5)}
+.tray{position:absolute;display:flex;overflow:visible;flex-direction:column;justify-content:flex-end;gap:.45em;pointer-events:none;font-size:calc(3.5em/4.5)}
 .tray>*{pointer-events:auto}
 .tray .slot{font-size:calc(var(--k,1)*1em)}
 .ammo{left:.77em;top:9.2em;bottom:.77em}
@@ -834,14 +834,7 @@ function curtain(c,x1,x2,side){
   c.strokeStyle='rgba(60,10,35,.45)';c.lineWidth=3;
   for(let i=1;i<4;i++){const x=lerp(x1,x2,i/4);c.beginPath();c.moveTo(x,110);c.quadraticCurveTo(x+side*6,300,x+(side<0?-6:6)*i*.6,468);c.stroke();}
 }
-function drawFG(c){
-  const g=c.createLinearGradient(0,650,0,720);g.addColorStop(0,'#d24b3f');g.addColorStop(1,'#8f2a2a');
-  c.beginPath();c.moveTo(-10,730);c.lineTo(-10,676);c.bezierCurveTo(160,654,300,690,470,670);c.bezierCurveTo(540,640,610,640,650,668);c.bezierCurveTo(690,642,770,640,820,670);c.bezierCurveTo(990,690,1120,656,1290,678);c.lineTo(1290,730);c.closePath();
-  c.fillStyle=g;c.fill();c.lineWidth=4;c.strokeStyle=OUT;c.stroke();
-  c.save();c.clip();c.strokeStyle='rgba(255,210,190,.35)';c.lineWidth=2;c.setLineDash([6,6]);
-  for(let x=-200;x<1400;x+=70){c.beginPath();c.moveTo(x,640);c.lineTo(x+90,730);c.moveTo(x+90,640);c.lineTo(x,730);c.stroke();}
-  c.setLineDash([]);c.restore();
-}
+function drawFG(c){}
 
 /* ---------------- objects ---------------- */
 function makeObjs(){
@@ -1534,11 +1527,7 @@ function drawBathroom(c){
   // bath mat
   ell(c,980,646,176,26);fs(c,'#8fbfe6',3);ell(c,980,646,150,18);c.strokeStyle='#fff';c.setLineDash([8,7]);c.lineWidth=3;c.stroke();c.setLineDash([]);
 }
-function drawBathFG(c){
-  const g=c.createLinearGradient(0,650,0,720);g.addColorStop(0,'#7fb0d6');g.addColorStop(1,'#4f80aa');
-  c.beginPath();c.moveTo(-10,730);c.lineTo(-10,684);c.bezierCurveTo(200,664,420,690,640,676);c.bezierCurveTo(860,662,1080,690,1290,676);c.lineTo(1290,730);c.closePath();c.fillStyle=g;c.fill();c.lineWidth=4;c.strokeStyle=OUT;c.stroke();
-  c.save();c.clip();c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=6;for(let x=-40;x<1320;x+=60){c.beginPath();c.moveTo(x,660);c.lineTo(x+20,730);c.stroke();}c.restore();
-}
+function drawBathFG(c){}
 function makeObjsL2(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   return[
@@ -1897,8 +1886,6 @@ function drawAtticFG(c){
   for(const[x,y,s]of[[0,0,1],[W,0,-1]]){c.save();c.translate(x,y);c.scale(s,1);c.strokeStyle='rgba(230,230,240,.45)';c.lineWidth=1.2;
     for(const a of[.15,.5,.85,1.2]){c.beginPath();c.moveTo(0,0);c.lineTo(Math.cos(a)*130,Math.sin(a)*130);c.stroke();}
     for(const r of[40,70,100]){c.beginPath();for(let i=0;i<=4;i++){const a=.15+i*.2625;const p=[Math.cos(a)*r,Math.sin(a)*r];i?c.quadraticCurveTo(Math.cos(a-.13)*r*.9,Math.sin(a-.13)*r*.9,p[0],p[1]):c.moveTo(p[0],p[1]);}c.stroke();}c.restore();}
-  const g=c.createLinearGradient(0,670,0,720);g.addColorStop(0,'#4a3022');g.addColorStop(1,'#2e1d14');
-  c.beginPath();c.moveTo(-10,730);c.lineTo(-10,690);c.lineTo(1290,690);c.lineTo(1290,730);c.closePath();c.fillStyle=g;c.fill();c.lineWidth=4;c.strokeStyle=OUT;c.stroke();
 }
 function makeObjsL4(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
@@ -2086,10 +2073,7 @@ function drawLiving(c){
   rr(c,724,470,272,130,6);fs(c,'#3b3346',3);rr(c,718,462,284,12,4);fs(c,'#4a4158',3);
   for(const x of[740,866]){rr(c,x,486,116,96,6);fs(c,'#463d55',2.5);ell(c,x+58,534,4,4);fs(c,'#c9a24a',1.5);}
 }
-function drawLivingFG(c){
-  const g=c.createLinearGradient(0,682,0,720);g.addColorStop(0,'#8a5a36');g.addColorStop(1,'#5e3b22');
-  c.beginPath();c.moveTo(-10,730);c.lineTo(-10,694);c.lineTo(1290,694);c.lineTo(1290,730);c.closePath();c.fillStyle=g;c.fill();c.lineWidth=4;c.strokeStyle=OUT;c.stroke();
-}
+function drawLivingFG(c){}
 function makeObjsL5(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   return[
@@ -2312,10 +2296,7 @@ function drawKids(c){
   rr(c,766,252,228,10,3);fs(c,'#e2b030',2.5);
   rr(c,1074,370,14,230,3);fs(c,'#5fb36a',2.5);rr(c,1014,470,76,12,4);fs(c,'#6fc47a',2.5);rr(c,1018,482,8,118,2);fs(c,'#5fb36a',2);
 }
-function drawKidsFG(c){
-  const g=c.createLinearGradient(0,682,0,720);g.addColorStop(0,'#c99a6a');g.addColorStop(1,'#9c7048');
-  c.beginPath();c.moveTo(-10,730);c.lineTo(-10,694);c.lineTo(1290,694);c.lineTo(1290,730);c.closePath();c.fillStyle=g;c.fill();c.lineWidth=4;c.strokeStyle=OUT;c.stroke();
-}
+function drawKidsFG(c){}
 function makeObjsL6(){
   const O=(type,x,y,plat,o)=>Object.assign({type,x,y,plat,state:'stand',rot:0,vx:0,vy:0,vr:0,from:null},o);
   return[
@@ -2452,10 +2433,7 @@ function drawGarage(c){
   // bucket of nuts in front of the bench (heap is a pickup)
   poly(c,[1000,516,1080,516,1072,600,1008,600]);fs(c,'#9aa3b5',3);ell(c,1040,516,40,8);fs(c,'#7f8896',2.5);
 }
-function drawGarageFG(c){
-  const g=c.createLinearGradient(0,682,0,720);g.addColorStop(0,'#5c656c');g.addColorStop(1,'#3a4046');
-  c.beginPath();c.moveTo(-10,730);c.lineTo(-10,694);c.lineTo(1290,694);c.lineTo(1290,730);c.closePath();c.fillStyle=g;c.fill();c.lineWidth=4;c.strokeStyle=OUT;c.stroke();
-}
+function drawGarageFG(c){}
 function drawCar(c,t){
   // a big family minivan: boxy body, steep short nose, long flat roof, sliding door
   const al=garage.alarm>0&&Math.sin(t*14)>0;
@@ -2662,10 +2640,7 @@ function drawYard(c){
   rr(c,-4,384,10,84,2);fs(c,'#f6f2ea',2);rr(c,126,384,10,84,2);fs(c,'#f6f2ea',2);rr(c,-10,380,152,8,2);fs(c,'#f6f2ea',2);
   for(let x=14;x<126;x+=14){c.fillStyle='#f6f2ea';c.fillRect(x,388,5,78);c.strokeStyle=OUT;c.lineWidth=1.2;c.strokeRect(x,388,5,78);}
 }
-function drawYardFG(c){
-  const g=c.createLinearGradient(0,682,0,720);g.addColorStop(0,'#3f8f3a');g.addColorStop(1,'#2a6a28');
-  c.beginPath();c.moveTo(-10,730);c.lineTo(-10,694);for(let x=0;x<1300;x+=12)c.lineTo(x,690+((x/12)%2)*-8);c.lineTo(1290,730);c.closePath();c.fillStyle=g;c.fill();
-}
+function drawYardFG(c){}
 function drawPole(c,t){
   rr(c,POLE-11,108,22,492,4);fs(c,'#7a5536',3);rr(c,POLE-62,126,124,10,3);fs(c,'#7a5536',2.5);
   c.strokeStyle='#1d1d24';c.lineWidth=2.2;for(const w of WIRES){c.beginPath();c.moveTo(w.x0,w.y0);const st=w.x1>w.x0?20:-12;for(let x=w.x0;st>0?x<=w.x1:x>=w.x1;x+=st)c.lineTo(x,wireAt(w,x));c.lineTo(w.x1,w.y1);c.stroke();}
