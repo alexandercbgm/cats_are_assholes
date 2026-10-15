@@ -105,6 +105,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .card{background:var(--card);color:var(--ink);border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.45);box-sizing:border-box}
 .card.start{width:800px;height:450px;padding:18px 20px;display:grid;grid-template-columns:1fr 352px;gap:18px}
 .card.narrow{width:470px;padding:20px 22px;display:grid;gap:14px}
+.card.narrow.pause{width:540px}
 .payshots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0 2px}
 .payshots figure{margin:0;display:grid;gap:3px;font-size:10.5px;font-weight:800;color:var(--muted);text-align:center}
 .payshots canvas{width:100%;aspect-ratio:16/9;border-radius:7px;display:block;background:#2a2340}
@@ -331,7 +332,7 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
  <div class="screen">
   <div class="card narrow pause">
     <div><h2>Пауза</h2><p class="endmsg">Кот ждёт. Нетерпеливо.</p></div>
-    <div class="actions"><button class="btn" id="quitBtn" type="button">В меню</button><button class="btn primary" id="resumeBtn" type="button">Продолжить</button></div>
+    <div class="actions"><button class="btn" id="quitBtn" type="button">В меню</button><button class="btn" id="restartBtn" type="button">Ещё раз</button><button class="btn primary" id="resumeBtn" type="button">Продолжить</button></div>
   </div>
  </div>
 </div>
@@ -2592,7 +2593,7 @@ function makeFurnL7(){const C=(x1,y1,x2,y2)=>({x1,y1,x2,y2,hp:999,cost:0,custom:
 };}
 function picksL7(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
-  return[crate('nut',1040,24,514),mkPick('kit',150,200),mkPick('nut',380,FLOOR),mkPick('nut',700,FLOOR),mkPick('wrench',880,FLOOR),mkPick('ball',1000,FLOOR),mkPick('slipper',560,FLOOR),Object.assign(mkPick('hammer',1082,440),{rot:Math.PI/2}),mkPick('rag',1000,450),mkPick('rag',1040,450),mkPick('wrench',260,FLOOR),mkPick('slipper',940,FLOOR),mkPick('ball',140,FLOOR),mkPick('zelenka',1158,450)];
+  return[crate('nut',1040,24,505),mkPick('kit',150,200),mkPick('nut',380,FLOOR),mkPick('nut',700,FLOOR),mkPick('wrench',880,FLOOR),mkPick('ball',1000,FLOOR),mkPick('slipper',560,FLOOR),Object.assign(mkPick('hammer',1082,440),{rot:Math.PI/2}),mkPick('rag',1000,450),mkPick('rag',1040,450),mkPick('wrench',260,FLOOR),mkPick('slipper',940,FLOOR),mkPick('ball',140,FLOOR),mkPick('zelenka',1158,450)];
 }
 LEVELS.push({n:7,name:'Гараж',sub:'Машина с сигнализацией и два кота',plats:PLATS_L7,glass:GLASS_L7,exit:EXIT_L7,
   front:[],back:['fuse','carHead','carWinR','carWinM','carWinF','carWinS','carBody','tires'],knockOff:{carRoof:'С крыши минивэна!',carHood:'С капота!'},think:kidsThink,
@@ -2662,6 +2663,10 @@ function drawYard(c){
   poly(c,[-20,104,272,104,190,24,-20,24]);fs(c,'#8a4a3a',3);c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=2;for(let y=40;y<104;y+=14){c.beginPath();c.moveTo(-20,y);c.lineTo(190+(y-24)*82/80,y);c.stroke();}
   rr(c,-20,100,296,10,3);fs(c,'#f6f2ea',2);
   for(const[x,y,w,h]of[[40,140,84,92],[150,140,70,92],[30,262,90,104]]){rr(c,x-6,y-6,w+12,h+12,3);fs(c,'#f6f2ea',2.5);rr(c,x,y,w,h,2);fs(c,'#3d5068',2);c.fillStyle='#ffd36b';c.globalAlpha=.55;c.fillRect(x+3,y+3,w-6,h-6);c.globalAlpha=1;c.fillStyle='#f6f2ea';c.fillRect(x+w/2-2,y,4,h);c.fillRect(x,y+h/2-2,w,4);}
+  // little shed roof over the door on two brackets
+  for(const x of[142,224]){poly(c,[x,312,x+(x<186?10:-10),312,x,328]);fs(c,'#f6f2ea',2);}
+  poly(c,[130,298,242,298,236,312,136,312]);fs(c,'#8a4a3a',2.5);c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=1.5;for(const x of[150,170,190,210,228]){c.beginPath();c.moveTo(x,299);c.lineTo(x,311);c.stroke();}
+  rr(c,134,310,104,5,2);fs(c,'#f6f2ea',2);
   rr(c,150,322,72,148,4);fs(c,'#7a4a2e',3);rr(c,160,334,52,58,3);c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.25)';c.stroke();rr(c,160,402,52,58,3);c.stroke();ell(c,206,404,4,4);fs(c,'#e8c35a',1.5);
   // porch: plank deck, railing, lattice skirt and steps
   rr(c,-10,466,280,14,3);fs(c,'#b57a46',3);
@@ -2856,7 +2861,7 @@ function makeObjsL8(){
   const wash=(x,kind,col)=>O('laundry',x,312,null,{w:56,h:72,fragile:false,knockable:false,cost:0,label:'',hang:true,braid:kind,braidN:1,hurts:5,hurtLabel:'Мокрым бельём!',col});
   return[wash(500,'towel','#3fa9d4'),wash(650,'pillow','#f6f2ea'),wash(800,'towel','#f07fae'),
     O('glass',590,470,'table8',{w:22,h:32,fragile:true,knockable:true,cost:300,label:'Стакан лимонада',water:true}),
-    O('plate',632,470,'table8',{w:34,h:10,fragile:true,knockable:true,cost:300,label:'Тарелка'}),
+    O('glass',632,470,'table8',{w:22,h:32,fragile:true,knockable:true,cost:300,label:'Стакан лимонада',water:true}),
     O('bowl',688,470,'table8',{w:62,h:24,fragile:true,knockable:true,cost:600,label:'Миска с яблоками'}),
   ];
 }
@@ -3629,6 +3634,7 @@ $('finalMenuBtn').addEventListener('click',()=>{$('finalOv').hidden=true;showMen
 $('finalAgainBtn').addEventListener('click',()=>{$('finalOv').hidden=true;au();newGame(LEVELS.length-1);});
 $('newCatBtn').addEventListener('click',()=>{setCat(catIdx+1);showMenu();});
 $('resumeBtn').addEventListener('click',()=>setPause(false));
+$('restartBtn').addEventListener('click',()=>{game.paused=false;$('pauseOv').hidden=true;au();newGame();});
 $('quitBtn').addEventListener('click',()=>{game.paused=false;showMenu();});
 $('pauseBtn').addEventListener('click',()=>setPause(!game.paused));
 function setSound(on){AU.on=on;$('menuMute').textContent=on?'Звук: вкл':'Звук: выкл';iconBtn($('muteBtn'),on?ICO_SND:ICO_MUTE,on?'Звук: вкл':'Звук: выкл');try{localStorage.setItem('ugomoni-sound',on?'1':'0');}catch(e){}}
