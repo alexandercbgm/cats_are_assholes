@@ -115,7 +115,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .eyebrow{margin:0 0 2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--muted)}
 h1{margin:2px 0 8px;line-height:0}
 .logo svg{width:100%;height:auto;display:block;overflow:visible}
-.logotext{font-family:'Rubik',system-ui,sans-serif;font-weight:900;font-size:96px}
+.logotext{font-family:'Rubik',system-ui,sans-serif;font-weight:900;font-size:96px;text-rendering:geometricPrecision}
 h2{font-family:var(--f-display);font-weight:900;font-size:20px;line-height:1.15;margin:0;text-wrap:balance}
 .lead{font-size:12.5px;line-height:1.45;margin:0 0 10px;color:#3d3449}
 .tips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
@@ -230,15 +230,14 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
     <div class="col">
       <h1 class="logo"><svg viewBox="0 0 1000 116" role="img" aria-label="Угомони кота">
         <defs>
-          <filter id="fluffOut" filterUnits="userSpaceOnUse" x="-20" y="-20" width="1040" height="156"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
-          <filter id="fluffIn" filterUnits="userSpaceOnUse" x="-20" y="-20" width="1040" height="156"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
           <pattern id="furPat" patternUnits="userSpaceOnUse" width="1000" height="116">
             <rect width="1000" height="116" fill="#ee8b2e"/>
           </pattern>
         </defs>
         <g class="logotext">
-          <g filter="url(#fluffOut)" fill="#1d1428" stroke="#1d1428" stroke-width="14" stroke-linejoin="round"><text x="12" y="96">Угомони кота</text></g>
-          <g filter="url(#fluffIn)" fill="url(#furPat)"><text x="12" y="96">Угомони кота</text></g>
+          <g fill="#1d1428" stroke="#1d1428" stroke-width="16" stroke-linejoin="round" opacity=".28" transform="translate(0 6)"><text x="12" y="96">Угомони кота</text></g>
+          <g fill="#1d1428" stroke="#1d1428" stroke-width="14" stroke-linejoin="round"><text x="12" y="96">Угомони кота</text></g>
+          <g fill="url(#furPat)"><text x="12" y="96">Угомони кота</text></g>
         </g>
       </svg></h1>
       <p class="lead">Три часа ночи. Вам утром на работу, а коту приспичило поорать. Уложите его спать раньше, чем зазвонит будильник.</p>
@@ -3396,10 +3395,27 @@ function render(now){
 }
 
 /* ---------------- HUD ---------------- */
+// item art has its own origin and size, so each icon is drawn big off-screen, trimmed to its pixels and fitted to the slot
+const SLOT_ICONS={};
+function slotIcon(c,kind){
+  let ic=SLOT_ICONS[kind];
+  if(!ic){const t=document.createElement('canvas');t.width=t.height=320;const tc=t.getContext('2d');tc.translate(160,160);tc.scale(2,2);drawItem(tc,kind,0,0,1,0,true,0);
+    const d=tc.getImageData(0,0,320,320).data;let x0=320,y0=320,x1=-1,y1=-1;
+    for(let y=0;y<320;y++)for(let x=0;x<320;x++)if(d[(y*320+x)*4+3]>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+    ic=SLOT_ICONS[kind]=x1<0?null:{t,x0,y0,w:x1-x0+1,h:y1-y0+1};}
+  if(!ic)return;const k=Math.min(104/ic.w,76/ic.h,1.4);
+  c.drawImage(ic.t,ic.x0,ic.y0,ic.w,ic.h,60-ic.w*k/2,48-ic.h*k/2,ic.w*k,ic.h*k);
+}
+// slot captions shrink to fit the slot width (in the language shown)
+let LBL_CTX=null;
+function fitLabel(el,name){
+  LBL_CTX=LBL_CTX||document.createElement('canvas').getContext('2d');LBL_CTX.font=`700 100px ${UIF}`;
+  const w=LBL_CTX.measureText(tr(name)).width/100;el.style.fontSize=Math.min(.6,4/w).toFixed(3)+'em';
+}
 function mkSlot(kind,key,onClick){
   const b=document.createElement('button');b.className='slot';b.type='button';b.dataset.k=kind;b.title=ITEM[kind].name+(ITEM[kind].heal?` (+${ITEM[kind].heal} здоровья)`:'');
-  const cvs=document.createElement('canvas');cvs.width=120;cvs.height=96;const c=cvs.getContext('2d');c.scale(2,2);drawItem(c,kind,30,26,kind==='duck'||kind==='bottle'?.9:kind==='curtain'?.62:kind==='book'?.95:kind==='pillow'||kind==='towel'?.8:1.1,0,true,0);
-  b.append(cvs);const nm=document.createElement('span');nm.className='nm';nm.textContent=ITEM[kind].heal?`${ITEM[kind].name} +${ITEM[kind].heal}`:ITEM[kind].name;b.append(nm);
+  const cvs=document.createElement('canvas');cvs.width=120;cvs.height=96;slotIcon(cvs.getContext('2d'),kind);
+  b.append(cvs);const nm=document.createElement('span');nm.className='nm';nm.textContent=ITEM[kind].name;fitLabel(nm,ITEM[kind].name);b.append(nm);
   const cnt=document.createElement('span');cnt.className='cnt';b.append(cnt);if(key){const ks=document.createElement('span');ks.className='key';ks.textContent=key;b.append(ks);}
   b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('click',()=>{au();onClick(kind);b.blur();});return b;
 }
@@ -3520,7 +3536,7 @@ function setLogo(b){
     add('path',{d,fill:b.belly});
     add('ellipse',{cx:LW/2,cy:t+10,rx:LW*.55,ry:12,fill:'#fff',opacity:b.id==='black'?'.22':'.16'});
   }
-  const seed=String(1+Math.floor(Math.random()*90));for(const id of['fluffOut','fluffIn'])$(id).querySelector('feTurbulence').setAttribute('seed',seed);
+  
 }
 function drawTipIcons(){
   for(const cv2 of document.querySelectorAll('canvas[data-ico]')){
