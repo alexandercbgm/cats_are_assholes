@@ -2446,7 +2446,7 @@ function drawGarage(c){
   c.strokeStyle='rgba(60,40,20,.4)';c.lineWidth=2;c.setLineDash([4,3]);rr(c,1080,214,46,90,4);c.stroke();c.setLineDash([]);
   // workbench with a vise
   rr(c,956,450,228,16,3);fs(c,'#9a6740',3);for(const x of[966,1164]){rr(c,x,466,12,134,2);fs(c,'#7d5135',2.5);}rr(c,966,540,210,8,2);fs(c,'#7d5135',2);
-  rr(c,1110,426,48,24,3);fs(c,'#5c6670',2.5);rr(c,1100,432,10,12,2);fs(c,'#4a535c',2);
+  rr(c,1112,404,26,46,5);fs(c,'#5c6670',2.5);c.fillStyle='rgba(255,255,255,.18)';c.fillRect(1116,409,4,36);rr(c,1118,396,14,10,2);fs(c,'#4a535c',2);rr(c,1116,389,18,8,3);fs(c,'#2f363d',2);rr(c,1114,420,22,12,2);fs(c,'#e2c36a',1.5);
   // floor: concrete with an oil stain
   c.fillStyle='#7c858c';c.fillRect(0,560,W,160);c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=2;for(const x of[200,520,840,1160]){c.beginPath();c.moveTo(x,560);c.lineTo(x+(x-640)*.4,720);c.stroke();}
   
@@ -2472,14 +2472,14 @@ function drawCar(c,t){
   ell(c,812,408,10,7);fs(c,'#e8e8e4',2);
   // lower skirt and bumpers
   c.fillStyle='#c9ccc6';c.fillRect(302,506,642,34);c.strokeStyle=OUT;c.lineWidth=2;c.beginPath();c.moveTo(302,506);c.lineTo(944,506);c.stroke();
-  rr(c,288,500,22,30,6);fs(c,'#c9ccc6',2.5);rr(c,936,496,16,34,6);fs(c,'#c9ccc6',2.5);
+  rr(c,288,500,22,30,6);fs(c,'#c9ccc6',2.5);rr(c,936,503,16,30,6);fs(c,'#c9ccc6',2.5);
   // big chrome grille and lights
   rr(c,930,440,16,56,4);fs(c,'#cfd6dc',2);c.strokeStyle='#8e979f';c.lineWidth=1.5;c.beginPath();for(let y=448;y<494;y+=8){c.moveTo(932,y);c.lineTo(944,y);}c.stroke();
   if(al){for(const[x,y]of[[930,428],[298,370]]){const gg=c.createRadialGradient(x,y,4,x,y,100);gg.addColorStop(0,'rgba(255,190,60,.7)');gg.addColorStop(1,'rgba(255,190,60,0)');c.fillStyle=gg;c.fillRect(x-100,y-100,200,200);}}
   poly(c,[880,410,944,420,945,436,890,428]);fs(c,garage.head?'#6a6f76':'#2a3340',2.2);if(!garage.head){c.strokeStyle=al?'#ffe27a':'#e8f4ff';c.lineWidth=3;c.beginPath();c.moveTo(888,415);c.lineTo(940,424);c.stroke();ell(c,930,430,5,3.5);c.fillStyle=al?'#ffe27a':'#cfe6ff';c.fill();}
   c.strokeStyle='#d8dde2';c.lineWidth=2.5;c.beginPath();c.moveTo(320,498);c.lineTo(930,498);c.stroke();
   if(garage.head){c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=1.2;c.beginPath();for(let i=0;i<5;i++){c.moveTo(924,430);c.lineTo(924+Math.cos(i*1.3)*14,430+Math.sin(i*1.3)*7);}c.stroke();}
-  rr(c,292,330,10,96,4);fs(c,al?'#ffb347':'#b8241e',2);rr(c,888,448,16,6,3);fs(c,al?'#ffb347':'#e08a2a',1.5);ell(c,936,516,6,4);fs(c,'#fff6c0',1.5);
+  rr(c,292,330,10,96,4);fs(c,al?'#ffb347':'#b8241e',2);rr(c,888,448,16,6,3);fs(c,al?'#ffb347':'#e08a2a',1.5);
   // wheels in arches
   for(const x of[410,830]){c.beginPath();c.arc(x,546,56,Math.PI,0);c.lineTo(x+56,546);c.closePath();c.fillStyle='#1d1d24';c.fill();
     ell(c,x,552,48,48);fs(c,'#26262c',3);ell(c,x,552,28,28);fs(c,'#3a3f46',2);for(let i=0;i<5;i++){const a=i*1.2566+.3;c.save();c.translate(x,552);c.rotate(a);rr(c,-3,-26,6,22,2);fs(c,'#c4cbd2',1);c.restore();}ell(c,x,552,7,7);fs(c,'#c4cbd2',1.5);}
@@ -2493,7 +2493,12 @@ function drawGarageDyn(c,t,dt){
   // fuse box
   rr(c,858,200,60,76,4);fs(c,'#b8c0c8',2.5);rr(c,866,208,44,60,3);fs(c,'#9aa3b5',1.5);poly(c,[892,214,880,240,890,240,884,262,900,232,890,232]);fs(c,'#f0c040',1.5);
   rr(c,904,garage.power?220:244,10,14,3);fs(c,garage.power?'#5fb36a':'#e2433a',1.5);
-  for(let i=0;i<garage.tires;i++){rr(c,1130,FLOOR-40*(i+1),68,38,16);fs(c,'#26262c',3);rr(c,1142,FLOOR-40*(i+1)+12,44,14,7);fs(c,'#3a3a42',1.5);}
+  for(let i=0;i<garage.tires;i++){const y=FLOOR-40*(i+1);
+    rr(c,1130,y,68,39,13);fs(c,'#24242a',3);
+    c.save();rr(c,1130,y,68,39,13);c.clip();c.fillStyle='#34343c';for(let x=1134;x<1196;x+=9){c.fillRect(x,y+8,5,9);c.fillRect(x+4,y+22,5,9);}
+    c.fillStyle='rgba(255,255,255,.08)';c.fillRect(1130,y+3,68,3);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(1130,y+33,68,6);c.restore();
+    rr(c,1130,y,68,39,13);c.lineWidth=3;c.strokeStyle=OUT;c.stroke();}
+  if(garage.tires>0){const y=FLOOR-40*garage.tires;ell(c,1164,y+2,32,7);fs(c,'#2c2c33',2.5);ell(c,1164,y+2,15,3.4);c.fillStyle='#0e0e12';c.fill();}
   for(const x of garage.lying){ell(c,x,FLOOR-8,36,10);fs(c,'#26262c',2.5);ell(c,x,FLOOR-10,16,4);c.fillStyle='#5c6670';c.fill();}
   if(garage.roll)drawTireAt(c,garage.roll.x,FLOOR-34,garage.roll.rot);
   // key fob on its hook
@@ -2582,7 +2587,7 @@ function makeFurnL7(){const C=(x1,y1,x2,y2)=>({x1,y1,x2,y2,hp:999,cost:0,custom:
 };}
 function picksL7(){
   const crate=(kind,x,n,top)=>({kind,x,y:530,vx:0,vy:0,r:36,rest:true,rot:0,on:null,crate:true,supply:n,top});
-  return[crate('nut',1040,24,512),mkPick('kit',150,200),mkPick('nut',380,FLOOR),mkPick('nut',700,FLOOR),mkPick('wrench',880,FLOOR),mkPick('ball',1000,FLOOR),mkPick('slipper',560,FLOOR),mkPick('hammer',1130,450),mkPick('rag',1000,450),mkPick('rag',1040,450),mkPick('wrench',260,FLOOR),mkPick('slipper',940,FLOOR),mkPick('ball',140,FLOOR),mkPick('zelenka',1150,450)];
+  return[crate('nut',1040,24,512),mkPick('kit',150,200),mkPick('nut',380,FLOOR),mkPick('nut',700,FLOOR),mkPick('wrench',880,FLOOR),mkPick('ball',1000,FLOOR),mkPick('slipper',560,FLOOR),Object.assign(mkPick('hammer',1082,442),{rot:-Math.PI/2}),mkPick('rag',1000,450),mkPick('rag',1040,450),mkPick('wrench',260,FLOOR),mkPick('slipper',940,FLOOR),mkPick('ball',140,FLOOR),mkPick('zelenka',1158,450)];
 }
 LEVELS.push({n:7,name:'Гараж',sub:'Машина с сигнализацией и два кота',plats:PLATS_L7,glass:GLASS_L7,exit:EXIT_L7,
   front:[],back:['fuse','carHead','carWinR','carWinM','carWinF','carWinS','carBody','tires'],knockOff:{carRoof:'С крыши минивэна!',carHood:'С капота!'},think:kidsThink,
