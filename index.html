@@ -67,7 +67,7 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .chip.good{background:#9fdcc0}
 @keyframes blink{50%{opacity:.55}}
 
-.tray{position:absolute;bottom:.8em;display:flex;gap:.45em;pointer-events:auto;font-size:calc(var(--tray,1)*1em)}
+.tray{position:absolute;bottom:.6em;display:flex;gap:.45em;pointer-events:auto;font-size:calc(3.5em/4.5)}
 .ammo{left:1em}
 .meds{right:1em}
 .slot{position:relative;width:4.5em;height:4.5em;padding:0;border:0;border-radius:.85em;background:rgba(255,250,242,.93);box-shadow:0 .25em .9em rgba(10,6,24,.32);cursor:pointer;font:inherit;color:var(--ink);transition:transform .12s,box-shadow .12s}
@@ -80,7 +80,8 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--f-ui)
 .slot.empty{opacity:.45}
 .slot:focus-visible{outline:.16em solid var(--sky);outline-offset:.15em}
 .btns{position:absolute;right:1em;top:7.4em;display:flex;gap:.4em;pointer-events:auto}
-.btns button{font:inherit;font-size:.76em;font-weight:800;padding:.35em .8em;border-radius:.8em;border:0;background:rgba(255,250,242,.93);color:var(--ink);cursor:pointer;box-shadow:0 .2em .7em rgba(10,6,24,.3)}
+.btns button{font:inherit;width:3.5em;height:3.5em;padding:0;display:grid;place-items:center;border-radius:.8em;border:0;background:rgba(255,250,242,.93);color:var(--ink);cursor:pointer;box-shadow:0 .2em .7em rgba(10,6,24,.3)}
+.btns svg{width:1.7em;height:1.7em}
 .btns button:focus-visible{outline:.16em solid var(--sky);outline-offset:.12em}
 .toast{position:absolute;left:50%;top:6.4em;transform:translateX(-50%);max-width:30em;text-align:center;text-wrap:balance;background:rgba(36,27,51,.9);color:var(--paper);padding:.45em .95em;border-radius:.8em;font-weight:700;font-size:.92em;opacity:0;transition:opacity .25s}
 .toast.on{opacity:1}
@@ -213,7 +214,7 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
         <div class="row small"><span>Комбо</span><b id="comboTxt">×0</b></div>
         <div class="row small"><span>Ущерб</span><b id="dmgTxt">0 ₽</b></div>
       </div>
-      <div class="btns"><button id="pauseBtn" type="button">Пауза</button><button id="muteBtn" type="button">Звук: вкл</button></div>
+      <div class="btns"><button id="pauseBtn" type="button" aria-label="Пауза" title="Пауза"></button><button id="muteBtn" type="button" aria-label="Звук: вкл" title="Звук: вкл"></button></div>
       <div class="tray ammo" id="ammoTray"></div>
       <div class="tray meds" id="medTray"></div>
       <div class="toast" id="toast"></div>
@@ -229,8 +230,8 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
     <div class="col">
       <h1 class="logo"><svg viewBox="0 0 1000 116" role="img" aria-label="Угомони кота">
         <defs>
-          <filter id="fluffOut" x="-6%" y="-12%" width="112%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
-          <filter id="fluffIn" x="-6%" y="-12%" width="112%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <filter id="fluffOut" filterUnits="userSpaceOnUse" x="-20" y="-20" width="1040" height="156"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <filter id="fluffIn" filterUnits="userSpaceOnUse" x="-20" y="-20" width="1040" height="156"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
           <pattern id="furPat" patternUnits="userSpaceOnUse" width="1000" height="116">
             <rect width="1000" height="116" fill="#ee8b2e"/>
           </pattern>
@@ -337,6 +338,8 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
 <script>
 'use strict';
 const W=1280,H=720,FLOOR=600,G=1500,OUT='#1d1428';
+// outlined labels: miter joins draw spikes on sharp glyph corners (the tail of "р"), so every text outline uses round joins
+{const st=CanvasRenderingContext2D.prototype.strokeText;CanvasRenderingContext2D.prototype.strokeText=function(...a){const j=this.lineJoin;this.lineJoin='round';st.apply(this,a);this.lineJoin=j;};}
 const UIF="'Nunito','Trebuchet MS',system-ui,sans-serif";
 const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
@@ -1284,7 +1287,7 @@ function newGame(li){
   $('cat2Hud').hidden=$('regenRow').hidden=cats.length<2;$('regenRow').hidden=cats.length>1;
   document.body.classList.toggle('two',cats.length>2);
   if(cats[1]){$('catName2').textContent=`${cats[1].name} · ${cats[1].b.breed}`;$('catIco2').style.color=cats[1].b.fur;}
-  $('startOv').hidden=true;$('endOv').hidden=true;$('pauseOv').hidden=true;$('pauseBtn').textContent='Пауза';
+  $('startOv').hidden=true;$('endOv').hidden=true;$('pauseOv').hidden=true;pauseIcon(false);
   buildTrays();updateTrays();
   toast(LV.hello,3.2);
 }
@@ -1296,7 +1299,7 @@ function pounceView(k){const u=clamp(k.pt/.42,0,1),e=u*u;return{x:lerp(k.px,640,
 function catHit(k,x,y,r){
   if(k.state==='asleep')return 0;
   if(k.state==='pounce'){const v=pounceView(k);return Math.hypot(x-v.x,y-v.y)<v.z*60+r?1:0;}
-  if(k.state==='dunk'){if(k.dunkType==='bin'){const inn=platById('bin').inner;return Math.hypot(x-inn.cx,y-(inn.clip-18))<44+r?1:0;}const h=catHead(k);return Math.hypot(x-h.x,y-h.y)<h.r+r?2:0;}
+  if(k.state==='dunk'){if(HEAD_FIRST[k.dunkType]){const inn=platById(k.dunkPlat).inner;return Math.hypot(x-inn.cx,y-(inn.clip-18))<44+r?1:0;}const h=catHead(k);return Math.hypot(x-h.x,y-h.y)<h.r+r?2:0;}
   const h=catHead(k);if(Math.hypot(x-h.x,y-h.y)<h.r+r)return 2;
   const bd=catBody(k),dx=(x-bd.x)/(bd.rx+r),dy=(y-bd.y)/(bd.ry+r);return dx*dx+dy*dy<1?1:0;
 }
@@ -1444,6 +1447,8 @@ function drawFurniture(c,t,dt){
 
 /* ---------------- level 2: bathroom ---------------- */
 // rims with `dunk` drop a hit cat into the tub / sink / toilet; `inner` is where its head ends up
+// narrow ones take the cat head first: only the hind legs and tail stick out (the tub is wide enough to float in)
+const HEAD_FIRST={bin:1,toilet:1,sink:1,ksink:1};
 const PLATS_L2=[
  {id:'floor',x1:24,x2:1256,y:FLOOR},
  {id:'tank',x1:290,x2:370,y:352},
@@ -1598,7 +1603,7 @@ function startDunk(k,pl){
   if(k.stunType==='towel')dropPick(k.wrap||'towel',k.x,k.y-60);
   k.state='dunk';k.dunkType=d;k.dunkPlat=pl.id;k.dunkT={tub:3.4,toilet:2.8,sink:2.2,ksink:3,bin:2.6}[d];k.kvx=0;k.air=null;k.stunType=null;
   const cx=d==='tub'?clamp(k.x+k.face*hx,inn.x1+30,inn.x2-30):inn.cx;
-  k.x=d==='bin'?inn.cx:cx-k.face*hx;k.y=inn.head+62*s;
+  k.x=HEAD_FIRST[d]?inn.cx:cx-k.face*hx;k.y=inn.head+62*s;
   const pts=250*Math.max(1,game.combo);game.score+=pts;
   pop(cx,inn.clip-80,{tub:'В ванну!',toilet:'В унитаз!',sink:'В раковину!',ksink:'В мойку!',bin:'В мусорку!'}[d]+` +${fmt(pts)}`,'#a8f0ff',24);
   k.bubble={tub:'БУЛЬ!',toilet:'ФУУУ!',sink:'Застрял!',ksink:'БУЛЬ!',bin:'ФУ-ФУ!'}[d];k.bubbleT=1.4;
@@ -2940,7 +2945,7 @@ function musLead(t,m,dur,voice){const c=AU.ctx,f=midiHz(m);
 function musClap(t){for(let i=0;i<3;i++)musNoise(t+i*.012,.05,.16,'bandpass',1400);musNoise(t+.03,.12,.07,'bandpass',1100);}
 function musSchedule(){
   const c=AU.ctx;if(!c||!MUS.on)return;const e=60/MUS.bpm/2;
-  while(MUS.next<c.currentTime+.35){
+  while(MUS.next<c.currentTime+1){
     const s=MUS.step,i=s%16,ch=PROG[Math.floor(i/4)],cyc=Math.floor(s/16)%FORM.length,sw=(s%2)?e*.32:0,t=MUS.next+sw;
     // bass: root, octave pop on the "and" of two, a pickup into the next chord
     if(i%4===0)musBass(t,ch.r,e*1.7);else if(i%4===2)musBass(t,ch.r+12,e*.8);else if(i%4===3)musBass(t,PROG[(Math.floor(i/4)+1)%4].r+(i===15?2:1),e*.7);
@@ -2954,7 +2959,8 @@ function musStart(){const c=AU.ctx;if(!c||MUS.on||c.state!=='running')return;
   MUS.bus=c.createGain();MUS.bus.gain.setValueAtTime(.0001,c.currentTime);MUS.bus.gain.exponentialRampToValueAtTime(.55,c.currentTime+.6);MUS.bus.connect(AU.master);
   MUS.on=true;MUS.step=0;MUS.next=c.currentTime+.1;musSchedule();MUS.tmr=setInterval(musSchedule,100);}
 function musStop(){if(!MUS.on)return;MUS.on=false;clearInterval(MUS.tmr);const c=AU.ctx,b=MUS.bus;if(c&&b){b.gain.cancelScheduledValues(c.currentTime);b.gain.setValueAtTime(b.gain.value,c.currentTime);b.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.4);setTimeout(()=>b.disconnect(),600);}}
-function musTick(){const want=!$('startOv').hidden&&AU.on&&AU.ctx&&AU.ctx.state==='running';if(want&&!MUS.on)musStart();else if(!want&&MUS.on)musStop();}
+function musTick(){if(!$('startOv').hidden&&AU.on&&AU.ctx&&AU.ctx.state!=='running'&&!(performance.now()<AU.wakeT)){AU.wakeT=performance.now()+1000;AU.ctx.resume().catch(()=>{});}
+  const want=!$('startOv').hidden&&AU.on&&AU.ctx&&AU.ctx.state==='running';if(want&&!MUS.on)musStart();else if(!want&&MUS.on)musStop();}
 for(const ev of['pointerdown','touchstart','mousedown','keydown'])document.addEventListener(ev,()=>{if(!$('startOv').hidden)au();},{passive:true});
 
 /* ---------------- physics ---------------- */
@@ -3253,7 +3259,7 @@ function renderCat(k,t){
     if(s==='pounce'){o.pounce=1;o.eyes='wide';o.mouth=1;}
     if(s==='stunned'){if(k.stunType==='towel'){o.towel=1;o.wrapCol=ITEM[k.wrap||'towel'].wrap;}else if(k.stunType==='pillow'){o.flat=1;o.pillow=1;o.eyes='spiral';o.tailDown=1;}else{o.eyes='spiral';o.headTilt=Math.sin(k.anim*5)*.2;o.tailDown=1;}}
     if(k.smug>0&&(s==='idle'||s==='walk'))o.eyes='smug';
-    if(s==='dunk'&&k.dunkType==='bin'){o.walk=true;o.phase=k.anim*22;}
+    if(s==='dunk'&&HEAD_FIRST[k.dunkType]){o.walk=true;o.phase=k.anim*22;}
     else if(s==='dunk'){o.eyes=k.dunkType==='sink'?'spiral':'wide';o.mouth=k.dunkType==='sink'?0:.45+.4*Math.abs(Math.sin(k.anim*8));o.headTilt=Math.sin(k.anim*6)*.22;o.tailFlick=1;}
     if(s==='climb'){o.crouch=6;o.eyes='angry';}
     if(s==='ride'){o.eyes='closed';o.tailFlick=1;}
@@ -3335,7 +3341,9 @@ function render(now){
     if(k.state!=='pounce'&&k.state!=='dunk'){ell(c,k.x,gy,46*k.b.size*k.b.fat,8);c.fillStyle='rgba(10,5,20,.3)';c.fill();}
     renderCat(k,t);
     if(k.state!=='pounce'){
-      if(k.state==='dunk'&&k.dunkType==='bin'){const inn=platById('bin').inner;c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,inn.clip);c.clip();drawBinCat(c,k.wet>0?wetB(k.b):k.b,k.anim,inn.cx,inn.clip,k.flash>0);c.restore();}
+      if(k.state==='dunk'&&HEAD_FIRST[k.dunkType]){const inn=platById(k.dunkPlat).inner;c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,inn.clip);c.clip();drawBinCat(c,k.wet>0?wetB(k.b):k.b,k.anim,inn.cx,inn.clip,k.flash>0);c.restore();
+        if(k.dunkType==='ksink')foamStrip(c,inn.cx-60,inn.cx+60,inn.clip-4,t);
+        else if(k.dunkType==='toilet'){c.strokeStyle='rgba(160,215,235,.95)';c.lineWidth=2;for(let i=0;i<2;i++){const a=(t*1.5+i*.5)%1;ell(c,inn.cx,inn.clip-2,22+a*22,3+a*3);c.globalAlpha=1-a;c.stroke();}c.globalAlpha=1;}}
       else if(k.state==='dunk'){const inn=platById(k.dunkPlat).inner;c.save();c.beginPath();c.rect(inn.x1-70,0,inn.x2-inn.x1+140,inn.clip);c.clip();c.drawImage(catBuf,k.x-320,k.y-380,640,480);c.restore();
         const hx=catHead(k).x;
         if(k.dunkType==='tub'||k.dunkType==='ksink')foamStrip(c,hx-(k.dunkType==='tub'?110:60),hx+(k.dunkType==='tub'?110:60),inn.clip-4,t);
@@ -3447,7 +3455,14 @@ function endGame(win,reason){
   const fine=Math.round(Math.min(game.score,game.damage/20));if(fine>0){const h=document.createElement('p');h.className='hint';h.textContent=`Ремонт съел ${fmt(fine)} очков.`;$('endStats').append(h);}
   setTimeout(()=>{$('endOv').hidden=false;($('nextLvlBtn').hidden?$('againBtn'):$('nextLvlBtn')).focus();},win?200:900);
 }
-function setPause(p){if(!game.running)return;game.paused=p;$('pauseOv').hidden=!p;$('pauseBtn').textContent=p?'Дальше':'Пауза';}
+const ICO_PAUSE='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="4" width="4.6" height="16" rx="1.4" fill="currentColor"/><rect x="13.9" y="4" width="4.6" height="16" rx="1.4" fill="currentColor"/></svg>',
+  ICO_PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6v14.8c0 .9 1 1.4 1.7.9l11-7.4c.7-.4.7-1.4 0-1.8l-11-7.4C8 3.2 7 3.7 7 4.6z" fill="currentColor"/></svg>',
+  ICO_SPK='<path d="M3.5 9.2h3.6L12 5v14l-4.9-4.2H3.5z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  ICO_SND=`<svg viewBox="0 0 24 24" aria-hidden="true">${ICO_SPK}<path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.3 6.3a8 8 0 0 1 0 11.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  ICO_MUTE=`<svg viewBox="0 0 24 24" aria-hidden="true">${ICO_SPK}<path d="M16 9.2l5 5.6M21 9.2l-5 5.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+function iconBtn(b,svg,label){b.innerHTML=svg;b.setAttribute('aria-label',label);b.title=label;}
+function pauseIcon(p){iconBtn($('pauseBtn'),p?ICO_PLAY:ICO_PAUSE,p?'Дальше':'Пауза');}
+function setPause(p){if(!game.running)return;game.paused=p;$('pauseOv').hidden=!p;pauseIcon(p);}
 let unlocked=1;try{unlocked=clamp(+localStorage.getItem('ugomoni-unlocked')||1,1,LEVELS.length);}catch(e){}
 let selLvl=unlocked;
 /* Google Play build: levels 1-2 are free, the rest open with the one-time purchase "unlock_full".
@@ -3558,8 +3573,9 @@ $('newCatBtn').addEventListener('click',()=>{setCat(catIdx+1);showMenu();});
 $('resumeBtn').addEventListener('click',()=>setPause(false));
 $('quitBtn').addEventListener('click',()=>{game.paused=false;showMenu();});
 $('pauseBtn').addEventListener('click',()=>setPause(!game.paused));
-function setSound(on){AU.on=on;for(const id of['muteBtn','menuMute'])$(id).textContent=on?'Звук: вкл':'Звук: выкл';try{localStorage.setItem('ugomoni-sound',on?'1':'0');}catch(e){}}
-try{if(localStorage.getItem('ugomoni-sound')==='0')setSound(false);}catch(e){}
+function setSound(on){AU.on=on;$('menuMute').textContent=on?'Звук: вкл':'Звук: выкл';iconBtn($('muteBtn'),on?ICO_SND:ICO_MUTE,on?'Звук: вкл':'Звук: выкл');try{localStorage.setItem('ugomoni-sound',on?'1':'0');}catch(e){}}
+try{if(localStorage.getItem('ugomoni-sound')==='0')AU.on=false;}catch(e){}
+setSound(AU.on);pauseIcon(false);
 $('muteBtn').addEventListener('click',()=>setSound(!AU.on));
 $('menuMute').addEventListener('click',()=>{setSound(!AU.on);if(AU.on)au();});
 $('langBtn').addEventListener('click',()=>setLang(LANG==='en'?'ru':'en'));

@@ -34,6 +34,9 @@ public class MainActivity extends Activity {
         s.setAllowFileAccess(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setTextZoom(100);
+        // WebView enlarges text below 8px by default: the counters on small ammo slots spilled out of their badges
+        s.setMinimumFontSize(1);
+        s.setMinimumLogicalFontSize(1);
         web.setWebChromeClient(new WebChromeClient());
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -105,6 +108,7 @@ public class MainActivity extends Activity {
         super.onResume();
         web.onResume();
         hideSystemBars();
+        web.evaluateJavascript("window.au&&au()", null);
         store.refresh();
     }
 
