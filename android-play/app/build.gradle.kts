@@ -19,7 +19,7 @@ android {
         applicationId = "com.alexandercbgm.ugomonikota"
         minSdk = 24
         targetSdk = 36
-        versionCode = 39
+        versionCode = 40
         versionName = "1.1"
     }
 

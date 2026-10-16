@@ -131,9 +131,10 @@ h2{font-family:var(--f-display);font-weight:900;font-size:20px;line-height:1.15;
 .lvl{margin-top:auto;display:grid;grid-template-columns:176px minmax(0,1fr);gap:12px;padding:8px;border-radius:14px;background:#f3ebdf}
 .lvlthumb{position:relative;width:176px;height:99px}
 .lvlthumb canvas{width:176px;height:99px;border-radius:9px;display:block}
-.nav2{position:absolute;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;border-radius:50%;background:rgba(20,16,36,.55);color:#fff;font:800 15px/1 var(--f-ui);cursor:pointer;padding:0 0 2px;display:grid;place-items:center}
+.nav2{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border:0;border-radius:50%;background:rgba(20,16,36,.55);color:#fff;font:800 30px/1 var(--f-ui);cursor:pointer;padding:0;display:grid;place-items:center}
 #prevLvl{left:5px}#nextLvl{right:5px}
 .nav2:hover{background:rgba(20,16,36,.75)}
+.nav2 svg{width:58%;height:58%;display:block}
 .nav2:disabled{opacity:0;pointer-events:none}
 .nav2:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
 .lvlinfo{display:flex;flex-direction:column;min-width:0;gap:1px}
@@ -259,8 +260,8 @@ kbd{font:inherit;font-weight:900;font-size:10px;min-width:16px;padding:1px 5px;b
       <div class="lvl" id="lvlBox">
         <div class="lvlthumb">
           <canvas id="lvlThumb" width="352" height="198"></canvas>
-          <button class="nav2" id="prevLvl" type="button" aria-label="Предыдущий уровень">‹</button>
-          <button class="nav2" id="nextLvl" type="button" aria-label="Следующий уровень">›</button>
+          <button class="nav2" id="prevLvl" type="button" aria-label="Предыдущий уровень"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="nav2" id="nextLvl" type="button" aria-label="Следующий уровень"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </div>
         <div class="lvlinfo">
           <span class="n" id="lvlNum">Уровень 1</span><b id="lvlName">Спальня</b><span class="s" id="lvlSub"></span>
