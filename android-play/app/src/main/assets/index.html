@@ -1194,6 +1194,8 @@ const bg=document.createElement('canvas');bg.width=W*2;bg.height=H*2;{const c=bg
 const fg=document.createElement('canvas');fg.width=W*2;fg.height=H*2;{const c=fg.getContext('2d');c.scale(2,2);drawFG(c);}
 const catBuf=document.createElement('canvas');catBuf.width=1280;catBuf.height=960;const cb=catBuf.getContext('2d');
 let scale=1,dpr=1,viewOY=0;
+// render resolution drops a step at a time when the device can't keep up (see loop)
+let QUAL=1;const PERF={ema:16,slow:0};
 function layout(){
   const st=$('stage'),r=st.getBoundingClientRect();
   // screens wider than 16:9 (phones 18:9 and up): the room fills the whole width and loses a strip at the top and bottom
@@ -1204,7 +1206,7 @@ function layout(){
   // on wide screens the bottom strip is cropped, so the slot trays shrink to stay below the floor line
   const trayK=clamp((112-viewOY-10)/84.8,.6,1);
   const fr=$('frame');fr.classList.toggle('wide',wide);st.classList.toggle('wide',wide);fr.style.width=fw+'px';fr.style.height=fh+'px';fr.style.setProperty('--u',scale);fr.style.setProperty('--tray',trayK);
-  dpr=Math.min(2,window.devicePixelRatio||1);cv.width=Math.round(fw*dpr);cv.height=Math.round(fh*dpr);
+  dpr=Math.max(.75,Math.min(2,window.devicePixelRatio||1)*QUAL);cv.width=Math.round(fw*dpr);cv.height=Math.round(fh*dpr);
   const vw=window.innerWidth,vh=window.innerHeight;document.documentElement.style.setProperty('--mu',String(Math.min((vw-24)/800,(vh-16)/450,1.35)));
   $('rotateHint').hidden=!(r.height>r.width&&r.width<760);
 }
@@ -3283,8 +3285,14 @@ function update(dt){
 }
 
 /* ---------------- render ---------------- */
+// the off-screen buffer is only needed for the hit flash, the dunk clip and the pounce zoom
 function renderCat(k,t){
   cb.setTransform(1,0,0,1,0,0);cb.clearRect(0,0,1280,960);cb.setTransform(2,0,0,2,640,760);
+  drawCatAt(cb,k,t);
+  if(k.flash>0){cb.setTransform(1,0,0,1,0,0);cb.globalCompositeOperation='source-atop';cb.fillStyle=`rgba(255,255,255,${k.flash/.15*.7})`;cb.fillRect(0,0,1280,960);cb.globalCompositeOperation='source-over';}
+}
+// draws the cat with its feet at the current origin
+function drawCatAt(cb,k,t){
   cb.save();cb.scale(k.face,1);
   const bb=k.b;
   if(k.state==='asleep')drawCatKO(cb,bb,t,k.ko,k.anim-(k.koStart||0));
@@ -3310,7 +3318,6 @@ function renderCat(k,t){
     drawCatPose(cb,bb,o,t);
   }
   cb.restore();
-  if(k.flash>0){cb.setTransform(1,0,0,1,0,0);cb.globalCompositeOperation='source-atop';cb.fillStyle=`rgba(255,255,255,${k.flash/.15*.7})`;cb.fillRect(0,0,1280,960);cb.globalCompositeOperation='source-over';}
 }
 // head-first in the bin: only the haunches, kicking hind legs and the tail stick out
 function drawBinCat(c,b,t,cx,rim,flash,fitRx){
@@ -3380,7 +3387,8 @@ function render(now){
   for(const kk of cats){cat=kk;
     const k=cat,pl=platById(k.plat),gy=k.air?Math.max(k.y,(PLATS.filter(p=>k.x>=p.x1&&k.x<=p.x2&&p.y>=k.y-2).sort((a,b)=>a.y-b.y)[0]||pl).y):k.y;
     if(k.state!=='pounce'&&k.state!=='dunk'){ell(c,k.x,gy,46*k.b.size*k.b.fat,8);c.fillStyle='rgba(10,5,20,.3)';c.fill();}
-    renderCat(k,t);
+    const viaBuf=k.state==='dunk'?!HEAD_FIRST[k.dunkType]:k.flash>0;
+    if(viaBuf)renderCat(k,t);
     if(k.state!=='pounce'){
       if(k.state==='dunk'&&HEAD_FIRST[k.dunkType]){const inn=platById(k.dunkPlat).inner,hole=DUNK_HOLE[k.dunkType];
         c.save();c.beginPath();c.rect(inn.x1-60,0,inn.x2-inn.x1+120,hole.cy);if(hole.dry)c.ellipse(hole.cx,hole.cy,hole.rx,hole.ry,0,0,Math.PI*2);c.clip();drawBinCat(c,k.b,k.anim,inn.cx,inn.clip,k.flash>0,hole.rx&&hole.rx*.92);c.restore();
@@ -3392,7 +3400,8 @@ function render(now){
         const hx=catHead(k).x;
         if(k.dunkType==='tub'||k.dunkType==='ksink')foamStrip(c,hx-(k.dunkType==='tub'?110:60),hx+(k.dunkType==='tub'?110:60),inn.clip-4,t);
         else if(k.dunkType==='toilet'){c.strokeStyle='rgba(160,215,235,.95)';c.lineWidth=2;for(let i=0;i<2;i++){const a=(t*1.5+i*.5)%1;ell(c,inn.cx,inn.clip-2,22+a*22,3+a*3);c.globalAlpha=1-a;c.stroke();}c.globalAlpha=1;}}
-      else c.drawImage(catBuf,160,60,960,900,k.x-240,k.y-350,480,450);
+      else if(viaBuf)c.drawImage(catBuf,160,60,960,900,k.x-240,k.y-350,480,450);
+      else{c.save();c.translate(k.x,k.y);drawCatAt(c,k,t);c.restore();}
       const h=catHead(k);
       if(k.state==='stunned'&&k.stunType!=='towel'){for(let i=0;i<3;i++){const a=t*4+i*2.1;star(c,h.x+Math.cos(a)*34,h.y-36+Math.sin(a)*8,8,a);}}
       if(k.state==='stunned'&&k.stunType==='towel'){c.font=`800 30px ${UIF}`;c.fillStyle='#fff';c.textAlign='center';c.fillText('?!',k.x,k.y-130*k.b.size+Math.sin(t*6)*4);}
@@ -3417,13 +3426,13 @@ function render(now){
   // pounce
   for(const pc of cats)if(pc.state==='pounce'){renderCat(pc,t);const v=pounceView(pc),z=v.z,s=pc.b.size;c.fillStyle=`rgba(10,5,20,${clamp(pc.pt/.42,0,1)*.35})`;c.fillRect(0,0,W,H);c.drawImage(catBuf,v.x-320*z,v.y+40*s*z-380*z,640*z,480*z);}
   // claws
-  // three straight, narrow slashes tapering to points at both ends
+  // three straight, narrow white-grey slashes tapering to points at both ends
   const slash=(x0,x1,y,w)=>{const m=(x0+x1)/2;c.beginPath();c.moveTo(x0,y);c.quadraticCurveTo(m,y-w,x1,y);c.quadraticCurveTo(m,y+w,x0,y);c.closePath();};
   for(const cl of claws){const al=clamp(cl.life/1.6,0,1);c.save();c.globalAlpha=al;c.translate(cl.x,cl.y);c.rotate(cl.a);
     for(let j=0;j<3;j++){const off=(j-1)*24,len=cl.len*(j===1?1:.86),sh=(j-1)*14,x0=-len/2+sh,x1=len/2+sh;
-      slash(x0-3,x1+3,off,7.5);c.fillStyle='rgba(110,0,12,.85)';c.fill();
-      slash(x0,x1,off,4.6);c.fillStyle='#e0101e';c.fill();
-      slash(x0+len*.12,x1-len*.12,off-1,1.2);c.fillStyle='rgba(255,170,170,.9)';c.fill();}
+      slash(x0-3,x1+3,off,7.5);c.fillStyle='rgba(30,34,48,.7)';c.fill();
+      slash(x0,x1,off,4.6);c.fillStyle='#eef0f5';c.fill();
+      slash(x0+len*.12,x1-len*.12,off+.5,1.2);c.fillStyle='rgba(140,148,168,.9)';c.fill();}
     c.restore();}
   c.globalAlpha=1;
   const hurt=Math.max(hurtT/.7,player&&player.hp<30&&game.running?.35+.2*Math.sin(t*5):0);
@@ -3490,22 +3499,26 @@ function updateTrays(){
   for(const b of $('ammoTray').children){const k=b.dataset.k;b.querySelector('.cnt').textContent=ammo[k];b.classList.toggle('sel',game.kind===k);b.classList.toggle('empty',ammo[k]===0);}
   for(const b of $('medTray').children){const k=b.dataset.k;b.querySelector('.cnt').textContent=meds[k];b.classList.toggle('empty',meds[k]===0);}
 }
+// the HUD is refreshed every frame: touch the DOM only when a value actually changes
+function setW(el,v){v=(Math.round(v*4)/4)+'%';if(el._w!==v){el._w=v;el.style.width=v;}}
+function setT(el,v){if(el._t!==v){el._t=v;el.textContent=v;}}
+function setC(el,v){if(el._c!==v){el._c=v;el.className=v;}}
 function updateHUD(){
   if(!player)return;
-  $('hpBar').style.width=player.hp+'%';$('hpTxt').textContent=Math.ceil(player.hp);
-  $('sleepBar').style.width=player.sleep+'%';
-  const mins=180+(1-player.sleep/100)*240,hh=Math.floor(mins/60),mm=Math.floor(mins%60);$('clock').textContent=`0${hh}:${String(mm).padStart(2,'0')}`;
-  if(cats.length>1){for(const k of cats){if(!k.mini)continue;k.mini.querySelector('b').style.width=(k.hp/k.max*100)+'%';k.mini.classList.toggle('zz',k.state==='asleep');k.mini.classList.toggle('st',k.state==='stunned');}}
+  setW($('hpBar'),player.hp);setT($('hpTxt'),String(Math.ceil(player.hp)));
+  setW($('sleepBar'),player.sleep);
+  const mins=180+(1-player.sleep/100)*240,hh=Math.floor(mins/60),mm=Math.floor(mins%60);setT($('clock'),`0${hh}:${String(mm).padStart(2,'0')}`);
+  if(cats.length>1){for(const k of cats){if(!k.mini)continue;setW(k.mini.querySelector('b'),k.hp/k.max*100);k.mini.classList.toggle('zz',k.state==='asleep');k.mini.classList.toggle('st',k.state==='stunned');}}
   else for(const[k,sf]of cats.map((k,i)=>[k,i?'2':''])){
-  $('catBar'+sf).style.width=(k.hp/k.max*100)+'%';$('catHpTxt'+sf).textContent=`${Math.round(k.hp)} / ${Math.round(k.max)}`;
-  if(!sf)$('regenTxt').textContent=k.state==='stunned'||k.state==='asleep'||k.state==='dunk'?'восстановление на паузе':`+${k.b.regen}/с`;
+  setW($('catBar'+sf),k.hp/k.max*100);setT($('catHpTxt'+sf),`${Math.round(k.hp)} / ${Math.round(k.max)}`);
+  if(!sf)setT($('regenTxt'),k.state==='stunned'||k.state==='asleep'||k.state==='dunk'?'восстановление на паузе':`+${k.b.regen}/с`);
   const chip=$('catState'+sf);let lbl=STATE_LABEL[k.state]||'',cls='';
   if(k.state==='stunned'){lbl=`${STUN_LABEL[k.stunType]||'Оглушён'} · ${k.stunT.toFixed(1)} с`;cls='good';}
   else if(k.state==='dunk'){lbl=`${{tub:'В ванне',toilet:'В унитазе',sink:'Застрял в раковине',ksink:'В мойке',bin:'В мусорке'}[k.dunkType]} · ${k.dunkT.toFixed(1)} с`;cls='good';}
   else if(k.state==='asleep')cls='good';else if(k.state==='yell'||k.state==='fish')cls='warn';else if(k.state==='fridge'||k.state==='freezer'||k.state==='sucked')cls='good';else if(k.state==='windup'||k.state==='pounce')cls='danger';
   if(k.state==='claw')cls='danger';if(k.state==='chase'||k.state==='ride')cls='good';
-  chip.textContent=lbl;chip.className='chip '+cls;}
-  $('scoreTxt').textContent=fmt(game.score);$('comboTxt').textContent='×'+game.combo;$('dmgTxt').textContent=fmt(game.damage)+' ₽';
+  setT(chip,lbl);setC(chip,'chip '+cls);}
+  setT($('scoreTxt'),fmt(game.score));setT($('comboTxt'),'×'+game.combo);setT($('dmgTxt'),fmt(game.damage)+' ₽');
 }
 
 /* ---------------- end & menus ---------------- */
@@ -3676,7 +3689,10 @@ document.addEventListener('visibilitychange',()=>appSleep(document.hidden));
 /* ---------------- boot ---------------- */
 let last=performance.now();
 function loop(now){
-  const dt=Math.min(.033,(now-last)/1000);last=now;
+  const ms=now-last,dt=Math.min(.033,ms/1000);last=now;
+  // sustained slow frames during play: render at a lower resolution (down to 55% of the screen's)
+  if(game.running&&!game.paused&&ms<200){PERF.ema+=(ms-PERF.ema)*.05;PERF.slow=PERF.ema>26?PERF.slow+ms:0;
+    if(PERF.slow>2000&&QUAL>.56){QUAL=Math.max(.55,QUAL*.8);PERF.slow=0;PERF.ema=16;layout();}}
   if(game.running&&!game.paused)update(dt);
   if(cats.length)render(now);else{ctx.setTransform(dpr*scale,0,0,dpr*scale,0,-viewOY*dpr*scale);ctx.drawImage(bg,0,0,W,H);ctx.drawImage(fg,0,0,W,H);}
   if(game.running)updateHUD();
