@@ -77,7 +77,7 @@
 ### 6. Политика конфиденциальности
 1. В `docs/privacy.html` заменить `CONTACT_EMAIL` на рабочий адрес.
 2. Включить GitHub Pages: репозиторий → **Settings → Pages → Deploy from a branch → `main` / `/docs`**.
-3. Ссылка будет `https://alexandercbgm.github.io/cats_are_assholes/privacy.html`; её указать в Play Console.
+3. Ссылка будет `https://alexandercbgm.github.io/hush-the-cat/privacy.html`; её указать в Play Console.
 
 ### 7. Анкеты в Play Console (раздел «Контент приложения»)
 * **Безопасность данных**:
