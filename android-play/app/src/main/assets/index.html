@@ -129,7 +129,7 @@ h2{font-family:var(--f-display);font-weight:900;font-size:20px;line-height:1.15;
 .lvl{margin-top:auto;display:grid;grid-template-columns:176px minmax(0,1fr);gap:12px;padding:8px;border-radius:14px;background:#f3ebdf}
 .lvlthumb{position:relative;width:176px;height:99px}
 .lvlthumb canvas{width:176px;height:99px;border-radius:9px;display:block}
-.nav2{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border:0;border-radius:50%;background:rgba(20,16,36,.55);color:#fff;font:800 30px/1 var(--f-ui);cursor:pointer;padding:0;display:grid;place-items:center}
+.nav2{position:absolute;top:50%;transform:translateY(-50%);width:43px;height:43px;border:0;border-radius:50%;background:rgba(20,16,36,.55);color:#fff;font:800 30px/1 var(--f-ui);cursor:pointer;padding:0;display:grid;place-items:center}
 #prevLvl{left:5px}#nextLvl{right:5px}
 .nav2:hover{background:rgba(20,16,36,.75)}
 .nav2 svg{width:58%;height:58%;display:block}
@@ -463,7 +463,7 @@ const EN={
  'Лего на полу — ловушка для кота. Сбивайте заводную мышь с полки: коты бросятся её ловить.':'Bricks on the floor are a cat trap. Knock the wind-up mouse off the shelf: the cats will chase it.',
  'Гараж':'Garage','Машина с сигнализацией и два кота':'A car with an alarm and two cats','закатилось под машину':'rolled under the car','Вмятины выправите утром.':"You'll fix the dents in the morning.",
  'Котов двое. Не задевайте машину: от сигнализации уходит сон. Брелок висит на стене.':"Two cats. Don't hit the car: the alarm drains your sleep. The key fob hangs on the wall.",
- 'Двор':'Yard','Все семь котов, птицы и газонокосилка':'All seven cats, birds and a lawn mower','улетело в кусты':'flew into the bushes','Все коты спят. Птицы поют. Можно и вам.':'All the cats are asleep. Birds are singing. You can sleep too.',
+ 'Двор':'Yard','Все семь котов, птицы и газоно­косилка':'All seven cats, birds and a lawn mower','улетело в кусты':'flew into the bushes','Все коты спят. Птицы поют. Можно и вам.':'All the cats are asleep. Birds are singing. You can sleep too.',
  'Финал! Во дворе все семь котов. Птицы сбрасывают снаряды и бинты — не стреляйте в них и отгоняйте котов.':"The finale! All seven cats are in the yard. Birds drop ammo and bandages — don't shoot them, and keep the cats away.",
  'диван':'sofa','ковёр':'rug','обиделись':'got offended','испугались':'got scared',
 };
@@ -1166,48 +1166,25 @@ function jointLimb(c,A,B,C,w1,w2,col,pc,body,pawAng){
   c.save();c.translate(C[0],C[1]);c.rotate(pawAng);ell(c,4,0,10,7);fs(c,pc,3);
   c.beginPath();c.moveTo(13.5,-2.5);c.lineTo(9,-2);c.moveTo(13.5,2.5);c.lineTo(9,2);c.lineWidth=1.5;c.strokeStyle=OUT;c.stroke();c.restore();
 }
-function hangTongue(c,x,y,len,sw){
-  c.beginPath();c.moveTo(x-4,y);c.lineTo(x+4,y);c.quadraticCurveTo(x+4.5+sw,y+len*.8,x+sw,y+len);c.quadraticCurveTo(x-4.5+sw,y+len*.8,x-4,y);c.closePath();fs(c,'#ff7a95',2.2);
-  c.beginPath();c.moveTo(x,y+2);c.lineTo(x+sw*.7,y+len*.7);c.lineWidth=1.4;c.strokeStyle='#c94a66';c.stroke();
-}
-// head lolled to the side; the tongue hangs toward the floor whatever the head angle
-function koHead(c,b,t,hx,hy,rot){
-  c.save();c.translate(hx,hy);c.rotate(rot);drawHead(c,b,{eyes:'x',mouth:0},t);c.restore();
-  const mx=hx+8*Math.cos(rot)-12*Math.sin(rot),my=hy+8*Math.sin(rot)+12*Math.cos(rot);
-  hangTongue(c,mx,my,clamp(-my-1,9,16),Math.sin(t*2.4)*1.6);
-}
 // sharp short pulse every few seconds: reads as a nervous twitch, not constant jitter
 const twitch=(t,period,phase)=>{const u=((t+phase)%period)/period;return u<.06?Math.sin(u/.06*Math.PI):0;};
-// knocked out: 'back' = belly up with bent paws in the air; 'side' = sprawled on its side, legs stretched out
+// fallen asleep: curled into a ball, tail wrapped round the front, head on the paws, eyes shut, slow breathing
 function drawCatKO(c,b,t,variant,age){
-  const fat=b.fat,brx=50*fat,bry=26*fat,L=legCols(b),tw=tailW(b),breath=Math.sin(t*2.4);
+  const fat=b.fat,L=legCols(b),tw=tailW(b),breath=Math.sin(t*1.8);
+  const rx=50*fat*.9,ry=26*fat*1.22*(1+breath*.035),bcy=-ry,body={cx:0,cy:bcy,rx,ry};
   c.save();c.scale(b.size,b.size);c.lineJoin='round';c.lineCap='round';
-  if(age<.4){const u=1-age/.4,bounce=Math.sin(age/.4*Math.PI);c.translate(0,-bounce*14);c.scale(1+.12*u,1-.14*u);}
-  if(variant==='back'){
-    const ry=bry*.88*(1+breath*.04),bcy=-ry-2,top=bcy-ry,body={cx:0,cy:bcy,rx:brx,ry};
-    const k1=twitch(t,2.7,0),k2=twitch(t,3.4,1.3);
-    strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-brx+8,bcy+6);c.bezierCurveTo(-brx-26,-4,-brx-50,-4,-brx-62,-8);c.quadraticCurveTo(-brx-74,-10-k2*10,-brx-70,-22-k2*10);});
-    jointLimb(c,[-brx*.62,top+10],[-brx*.62-22,top-12],[-brx*.62-26,top-38],17,11,L.far,L.farPaw,null,-1.9);
-    jointLimb(c,[brx*.3,top+8],[brx*.3-2,top-24],[brx*.3+14,top-34],13,10,L.far,L.farPaw,null,.9);
-    ell(c,0,bcy,brx,ry);fs(c,b.fur,0);
-    c.save();ell(c,0,bcy,brx,ry);c.clip();furPattern(c,b,0,bcy+ry*.45,brx,bry);ell(c,2,top+ry*.6,brx*.82,ry*.62);c.fillStyle=b.belly;c.fill();c.restore();
-    ell(c,0,bcy,brx,ry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
-    jointLimb(c,[-brx*.36,top+6],[-brx*.36-20,top-20-k1*6],[-brx*.36-8,top-46-k1*10],19,12,L.near,L.paw,body,-1.2+k1*.5);
-    jointLimb(c,[brx*.52,top+6],[brx*.52+8,top-30],[brx*.52+24,top-32+k2*4],14,10.5,L.near,L.paw,body,1.15);
-    koHead(c,b,t,brx+12,-25,Math.PI/2+.15+Math.sin(t*1.1)*.04);
-  }else{
-    const ry=bry*.8*(1+breath*.05),rx=brx*1.04,bcy=-ry-1,body={cx:0,cy:bcy,rx,ry};
-    const k1=twitch(t,2.9,.4),k2=twitch(t,3.7,2);
-    jointLimb(c,[rx*.42,bcy+ry*.2],[rx*.42+20,bcy+ry*.2-6],[rx+28,bcy-2],12,9.5,L.far,L.farPaw,null,-.25);
-    jointLimb(c,[-rx*.5,bcy+ry*.2],[-rx*.5-22,bcy-2],[-rx-34,bcy-8],16,10,L.far,L.farPaw,null,Math.PI+.3);
-    strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-rx+6,bcy-ry*.3);c.bezierCurveTo(-rx-20,bcy-ry*.6,-rx-40,-4,-rx-64,-4);c.quadraticCurveTo(-rx-80,-4-k2*12,-rx-78,-16-k2*12);});
-    ell(c,0,bcy,rx,ry);fs(c,b.fur,0);
-    c.save();ell(c,0,bcy,rx,ry);c.clip();furPattern(c,b,0,bcy-2,rx,bry*.9);ell(c,4,bcy+ry*.75,rx*.8,ry*.42);c.fillStyle=b.belly;c.fill();c.restore();
-    ell(c,0,bcy,rx,ry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
-    jointLimb(c,[-rx*.38,bcy+ry*.45],[-rx*.38-26,bcy+ry*.75],[-rx-28,-6],19,12,L.near,L.paw,body,Math.PI+.1);
-    jointLimb(c,[rx*.5,bcy+ry*.45],[rx*.5+22,bcy+ry*.8],[rx+42,-6-k1*6],14,10.5,L.near,L.paw,body,-.15-k1*.4);
-    koHead(c,b,t,rx+4,-25,.28+Math.sin(t*1.1)*.03);
-  }
+  if(age<.4){const u=1-age/.4,bounce=Math.sin(age/.4*Math.PI);c.translate(0,-bounce*10);c.scale(1+.1*u,1-.12*u);}
+  ell(c,0,bcy,rx,ry);fs(c,b.fur,0);
+  c.save();ell(c,0,bcy,rx,ry);c.clip();furPattern(c,b,0,bcy,rx,ry*.9);c.restore();
+  // the back leg folded against the flank
+  c.save();ell(c,0,bcy,rx,ry);c.clip();ell(c,-rx*.28,-ry*.62,rx*.5,ry*.52);c.lineWidth=2.4;c.strokeStyle='rgba(0,0,0,.28)';c.stroke();c.restore();
+  ell(c,0,bcy,rx,ry);c.lineWidth=3.5;c.strokeStyle=OUT;c.stroke();
+  // front paws tucked under the chin
+  for(const px of[rx*.5,rx*.86]){ell(c,px,-6,12,7);fs(c,L.paw,2.6);}
+  // tail wraps along the floor round the front, the tip flicks now and then
+  const k=twitch(t,4.1,.7);
+  strokeTail(c,b,tw,()=>{c.beginPath();c.moveTo(-rx*.8,-10);c.bezierCurveTo(-rx*.6,4,rx*.4,6,rx*1.05,0);c.quadraticCurveTo(rx*1.32,-3-k*6,rx*1.3,-14-k*8);});
+  c.save();c.translate(rx*.66,-30);c.rotate(.22+Math.sin(t*1.8)*.02);drawHead(c,b,{eyes:'closed',mouth:0},t);c.restore();
   c.restore();
 }
 
@@ -2918,7 +2895,7 @@ function picksL8(){
     mkPick('cushion',496,505,'#3f7fd8'),mkPick('cushion',824,505,'#3f7fd8'),fruit('apple',680,456),fruit('apple',698,456),
     mkPick('ball',300,FLOOR),mkPick('slipper',330,FLOOR),mkPick('slipper',760,FLOOR),mkPick('towel',1036,FLOOR)];
 }
-LEVELS.push({n:8,name:'Двор',sub:'Все семь котов, птицы и газонокосилка',plats:PLATS_L8,glass:GLASS_L8,exit:EXIT_L8,
+LEVELS.push({n:8,name:'Двор',sub:'Все семь котов, птицы и газоно­косилка',plats:PLATS_L8,glass:GLASS_L8,exit:EXIT_L8,
   front:[],back:['ebox','chairL','chairR','bean','tree'],
   ammo:['apple','ball','slipper','towel','cushion','pillow','nut'],ammo0:{apple:5,ball:2,slipper:2,towel:1,nut:3},meds0:{plaster:2,bandage:1,kit:1},
   room:drawYard,fg:drawYardFG,objs:makeObjsL8,furn:makeFurnL8,dyn:drawYardDyn,picks:picksL8,tick:yardTick,hitX:yardHit,catTick:yardCatTick,think:yardThink,
